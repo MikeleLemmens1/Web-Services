@@ -1,9 +1,5 @@
 # Mikele Lemmens (202291269)
 
-> Duid aan welke vakken je volgt en vermeld voor deze vakken de link naar jouw GitHub repository. In het geval je slechts één vak volgt, verwijder alle inhoud omtrent het andere vak uit dit document.
-> Lees <https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet> om te weten hoe een Markdown-bestand opgemaakt moet worden.
-> Verwijder alle instructies (lijnen die starten met >).
-
 - [ ] Web Services: GITHUB URL
   - <https://github.com/Web-IV/2324-webservices-MikeleLemmens1.git>
   - <LINK_ONLINE_VERSIE_HIER>
