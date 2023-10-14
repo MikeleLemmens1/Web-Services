@@ -23,11 +23,9 @@
 - Een **verjaardagskalender** is een verzameling van **verjaardagen**. Een verjaardag heeft een *dag(index)*,*maand*, *geboortejaar*, en de *voornaam* en *familienaam* van de jarige.
 - Een voorbeeld van een onderhoud is bv. het wassen van de ramen. Dat hoeft niet op een specifieke dag te gebeuren, maar je wil het je wel herinneren voor wanneer je tijd hebt voorzien om de taak uit te voeren. Een onderhoud heeft een *naam*, kan een *duur* meekrijgen (voor wanneer je bv. snel wil zien welke taken je kan doen wanneer je maar een half uur hebt), en heeft ook een *type* (schoonmaak, herstelling of varia). Een verzameling van onderhouden is de to-dolijst en deze worden niet toegewezen aan een gezinslid maar aan het **gezin**.
 
-Verder volgt een ERD op basis van deze omschrijving. Omdat er veel onderdelen zijn die gelinkt worden aan een specifieke dag heb ik besloten er een aparte entiteit van te maken. Een **dag** heeft een *dagnaam*, *dagnummer*, *maandnummer*, *jaarnummer*. De **gezinsleden** hebben elke een *voornaam*, en kunnen uitvoerder/eigenaar zijn van dagtaken, agendapunten en hebben een verjaardag.
+Verder volgt een ERD op basis van deze omschrijving. Omdat er veel onderdelen zijn die gelinkt worden aan een specifieke dag heb ik besloten er een aparte entiteit van te maken. Een **dag** heeft een *dagnaam*, *dagnummer*, *maandnummer*, *jaarnummer*. De **gezinsleden** hebben elke een *voornaam*, en kunnen uitvoerder/eigenaar zijn van dagtaken, agendapunten en hebben een verjaardag. Ik heb alle entiteiten die moeten worden opgeslagen voor lange tijd een id gegeven. Een onderhoud of boodschap heeft enkel betekenis totdat deze is uitgevoerd, dus ga ik geen extra id toevoegen. Deze worden geïdentificeerd op basis van de naam die wordt meegegeven. Ook bij verjaardagen is dat zo, al wordt een verjaardag geïdentificeerd op basis van de voor- en achternaam van de jarige.
 
-![ERD Gezinsplanner](image.png)
-
-#### Er zijn veel entiteiten met samengestelde sleutels. Is het beter om een ID te verzinnen?
+![ERD Gezinsplanner](image-1.png)
 
 #### Dien ik de gezinsleden als entiteiten te voorzien in mijn ERD, of beschouw ik dat beter als users die uit dit systeem blijven? (Maar dan bv. een gebruiker van de databank)
 
