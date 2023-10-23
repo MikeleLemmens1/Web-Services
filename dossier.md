@@ -15,7 +15,10 @@
 
  Een gezin moet met bijzonder veel zaken rekening houden. Iedere dag lijkt er een waslijst aan taken en herinneringen te zijn die snel overweldigend kunnen worden. Het bijhouden van zulke zaken in een gebruiksvriendelijk overzicht kan al een deel van het werk overnemen. Ik maak de API die kan worden gebruikt om dit mogelijk te maken.  
 
-Een **Gezin** heeft een familienaam, adres (bestaande uit straat, huisnummer, postcode en stad). Het bestaat uit  
+Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zullen de uiteindelijke gebruikers worden), en heeft een lijst met **geplande taken**, een **boodschappenlijst** en een **verjaardagskalender**. Hier nog extra info per entiteit:  
+
+- Een gezin heeft een familienaam, adres (bestaande uit straat, huisnummer, postcode en stad), een of meerdere gezinsleden en een id.
+- Ieder gezinslid heeft een id, voornaam, email, eventueel een wachtwoord en een verjaardag (uitgedrukt met zijn verjaardagsid). 
 
 ![ERD Gezinsplanner](./src/image-2.png)
 
@@ -26,6 +29,9 @@ Extra relatie tussen Gezin en Verjaardag (voor de verjaardagskalender)
 Boodschappenlijst wordt optioneel
 Onderhoud wordt een deel van GeplandeTaak
 Iedere entiteit krijgt een numerieke Id
+
+TODO:
+Verjaardag: gezinsId OPT toevoegen in ERD
 
 ## API calls
 
