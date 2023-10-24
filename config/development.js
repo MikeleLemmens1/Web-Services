@@ -4,6 +4,6 @@ module.exports = {
     disabled:false
   },
   host:{
-    port:9001
+    port:9000
   }
 }

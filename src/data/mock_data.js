@@ -23,7 +23,7 @@ let GEZINSLEDEN = [
     gezinsId: 1,
     verjaardagsId: 3,
   }
-]
+];
 let GEZIN = [
   {
     gezinsId: 1,
@@ -33,7 +33,7 @@ let GEZIN = [
     postcode: 9920,
     stad: "Lovendegem"
   }
-]
+];
 let BOODSCHAPPEN = [
   {
     id: 1,
@@ -63,7 +63,7 @@ let BOODSCHAPPEN = [
     hoeveelheid: "",
     gezinsId: 1
   }
-]
+];
 let GEPLANDE_TAKEN = [
   {
     id: 1,
@@ -224,7 +224,7 @@ let VERJAARDAGEN = [
     achternaam: "Lemmens",
 
   }
-]
+];
 
 let PLACES = [
   {
@@ -286,4 +286,4 @@ let TRANSACTIONS = [
   },
 ];
 
-module.exports = { TRANSACTIONS, PLACES };
+module.exports = { TRANSACTIONS, PLACES, GEPLANDE_TAKEN, GEZIN, GEZINSLEDEN, BOODSCHAPPEN, VERJAARDAGEN };
