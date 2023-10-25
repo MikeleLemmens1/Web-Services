@@ -17,32 +17,44 @@
 
 Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zullen de uiteindelijke gebruikers worden), en heeft een lijst met **geplande taken**, een **boodschappenlijst** en een **verjaardagskalender**. Hier nog extra info per entiteit:  
 
-- Een gezin heeft een familienaam, adres (bestaande uit straat, huisnummer, postcode en stad), een of meerdere gezinsleden en een id.
-- Ieder gezinslid heeft een id, voornaam, email, eventueel een wachtwoord en een verjaardag (uitgedrukt met zijn verjaardagsid). 
+- Een gezin heeft een *familienaam*, adres (bestaande uit *straat*, *huisnummer*, *postcode* en *stad*), een of meerdere gezinsleden en een *id*.
+- Ieder gezinslid heeft een *id*, *voornaam*, *email*, eventueel een *wachtwoord* (niet alle gezinsleden moeten gebruiker zijn) en een *verjaardagsId*.
+- Een geplande taak is een taak die toebehoort aan een gezinslid en dient te worden uitgevoerd op een bepaalde dag. De gezinsplanner kan een overzicht geven van alle taken die op een bepaalde dag of week zijn ingepland. Er is een *taakId*, *naam*, *dag* en *gezinslidId* (de uitvoerder).
+- Een boodschap wordt gekenmerkt door zijn *id*, en heeft verder een *naam* (of beschrijving), *winkel* en *hoeveelheid*. De winkel en hoeveelheid zijn optioneel.
+- De verjaardagen worden verzameld in een verjaardagskalender en bevatten een *id*, *dagnummer*, *maandnummer*, *voornaam* en *familienaam*. Ook de verjaardagen van de gezinsleden worden hierin opgenomen, maar de meerderheid van de verjaardagen zullen van mensen zijn die niet tot het gezin behoren.
 
 ![ERD Gezinsplanner](./src/image-2.png)
 
-Update:
-
-Dag wordt verwijderd (hangt enkel vast aan taken)
-Extra relatie tussen Gezin en Verjaardag (voor de verjaardagskalender)
-Boodschappenlijst wordt optioneel
-Onderhoud wordt een deel van GeplandeTaak
-Iedere entiteit krijgt een numerieke Id
-
-TODO:
-Verjaardag: gezinsId OPT toevoegen in ERD
-
 ## API calls
 
-> Maak hier een oplijsting van alle API cals in jouw applicatie. Groepeer dit per entiteit. Hieronder een voorbeeld.
->
 > Indien je als extra Swagger koos, dan voeg je hier een link toe naar jouw online documentatie. Swagger geeft nl. exact (en nog veel meer) wat je hieronder moet schrijven.
 
-### Gebruikers
+### Gezinsleden
 
-- `GET /api/users`: alle gebruikers ophalen
-- `GET /api/users/:id`: gebruiker met een bepaald id ophalen
+- `GET /api/gezinsleden`: alle gezinsleden ophalen
+- `GET /api/gezinsleden/:voornaam`: gezinslid ophalen op voornaam
+
+### Gezin
+
+- `GET /api/gezin`: alle info van het gezin ophalen
+
+### Boodschap ###
+
+- `GET /api/boodschappen`: alle boodschappen ophalen
+- `GET /api/boodschappen/:winkel`: alle boodschappen voor een bepaalde winkel ophalen
+
+### GeplandeTaak ###
+
+- `GET /api/geplande_taken`: alle geplande taken ophalen, m.u.v. diegene die in het verleden liggen.
+- `GET /api/geplande_taken/:dag`: alle geplande taken van een bepaalde dag ophalen
+- `GET /api/geplande_taken/:week`: alle geplande taken van een bepaalde week ophalen
+- `GET /api/geplande_taken/:gezinslidId`: alle geplande taken van een bepaald gezinslid ophalen
+
+### Verjaardag ###
+
+- `GET /api/verjaardagen`: alle geregistreerde verjaardagen ophalen
+- `GET /api/verjaardagen/:maand`: alle verjaardagen voor een bepaalde maand ophalen
+- `GET /api/verjaardagen/:voornaam`: de verjaardag van een persoon ophalen
 
 ## Behaalde minimumvereisten
 
