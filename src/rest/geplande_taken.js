@@ -2,7 +2,15 @@ const Router = require('@koa/router');
 const geplandeTakenService = require('../service/geplande_taken');
 
 const getAllGeplandeTaken = async (ctx) => {
-  ctx.body = geplandeTakenService.getAll();
+  console.log(ctx.request.query);
+  if (ctx.request.query){
+    ctx.body = geplandeTakenService.getAll();
+  };
+  if (ctx.request.query.dag){
+    ctx.body = geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));
+  }
+  //Verder aanvullen om per week te zoeken
+
 };
 
 const createGeplandeTaak = async (ctx) => {
@@ -16,8 +24,9 @@ const createGeplandeTaak = async (ctx) => {
 };
 
 const getTaskByGezinslidId = async (ctx) => {
-  ctx.body = geplandeTakenService.getBygezinslidId(Number(ctx.params.gezinslidId)); // 👈 2
+  ctx.body = geplandeTakenService.getBygezinslidId(Number(ctx.params.id)); // 👈 2
 };
+
 
 const updateTask = async (ctx) => {
   ctx.body = geplandeTakenService.updateByGezinslidId(Number(ctx.params.gezinslidId), {
