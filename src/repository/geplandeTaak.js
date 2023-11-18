@@ -21,17 +21,17 @@ const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
 
 const updateGeplandeTaakById = async (id, {naam, dag, gezinslidId}) => {
 
-  const [id] = await getKnex()(tables.geplandeTaak).where('id', id).update({
+  const [mySQLid] = await getKnex()(tables.geplandeTaak).where('id', id).update({
     naam,
     gezinslidId,
     dag
   });
-  return id;
+  return mySQLid;
 }
 const deleteGeplandeTaakById = async (id) => {
 
-  const [id] = await getKnex()(tables.geplandeTaak).where('id', id).del();
-  return id;
+  const [mySQLid] = await getKnex()(tables.geplandeTaak).where('id', id).del();
+  return mySQLid;
 }
 
 module.exports = {
