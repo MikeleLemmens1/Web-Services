@@ -4,7 +4,8 @@ const geplandeTakenService = require('../service/geplande_taken');
 const getAllGeplandeTaken = async (ctx) => {
   console.log(ctx.request.query);
   if (ctx.request.query){
-    ctx.body = geplandeTakenService.getAll();
+    //! await plaatsen bij gebruik van Knex 
+    ctx.body = await geplandeTakenService.getAll();
   };
   if (ctx.request.query.dag){
     ctx.body = geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));

@@ -1,12 +1,21 @@
 const { Logger } = require('winston');
 let { GEPLANDE_TAKEN, GEZINSLEDEN } = require('../data/mock_data');
 const { getLogger } = require('../core/logging');
-const c = require('config');
-const geplande_taken = require('../rest/geplande_taken');
+const geplandeTakenRepo = require('../repository/geplandeTaak');
 
-const getAll = () => {
-  return {items: GEPLANDE_TAKEN};
+const getAll = async () => {
+  const items = await geplandeTakenRepo.findAllGeplandeTakenl(); // 👈 2
+  return {
+    items,
+    count: items.length,
+  };
 };
+
+// const getAll = () => {
+//   return {items: GEPLANDE_TAKEN};
+// };
+// Routing voor toevoegen van Knex
+
 const getAllByDay = (dag) => { 
   //TODO: dag en week moet worden gespecifieerd
   return GEPLANDE_TAKEN.filter((taak) => new Date(taak.dag).getDay()=== dag)
