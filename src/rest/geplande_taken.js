@@ -9,7 +9,9 @@ const getAllGeplandeTaken = async (ctx) => {
   if (ctx.request.query.dag){
     ctx.body = geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));
   }
-  //Verder aanvullen om per week te zoeken
+  if (ctx.request.query.week){
+    ctx.body = geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
+  }
 
 };
 
@@ -29,7 +31,7 @@ const getTaskByGezinslidId = async (ctx) => {
 
 
 const updateTask = async (ctx) => {
-  ctx.body = geplandeTakenService.updateByGezinslidId(Number(ctx.params.gezinslidId), {
+  ctx.body = geplandeTakenService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
     gezinslidId: Number(ctx.request.body.gezinslidId),
     dag: new Date(ctx.request.body.dag),
@@ -37,9 +39,8 @@ const updateTask = async (ctx) => {
 };
 
 const deleteTask = async (ctx) => {
-  geplandeTakenService.deleteById(Number(ctx.params.id));
+  ctx.body = geplandeTakenService.deleteById(Number(ctx.params.id));
   ctx.status = 204;
-  //To implement
 };
 
 /**
