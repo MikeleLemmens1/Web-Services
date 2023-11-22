@@ -4,7 +4,7 @@ const { getLogger } = require('../core/logging');
 const geplandeTakenRepo = require('../repository/geplandeTaak');
 
 const getAll = async () => {
-  const items = await geplandeTakenRepo.findAllGeplandeTakenl(); // 👈 2
+  const items = await geplandeTakenRepo.findAllGeplandeTaken(); // 👈 2
   return {
     items,
     count: items.length,
