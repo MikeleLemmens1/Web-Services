@@ -28,7 +28,7 @@ const createGeplandeTaak = async (ctx) => {
 };
 
 const getTaskByGezinslidId = async (ctx) => {
-  ctx.body = await geplandeTakenService.getBygezinslidId(Number(ctx.params.id));
+  ctx.body = await geplandeTakenService.getByGezinslidId(Number(ctx.params.id));
 };
 
 

@@ -14,11 +14,6 @@ const getAll = async () => {
   };
 };
 
-// const getAll = () => {
-//   return {items: GEPLANDE_TAKEN};
-// };
-// Routing voor toevoegen van Knex
-
 const getAllByDay = async (dag) => { 
   const geplandeTaken = await geplandeTakenRepo.findGeplandeTaakByDay(dag);
   if (!geplandeTaken) {
@@ -31,13 +26,12 @@ const getAllByDay = async (dag) => {
 const getAllByWeek = (week) => {
   //TODO
 }
-const getBygezinslidId = async (id) => {
-  const geplandeTaak = await geplandeTakenRepo.getBygezinslidId(id);
+const getByGezinslidId = async (id) => {
+  const geplandeTaak = await geplandeTakenRepo.getByGezinslidId(id);
   if (!geplandeTaak) {
     //TODO Service en DB Error
     //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
   }
-
   return geplandeTaak; 
 };
 
@@ -56,14 +50,16 @@ const create = async ({ naam, dag, gezinslidId }) => {
       dag,
       gezinslidId,
     });
-    return getBygezinslidId(id);
+    return getByGezinslidId(id);
   } catch (error) {
+    
+    getLogger().error("Fout bij het maken van de geplande taak")
     throw handleDBError(error);
   }
 };
-const updateById = async (id, { naam, dag, gezinslidId}) => {
-  if (gezinslidId) {
-    const bestaandGezinslid = await gezinsledenService.getById(gezinslidId);
+const updateById = async (id, { naam, dag}) => {
+  if (id) {
+    const bestaandGezinslid = await gezinsledenService.getByGezinslidId(id);
 
     if (!bestaandGezinslid) {
       throw ServiceError.notFound(`Er is geen gezinslid met id ${id}.`, { id });
@@ -74,8 +70,9 @@ const updateById = async (id, { naam, dag, gezinslidId}) => {
       naam,
       dag,
     });
-    return getBygezinslidId(id);
+    return getByGezinslidId(id);
   } catch (error) {
+    getLogger().error("Fout bij het wijzigen van de geplande taak")
     throw handleDBError(error);
   }
 };
@@ -87,6 +84,7 @@ const deleteById = async (id) => {
       throw ServiceError.notFound(`Geen geplande taak met id ${id} gevonden`, { id });
     }
   } catch (error) {
+    getLogger().error("Fout bij het verwijderen van de geplande taak")
     throw handleDBError(error);
   }
 };
@@ -95,7 +93,7 @@ module.exports = {
   getAll,
   getAllByDay,
   getAllByWeek,
-  getBygezinslidId,
+  getByGezinslidId,
   create,
   updateById,
   deleteById,

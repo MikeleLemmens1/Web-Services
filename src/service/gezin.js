@@ -1,51 +1,59 @@
 const { Logger } = require('winston');
-let { GEZIN } = require('../data/mock_data');
 const { getLogger } = require('../core/logging');
 const gezinRepository = require('../repository/gezin'); // 👈 1
 
+// const ServiceError = require('../core/serviceError');
+// const handleDBError = require('./_handleDBError');
 
-const getBygezinsId = async (id) => {
+const getByGezinsId = async (id) => {
   return gezinRepository.getById(id);
-  // return GEZIN.filter((gezin) => gezin.id===id)
 };
 
-// const getAll = () => {
-//   return {items: GEPLANDE_TAKEN};
-// };
-// Routing voor toevoegen van Knex
-
-//TODO Logger verdwenen
-
-const create = ({ familienaam, straat, huisnummer, postcode, stad}) => {
-  
-  const maxId = Math.max(...GEZIN.map((gezin) => gezin.id))
-  const newGezin = {
-    id: maxId+1,
-    familienaam,
-    straat,
-    huisnummer,
-    postcode,
-    stad
+const create = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
+  try {
+    const id = await gezinRepository.createGezin({
+      familienaam,
+      straat,
+      huisnummer,
+      postcode,
+      stad
+    });
+    return getBygezinsId(id);
+  } catch (error) {
+    
+    getLogger().error("Fout bij het creëren van het gezin")
+    throw handleDBError(error);
   }
-  GEZIN.push(newGezin);
-  return newGezin;
 };
-const updateById = (id, { familienaam, straat, huisnummer, postcode, stad}) => {
-  let gezinToUpdate = GEZIN.find((gezin) => gezin.id === id);
-  gezinToUpdate.familienaam = familienaam;
-  gezinToUpdate.straat = straat;
-  gezinToUpdate.huisnummer = huisnummer;
-  gezinToUpdate.postcode = postcode;
-  gezinToUpdate.stad = stad;
-  return GEZIN.find(gezin => gezin.id === id);
+const updateById = async (id, { familienaam, straat, huisnummer, postcode, stad}) => {
+  try {
+    await gezinRepository.updateGezinById(id, {
+      familienaam,
+      straat,
+      huisnummer,
+      postcode,
+      stad,
+    });
+    return getByGezinsId(id);
+  } catch (error) {
+    getLogger().error("Fout bij het wijzigen van het gezin")
+    throw handleDBError(error);
+  }
 };
-const deleteById = (id) => {
-  let index = GEZIN.findIndex((gezin)=>gezin.id===id)
-  return GEZIN.splice(index,1)
+const deleteById = async (id) => {try {
+  const deleted = await gezinRepository.deleteGezinById(id);
+
+  if (!deleted) {
+    throw ServiceError.notFound(`Geen gezin met id ${id} gevonden`, { id });
+  }
+} catch (error) {  
+  getLogger().error("Fout bij het verwijderen van het gezin")
+  throw handleDBError(error);
+}
 };
 
 module.exports = {
-  getBygezinsId,
+  getByGezinsId,
   create,
   updateById,
   deleteById,

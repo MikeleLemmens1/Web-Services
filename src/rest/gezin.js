@@ -9,16 +9,17 @@ const createGezin = async (ctx) => {
     huisnummer: Number(ctx.request.body.huisnummer),
     postcode: Number(ctx.request.body.postcode),
   });
+  ctx.status = 201;
   ctx.body = newGezin; 
 };
 
-const getGezin = async (ctx) => {
-  ctx.body = gezinService.getBygezinsId(Number(ctx.params.id)); // 👈 2
+const getGezinById = async (ctx) => {
+  ctx.body = await gezinService.getByGezinsId(Number(ctx.params.id)); // 👈 2
 };
 
 
 const updateGezin = async (ctx) => {
-  ctx.body = gezinService.updateById(Number(ctx.params.id), {
+  ctx.body = await gezinService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
     gezinsId: Number(ctx.request.body.gezinsId),
     huisnummer: new Number(ctx.request.body.huisnummer),
@@ -27,7 +28,7 @@ const updateGezin = async (ctx) => {
 };
 
 const deleteGezin = async (ctx) => {
-  ctx.body = geplandeTakenService.deleteById(Number(ctx.params.id));
+  ctx.body = await gezinService.deleteById(Number(ctx.params.id));
   ctx.status = 204;
 };
 
@@ -42,7 +43,7 @@ module.exports = (app) => {
   });
 
   router.post('/', createGezin);
-  router.get('/:id', getGezin);
+  router.get('/:id', getGezinById);
   router.put('/:id', updateGezin);
   router.delete('/:id', deleteGezin);
 

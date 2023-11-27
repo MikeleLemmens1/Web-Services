@@ -1,4 +1,5 @@
 const {getKnex, tables}= require('../data/index');
+const { getLogger } = require('../core/logging');
 // const geplande_taken = require('../rest/geplande_taken');
 
 const SELECT_COLUMNS = [
@@ -40,8 +41,8 @@ const findGeplandeTaakByDay = async (dag) => {
  * Maak een nieuwe geplande taak.
  *
  * @param {object} geplandeTaak - De nieuwe geplande taak
- * @param {number} naam - Naam van de geplande taak
- * @param {Date} dag - Dag van de geplande taak
+ * @param {number} geplandeTaak.naam - Naam van de geplande taak
+ * @param {Date} geplandeTaak.dag - Dag van de geplande taak
  * @param {number} geplandeTaak.gezinslidId - Id van de uitvoerder
  *
  * @returns {Promise<number>} Id van de gemaakte taak
@@ -68,8 +69,9 @@ const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
  *
  * @param {number} id - Id van de aan te passen taak
  * @param {object} geplandeTaak - De op te slagen taak
- * @param {number} [transaction.naam] - De naam van de taak
- * @param {Date} [transaction.dag] - De dag van de taak
+ * @param {number} geplandeTaak.naam - De naam van de taak
+ * @param {Date} geplandeTaak.dag - De dag van de taak
+ * @param {number} geplandeTaak.gezinslidId - De uitvoerder van de taak
  * 
  * @returns {Promise<number>} Id van de taak
  */
@@ -87,14 +89,14 @@ const updateGeplandeTaakById = async (id, {naam, dag, gezinslidId}) => {
     });
     throw error;
   } 
-  }
+  };
 
 /**
  * Verwijder een geplande taak met een gegeven id.
  *
  * @param {number} id - Id van de te verwijderen taak.
   *
- * @returns {Promise<boolean>} Whether the transaction was deleted.
+ * @returns {Promise<boolean>} Of de geplande taak al dan niet is verwijderd.
  */
   
 const deleteGeplandeTaakById = async (id) => {
