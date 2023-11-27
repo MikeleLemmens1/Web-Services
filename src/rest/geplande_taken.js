@@ -1,8 +1,8 @@
 const Router = require('@koa/router');
 const geplandeTakenService = require('../service/geplande_taken');
+//TODO Documentatie aanvullen
 
 const getAllGeplandeTaken = async (ctx) => {
-  console.log(ctx.request.query);
   if (ctx.request.query){
     //! await plaatsen bij gebruik van Knex 
     ctx.body = await geplandeTakenService.getAll();
@@ -17,22 +17,23 @@ const getAllGeplandeTaken = async (ctx) => {
 };
 
 const createGeplandeTaak = async (ctx) => {
-  const newTask = geplandeTakenService.create({
+  const newTask = await geplandeTakenService.create({
     naam: ctx.request.body.naam,
-    dag: Date(ctx.request.body.dag),
+    dag: new Date(ctx.request.body.dag),
     gezinslidId: Number(ctx.request.body.gezinslidId)
 
-  });
+  });  
+  ctx.status = 201;
   ctx.body = newTask; 
 };
 
 const getTaskByGezinslidId = async (ctx) => {
-  ctx.body = geplandeTakenService.getBygezinslidId(Number(ctx.params.id)); // 👈 2
+  ctx.body = await geplandeTakenService.getBygezinslidId(Number(ctx.params.id));
 };
 
 
 const updateTask = async (ctx) => {
-  ctx.body = geplandeTakenService.updateById(Number(ctx.params.id), {
+  ctx.body = await geplandeTakenService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
     gezinslidId: Number(ctx.request.body.gezinslidId),
     dag: new Date(ctx.request.body.dag),
@@ -40,7 +41,7 @@ const updateTask = async (ctx) => {
 };
 
 const deleteTask = async (ctx) => {
-  ctx.body = geplandeTakenService.deleteById(Number(ctx.params.id));
+  ctx.body = await geplandeTakenService.deleteById(Number(ctx.params.id));
   ctx.status = 204;
 };
 
