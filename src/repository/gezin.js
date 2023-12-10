@@ -1,29 +1,55 @@
 const { getLogger } = require('../core/logging');
 const {getKnex, tables}= require('../data');
+
+
+const SELECT_COLUMNS = [
+  `${tables.gezin}.id`,
+  'familienaam',
+  'straat',
+  'huisnummer',
+  'postcode',
+  'stad',
+];
+/**
+ * Geef alle gezinnen
+ * 
+ */
+const findAllGezinnen = async() => {
+  return await getKnex()(tables.gezin).select()
+};
+
 /**
  * Geef een gezin op basis van id
  * 
  * @param {number} id - id van het gezochte gezin
  * 
  */
-const getById = async(id)=> {
+const findGezinById = async(id)=> {
   return await getKnex()(tables.gezin).select().where('id',id);
+}
+/**
+ * Geef het totaal aantal gezinsleden
+ * 
+ */
+const findCount = async () => {
+  const [count] = await getKnex()(tables.gezin).count();
+  return count['count(*)'];
 }
 /**
  * Maak een nieuw gezin
  * 
  * @param {object} gezin - het nieuwe gezin
  * @param {string} gezin.familienaam - naam van het gezin
- * @param {string} gezin.straar - naam van het gezin
+ * @param {string} gezin.straat - straat van het gezin
  * @param {number} gezin.huisnummer - huisnummer van het gezin
- * @param {number} gezin.postcode - huisnummer van het gezin
- * @param {string} gezin.stad - huisnummer van het gezin
+ * @param {number} gezin.postcode - postcode van het gezin
+ * @param {string} gezin.stad - woonplaats van het gezin
  * 
  * @returns {Promise<number>} Id van het gemaakte gezin
  */
 const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad }) => {
-  
-  const [id] = await getKnex()(tables.gezin).insert({
+  try{
+    const [id] = await getKnex()(tables.gezin).insert({
     familienaam,
     straat,
     huisnummer,
@@ -31,7 +57,14 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad }) 
     stad,
     gezinsId,
   }); 
-  return id; 
+  return id;
+  }catch (error) {
+    getLogger().error('error in createGezin', {
+      error,
+    });
+    throw error;
+  };
+   
 };
 /**
  * Wijzigt een bestaand gezin
@@ -39,23 +72,24 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad }) 
  * @param {number} id - id van het aan te passen gezin
  * @param {object} gezin - het op te slagen gezin
  * @param {string} gezin.familienaam - naam van het gezin
- * @param {string} gezin.straar - naam van het gezin
+  * @param {string} gezin.straat - straat van het gezin
  * @param {number} gezin.huisnummer - huisnummer van het gezin
- * @param {number} gezin.postcode - huisnummer van het gezin
- * @param {string} gezin.stad - huisnummer van het gezin
+ * @param {number} gezin.postcode - postcode van het gezin
+ * @param {string} gezin.stad - woonplaats van het gezin
  * 
  * @returns {Promise<number>} Id van het gezin
  */
 const updateGezinById = async (id, {familienaam, straat, huisnummer, postcode, stad}) => {
   try{
-    const [mySQLid] = await getKnex()(tables.gezin).where('id', id).update({
+    await getKnex()(tables.gezin).update({
       familienaam,
       straat,
       huisnummer,
       postcode,
       stad,
-    });
-    return mySQLid;
+    })
+    .where('id', id);
+    return id;
   } catch (error){
     getLogger().error('Error in het wijzigen van het gezin',{
       error,
@@ -74,7 +108,7 @@ const updateGezinById = async (id, {familienaam, straat, huisnummer, postcode, s
 const deleteGezinById = async (id) => {
 
   try{
-  const rowsAffected = await getKnex()(tables.gezin).where('id', id).delete();
+  const rowsAffected = await getKnex()(tables.gezin).where(`${tables.gezin}.id`, id).delete();
   return rowsAffected > 0;
   } catch (error){
     getLogger().error('Error in verwijderen van gezin', {
@@ -85,7 +119,9 @@ const deleteGezinById = async (id) => {
 };
 
 module.exports = {
-  getById,
+  findAllGezinnen,
+  findCount,
+  findGezinById,
   createGezin,
   updateGezinById,
   deleteGezinById

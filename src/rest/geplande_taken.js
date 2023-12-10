@@ -3,22 +3,28 @@ const geplandeTakenService = require('../service/geplande_taken');
 //TODO Documentatie aanvullen
 
 const getAllGeplandeTaken = async (ctx) => {
-  if (ctx.request.query){
-    //! await plaatsen bij gebruik van Knex 
-    ctx.body = await geplandeTakenService.getAll();
-  };
   if (ctx.request.query.dag){
     ctx.body = geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));
   }
-  if (ctx.request.query.week){
+  else if (ctx.request.query.week){
     ctx.body = geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
   }
+  else if (ctx.request.query){
+    //! await plaatsen bij gebruik van Knex 
+    ctx.body = await geplandeTakenService.getAll();
+  };
+  
 
+};
+//getAllByName? Om te zien wie er voor x dagen de hond uitlaat
+
+const getTaskByGezinslidId = async (ctx) => {
+  ctx.body = await geplandeTakenService.getAllByGezinslidId(Number(ctx.params.id));
 };
 
 const createGeplandeTaak = async (ctx) => {
   const newTask = await geplandeTakenService.create({
-    naam: ctx.request.body.naam,
+    ...ctx.request.body,
     dag: new Date(ctx.request.body.dag),
     gezinslidId: Number(ctx.request.body.gezinslidId)
 
@@ -26,11 +32,6 @@ const createGeplandeTaak = async (ctx) => {
   ctx.status = 201;
   ctx.body = newTask; 
 };
-
-const getTaskByGezinslidId = async (ctx) => {
-  ctx.body = await geplandeTakenService.getByGezinslidId(Number(ctx.params.id));
-};
-
 
 const updateTask = async (ctx) => {
   ctx.body = await geplandeTakenService.updateById(Number(ctx.params.id), {
@@ -41,14 +42,14 @@ const updateTask = async (ctx) => {
 };
 
 const deleteTask = async (ctx) => {
-  ctx.body = await geplandeTakenService.deleteById(Number(ctx.params.id));
+  await geplandeTakenService.deleteById(Number(ctx.params.id));
   ctx.status = 204;
 };
 
 /**
- * Install transaction routes in the given router.
+ * Installeer geplande_taken routes in de gegeven router
  *
- * @param {Router} app - The parent router.
+ * @param {Router} app - De parent router.
  */
 module.exports = (app) => {
   const router = new Router({

@@ -1,51 +1,117 @@
-let { GEZINSLEDEN } = require('../data/mock_data')
+const gezinsledenRepo = require('../repository/gezinslid');
+const { Logger } = require('winston');
+const { getLogger } = require('../core/logging');
+const verjaardagService = require('../verjaardag');
+const gezinService = require('../gezin');
+const handleDBError = require('./_handleDBError');
 
-const getAllGezinsleden = () => {
-  return {items: GEZINSLEDEN};
+const getAllGezinsleden = async () => {
+  const items = await gezinsledenRepo.findAllGezinsleden();
+  return {
+    items,
+    count: items.length,
+  };  
 };
-const getGezinslidByID = (id) => {
-  //TODO Error handling
-  return GEZINSLEDEN.find(gezinslid => gezinslid.id === id);
-};
-const updateGezinslidByID = (id,{naam,email,wachtwoord,gezinsId,verjaardagsId}) => {
-  //TODO Error handling
-  let gezinslid = GEZINSLEDEN.find(lid => lid.id === id);
-  gezinslid.naam = naam;
-  gezinslid.email = email;
-  gezinslid.wachtwoord = wachtwoord;
-  gezinslid.gezinsId = gezinsId;
-  gezinslid.verjaardagsId = verjaardagsId;
+
+const getGezinslidById = async (id) => {
+  const gezinslid = await (gezinsledenRepo.findGezinslidById(id));
+  if (!gezinslid) {
+     //TODO Service en DB Error
+    //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
+  }
   return gezinslid;
 };
-
-const deleteGezinslidByID = (id) => {
-  const index = GEZINSLEDEN.findIndex(gezinslid => gezinslid.id === id);
-  //TODO Error handling
-  if (index!==-1){
-    return GEZINSLEDEN.splice(index,1);
-  };
-};
-
-const createGezinslid = ({voornaam, email, wachtwoord, gezinsId, verjaardagsId}) => {
-  //TODO: error handling
-  const maxId = Math.max(...GEZINSLEDEN.map((gezinslid) => gezinslid.id));
-  const newGezinslid = {
-    id:maxId+1,
-    voornaam,
-    email,
-    wachtwoord,
-    gezinsId,
-    verjaardagsId
+const getAllGezinsledenByGezinsId = async (id) => {
+  const gezinsleden = await (gezinsledenRepo.findAllGezinsledenByGezinsId(id));
+  if (!gezinsleden) {
+     //TODO Service en DB Error
+    //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
   }
-  GEZINSLEDEN.push(newGezinslid);
-  return newGezinslid;
-
+  return gezinsleden;
 };
+
+const createGezinslid = async ({voornaam, email, wachtwoord, gezinsId, verjaardagsId}) => {
+  let geldigGezin;
+  let geldigeVerjaardag;
+  if(gezinsId){
+    geldigGezin = await gezinService.getGezinById(gezinsId);
+  }
+  if(verjaardagsId){
+    geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardagsId);
+  }
+  if(!geldigGezin){
+    getLogger().error("Gezin niet gevonden")
+  }
+  if(!geldigeVerjaardag){
+    getLogger().error("Verjaardag ongeldig")
+  }
+  try{
+    const id = await gezinsledenRepo.createGezinslid({
+      gezinsId,
+      voornaam,
+      email,
+      wachtwoord,
+      verjaardagsId,
+    });
+    return getGezinslidById(id);
+  }catch (error) {
+    getLogger().error('Fout bij het maken van het gezinslid')
+    throw handleDBError(error);
+  }
+};
+
+const updateGezinslidById = async (id,{voornaam, email, wachtwoord, gezinsId, verjaardagsId}) => {
+
+  if(gezinsId){
+    const bestaandGezin = await gezinService.getGezinById(gezinsId);
+    if(!bestaandGezin){
+      getLogger().error("Gezin niet gevonden");
+      throw ServiceError.notFound(`Er is geen gezin met id ${gezinsId}.`,{gezinsId});
+    }
+  }
+  if(verjaardagsId){
+    const geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardagsId);
+    if(!geldigeVerjaardag){
+      getLogger().error("Verjaardag ongeldig")
+      throw ServiceError.notFound(`Er is geen verjaardag met id ${verjaardagsId}.`,{verjaardagsId});
+      
+    }
+  }
+  try{
+    await gezinsledenRepo.updateGezinslidById(id, {
+      gezinsId,
+      voornaam,
+      email,
+      wachtwoord,
+      verjaardagsId,
+    });
+    return getGezinslidById(id);
+  }catch (error) {
+    getLogger().error('Fout bij het maken van het gezinslid')
+    throw handleDBError(error);
+  }
+};
+const deleteGezinslidById = async (id) => {
+  try {
+    const deleted = await gezinsledenRepo.deletegezinslidById(id);
+
+    if (!deleted) {
+      throw ServiceError.notFound(`Geen gezinslid met id ${id} gevonden`, { id });
+    }
+  } catch (error) {
+    getLogger().error("Fout bij het verwijderen van het gezinslid")
+    throw handleDBError(error);
+  }
+};
+
+
 
 module.exports = {
   getAllGezinsleden,
-  getGezinslidByID,
-  updateGezinslidByID,
-  deleteGezinslidByID,
-  createGezinslid
+  getGezinslidById,
+  getAllGezinsledenByGezinsId,
+  createGezinslid,
+  updateGezinslidById,
+  deleteGezinslidById,
+  
 }

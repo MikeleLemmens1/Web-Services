@@ -1,6 +1,14 @@
 const Router = require('@koa/router');
-const gezinService = require('../service/gezin');
+const gezinService = require('../service/gezinnen');
 
+
+const getAllGezinnen = async (ctx) => {
+  ctx.body = await gezinService.getAllGezinnen();
+}
+
+const getGezinById = async (ctx) => {
+  ctx.body = await gezinService.getByGezinsId(Number(ctx.params.id)); // 👈 2
+};
 const createGezin = async (ctx) => {
   const newGezin = gezinService.createGezin({
     familienaam: ctx.request.body.familienaam,
@@ -13,39 +21,34 @@ const createGezin = async (ctx) => {
   ctx.body = newGezin; 
 };
 
-const getGezinById = async (ctx) => {
-  ctx.body = await gezinService.getByGezinsId(Number(ctx.params.id)); // 👈 2
-};
-
-
-const updateGezin = async (ctx) => {
+const updateGezinById = async (ctx) => {
   ctx.body = await gezinService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
     gezinsId: Number(ctx.request.body.gezinsId),
-    huisnummer: new Number(ctx.request.body.huisnummer),
-    postcode: new Number(ctx.request.body.postcode),
+    huisnummer: Number(ctx.request.body.huisnummer),
+    postcode: Number(ctx.request.body.postcode),
   });
 };
 
-const deleteGezin = async (ctx) => {
-  ctx.body = await gezinService.deleteById(Number(ctx.params.id));
+const deleteGezinById = async (ctx) => {
+  await gezinService.deleteById(Number(ctx.params.id));
   ctx.status = 204;
 };
 
 /**
- * Install transaction routes in the given router.
+ * Installeer gezinsleden routes in de gegeven router
  *
- * @param {Router} app - The parent router.
+ * @param {Router} app - De parent router.
  */
 module.exports = (app) => {
   const router = new Router({
-    prefix: '/gezin',
+    prefix: '/gezinnen',
   });
-
+  router.get('/', getAllGezinnen);
   router.post('/', createGezin);
   router.get('/:id', getGezinById);
-  router.put('/:id', updateGezin);
-  router.delete('/:id', deleteGezin);
+  router.put('/:id', updateGezinById);
+  router.delete('/:id', deleteGezinById);
 
   app.use(router.routes())
      .use(router.allowedMethods());

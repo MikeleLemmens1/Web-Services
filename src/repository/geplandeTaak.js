@@ -2,13 +2,26 @@ const {getKnex, tables}= require('../data/index');
 const { getLogger } = require('../core/logging');
 // const geplande_taken = require('../rest/geplande_taken');
 
+const formatGeplandeTaak = ({
+  gezinslid_id,
+  gezinslid_voornaam,
+  ...geplandeTaak
+}) => {
+  return {
+    ...geplandeTaak,
+    gezinslid: {
+      id: gezinslid_id,
+      naam: gezinslid_voornaam
+    }
+  };
+};
+
 const SELECT_COLUMNS = [
-  `${tables.gezin}.id`,
-  'familienaam',
-  'straat',
-  'huisnummer',
-  'postcode',
-  'stad',
+  `${tables.geplandeTaak}.id`,
+  'naam',
+  'dag',
+  `${tables.gezinslid}.id as gezinslid_id`,
+  `${tables.gesinslid}.voornaam as gezinslid_voornaam`,
 ];
 
 /**
@@ -16,9 +29,27 @@ const SELECT_COLUMNS = [
  *
  */
 const findAllGeplandeTaken = async()=> {
-  return await getKnex()(tables.geplandeTaak).select().orderBy('id','ascending');
-}
+  const geplandeTaken = await getKnex()(tables.geplandeTaak)
+  .join(
+    tables.gezinslid,
+    `${tables.gezinslid}.id`,
+    '=',
+    `${tables.geplandeTaak}.gezinslid_id`
+  )
+  .select(SELECT_COLUMNS)
+  .orderBy('dag','ASC');
 
+  return geplandeTaken.map(formatGeplandeTaak);
+}
+/**
+ * Geef het totaal aantal geplande taken.
+ *
+ */
+const findCount = async () => {
+  const [count] = await getKnex()(tables.geplandeTaak).count();
+
+  return count['count(*)'];
+};
 
 /**
  * Vind een geplande taak met een gegeven id.
@@ -26,17 +57,52 @@ const findAllGeplandeTaken = async()=> {
  * @param {number} id - id van de gezochte taak.
  */
 const findGeplandeTaakById = async (id) => {
-  return await getKnex()(tables.geplandeTaak).select().where('geplandeTaak.id',id);
-}
+  const geplandeTaak = await getKnex()(tables.geplandeTaak)
+  .join(
+    tables.gezinslid,
+    `${tables.gezinslid}.id`,
+    '=',
+    `${tables.geplandeTaak}.gezinslid_id`
+  ).where(`${tables.geplandeTaak}.id`,id)
+  .first(SELECT_COLUMNS);
+
+  return geplandeTaak && formatGeplandeTaak(geplandeTaak);
+};
+/**
+ * Vind alle geplande taken van een gezinslid.
+ *
+ * @param {number} id - id van het gezinslid.
+ */
+const findGeplandeTakenByGezinslidId = async (id) => {
+  const geplandeTaken = await getKnex()(tables.geplandeTaak)
+  .join(
+    tables.gezinslid,
+    `${tables.gezinslid}.id`,
+    '=',
+    `${tables.geplandeTaak}.gezinslid_id`
+  ).where(`${tables.gezinslid}.id`,id)
+  .first(SELECT_COLUMNS);
+
+  return geplandeTaken.map(formatGeplandeTaak);
+};
 
 /**
  * Vind alle geplande taken voor een dag.
  *
  * @param {Date} dag - dag van de gezochte taak.
  */
-const findGeplandeTaakByDay = async (dag) => {
-  return await getKnex()(tables.geplandeTaak).select().where('dag',dag);
-}
+const findGeplandeTakenByDay = async (dag) => {
+  const geplandeTaken = await getKnex()(tables.geplandeTaak)
+  .join(
+    tables.gezinslid,
+    `${tables.gezinslid}.id`,
+    '=',
+    `${tables.geplandeTaak}.gezinslid_id`
+  ).where(`${tables.geplandeTaak}.dag`,dag)
+  .first(SELECT_COLUMNS);
+
+  return geplandeTaken.map(formatGeplandeTaak);
+};
 /**
  * Maak een nieuwe geplande taak.
  *
@@ -53,7 +119,7 @@ const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
   const [id] = await getKnex()(tables.geplandeTaak).insert({
     naam,
     dag,
-    gezinslidId,
+    gezinslid_id: gezinslidId,
   });
   return id;
   } catch (error) {
@@ -69,7 +135,7 @@ const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
  *
  * @param {number} id - Id van de aan te passen taak
  * @param {object} geplandeTaak - De op te slagen taak
- * @param {number} geplandeTaak.naam - De naam van de taak
+ * @param {object} geplandeTaak.naam - De naam van de taak
  * @param {Date} geplandeTaak.dag - De dag van de taak
  * @param {number} geplandeTaak.gezinslidId - De uitvoerder van de taak
  * 
@@ -77,12 +143,14 @@ const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
  */
 const updateGeplandeTaakById = async (id, {naam, dag, gezinslidId}) => {
   try{  
-    const [mySQLid] = await getKnex()(tables.geplandeTaak).where('id', id).update({
+    await getKnex()(tables.geplandeTaak)
+    .update({
       naam,
-      gezinslidId,
+      gezinslid_id: gezinslidId,
       dag
-    });
-    return mySQLid;
+    })
+    .where(`${tables.geplandeTaak}.id`, id);
+    return id;
   } catch (error) {
     getLogger().error('Error in updateGeplandeTaakById', {
       error,
@@ -117,7 +185,9 @@ const deleteGeplandeTaakById = async (id) => {
 module.exports = {
   findAllGeplandeTaken,
   findGeplandeTaakById,
-  findGeplandeTaakByDay,
+  findGeplandeTakenByGezinslidId,
+  findGeplandeTakenByDay,
+  findCount,
   createGeplandeTaak,
   updateGeplandeTaakById,
   deleteGeplandeTaakById

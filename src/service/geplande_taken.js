@@ -2,6 +2,7 @@ const { Logger } = require('winston');
 const { getLogger } = require('../core/logging');
 const geplandeTakenRepo = require('../repository/geplandeTaak');
 const gezinsledenService = require('./gezinsleden');
+const handleDBError = require('./_handleDBError');
 
 // const ServiceError = require('../core/serviceError');
 // const handleDBError = require('./_handleDBError');
@@ -14,8 +15,9 @@ const getAll = async () => {
   };
 };
 
+
 const getAllByDay = async (dag) => { 
-  const geplandeTaken = await geplandeTakenRepo.findGeplandeTaakByDay(dag);
+  const geplandeTaken = await geplandeTakenRepo.findGeplandeTakenByDay(dag);
   if (!geplandeTaken) {
     //TODO Service en DB Error
     //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
@@ -26,23 +28,32 @@ const getAllByDay = async (dag) => {
 const getAllByWeek = (week) => {
   //TODO
 }
-const getByGezinslidId = async (id) => {
-  const geplandeTaak = await geplandeTakenRepo.getByGezinslidId(id);
-  if (!geplandeTaak) {
+const getAllByGezinslidId = async (id) => {
+  const geplandeTaken = await geplandeTakenRepo.findGeplandeTakenByGezinslidId(id);
+  if (!geplandeTaken) {
     //TODO Service en DB Error
     //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
   }
-  return geplandeTaak; 
+  return geplandeTaken; 
+};
+
+const getById = async (id) => {
+  const geplandeTaak = await geplandeTakenRepo.findGeplandeTaakById(id);
+
+  if (!geplandeTaak) {
+    throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
+  }
+
+  return geplandeTaak;
 };
 
 
 const create = async ({ naam, dag, gezinslidId }) => {
-  let geldigGezinslid;
-  if (gezinslidId){
-    geldigGezinslid = await gezinsledenService.getGezinslidByID(id);
-  }
-  if (!geldigGezinslid){
+  let bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
+  if (!bestaandGezinslid){
     getLogger().error("Gezinslid niet gevonden")
+    throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
+
   }
   try {
     const id = await geplandeTakenRepo.createGeplandeTaak({
@@ -50,16 +61,16 @@ const create = async ({ naam, dag, gezinslidId }) => {
       dag,
       gezinslidId,
     });
-    return getByGezinslidId(id);
+    return getById(id);
   } catch (error) {
     
     getLogger().error("Fout bij het maken van de geplande taak")
     throw handleDBError(error);
   }
 };
-const updateById = async (id, { naam, dag}) => {
-  if (id) {
-    const bestaandGezinslid = await gezinsledenService.getByGezinslidId(id);
+const updateById = async (id, { naam, dag, gezinslidId}) => {
+  if (gezinslidId) {
+    const bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
 
     if (!bestaandGezinslid) {
       throw ServiceError.notFound(`Er is geen gezinslid met id ${id}.`, { id });
@@ -69,8 +80,9 @@ const updateById = async (id, { naam, dag}) => {
     await geplandeTakenRepo.updateGeplandeTaakById(id, {
       naam,
       dag,
+      gezinslidId,
     });
-    return getByGezinslidId(id);
+    return getById(id);
   } catch (error) {
     getLogger().error("Fout bij het wijzigen van de geplande taak")
     throw handleDBError(error);
@@ -93,7 +105,7 @@ module.exports = {
   getAll,
   getAllByDay,
   getAllByWeek,
-  getByGezinslidId,
+  getAllByGezinslidId,
   create,
   updateById,
   deleteById,

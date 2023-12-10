@@ -1,12 +1,26 @@
 const { Logger } = require('winston');
 const { getLogger } = require('../core/logging');
-const gezinRepository = require('../repository/gezin'); // 👈 1
+const gezinRepository = require('../repository/gezin');
+const handleDBError = require('./_handleDBError');
 
 // const ServiceError = require('../core/serviceError');
 // const handleDBError = require('./_handleDBError');
 
-const getByGezinsId = async (id) => {
-  return gezinRepository.getById(id);
+const getAllGezinnen = async () => {
+  const items = await gezinRepository.findAllGezinnen();
+  return {
+    items,
+    count: items.length,
+  };
+};
+
+const getGezinById = async (id) => {
+  const gezin = gezinRepository.findGezinById(id);
+  if (!gezin){
+    //TODO Service en DB Error
+    //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
+  }
+  return gezin;
 };
 
 const create = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
@@ -18,14 +32,14 @@ const create = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
       postcode,
       stad
     });
-    return getBygezinsId(id);
+    return getGezinById(id);
   } catch (error) {
     
     getLogger().error("Fout bij het creëren van het gezin")
     throw handleDBError(error);
   }
 };
-const updateById = async (id, { familienaam, straat, huisnummer, postcode, stad}) => {
+const updateGezinById = async (id, { familienaam, straat, huisnummer, postcode, stad}) => {
   try {
     await gezinRepository.updateGezinById(id, {
       familienaam,
@@ -34,13 +48,13 @@ const updateById = async (id, { familienaam, straat, huisnummer, postcode, stad}
       postcode,
       stad,
     });
-    return getByGezinsId(id);
+    return getGezinById(id);
   } catch (error) {
     getLogger().error("Fout bij het wijzigen van het gezin")
     throw handleDBError(error);
   }
 };
-const deleteById = async (id) => {try {
+const deleteGezinById = async (id) => {try {
   const deleted = await gezinRepository.deleteGezinById(id);
 
   if (!deleted) {
@@ -53,8 +67,9 @@ const deleteById = async (id) => {try {
 };
 
 module.exports = {
-  getByGezinsId,
+  getAllGezinnen,
+  getGezinById,
   create,
-  updateById,
-  deleteById,
+  updateGezinById,
+  deleteGezinById,
 };

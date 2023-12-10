@@ -77,7 +77,7 @@ function getKnex() {
       return knexInstance;
     }
 const tables = Object.freeze({
-  gezin: 'gezin',
+  gezin: 'gezinnen',
   gezinslid: 'gezinsleden',
   boodschap: 'boodschappen',
   verjaardag: 'verjaardagen',
