@@ -1,4 +1,3 @@
-const { Logger } = require('winston');
 const { getLogger } = require('../core/logging');
 const gezinRepository = require('../repository/gezin');
 const handleDBError = require('./_handleDBError');

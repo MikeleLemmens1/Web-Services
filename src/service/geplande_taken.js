@@ -1,4 +1,3 @@
-const { Logger } = require('winston');
 const { getLogger } = require('../core/logging');
 const geplandeTakenRepo = require('../repository/geplandeTaak');
 const gezinsledenService = require('./gezinsleden');

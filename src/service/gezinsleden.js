@@ -1,5 +1,4 @@
 const gezinsledenRepo = require('../repository/gezinslid');
-const { Logger } = require('winston');
 const { getLogger } = require('../core/logging');
 const verjaardagService = require('../verjaardag');
 const gezinService = require('../gezin');

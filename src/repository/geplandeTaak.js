@@ -81,7 +81,7 @@ const findGeplandeTakenByGezinslidId = async (id) => {
     '=',
     `${tables.geplandeTaak}.gezinslid_id`
   ).where(`${tables.gezinslid}.id`,id)
-  .first(SELECT_COLUMNS);
+  .select(SELECT_COLUMNS);
 
   return geplandeTaken.map(formatGeplandeTaak);
 };
@@ -99,7 +99,7 @@ const findGeplandeTakenByDay = async (dag) => {
     '=',
     `${tables.geplandeTaak}.gezinslid_id`
   ).where(`${tables.geplandeTaak}.dag`,dag)
-  .first(SELECT_COLUMNS);
+  .select(SELECT_COLUMNS);
 
   return geplandeTaken.map(formatGeplandeTaak);
 };
@@ -179,8 +179,8 @@ const deleteGeplandeTaakById = async (id) => {
       error,
     });
     throw error;
-  }
-}
+  };
+};
 
 module.exports = {
   findAllGeplandeTaken,

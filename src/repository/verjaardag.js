@@ -13,14 +13,13 @@ const { getLogger } = require('../core/logging');
 
 const formatVerjaardag = ({
   gezinslid_id,
-  gezinslid_voornaam,
   ...verjaardag
 }) => {
   return {
     ...verjaardag,
     gezinslid: {
       id: gezinslid_id,
-      naam: gezinslid_voornaam
+      naam: voornaam,
     }
   };
 };
@@ -32,8 +31,7 @@ const SELECT_COLUMNS = [
   'voornaam',
   'achternaam',
   `${tables.gezinslid}.id as gezinslid_id`,
-  `${tables.gesinslid}.voornaam as gezinslid_voornaam`,
-  `${tables.gesin}.is as gezins_id`,
+  `${tables.gezin}.id as gezins_id`,
 ];
 
 /**
@@ -68,42 +66,96 @@ const findCount = async () => {
  *
  * @param {number} id - id van het gezinslid.
  */
-const findVerjaardagByGezinslidId = async (id) => {
+const findVerjaardagenByGezinsId = async (id) => {
+  const verjaardagskalender = await getKnex()(tables.verjaardag)
+  .where(`${tables.verjaardag}.gezin_id`,id)
+  .select(SELECT_COLUMNS);
+
+  return verjaardagskalender && formatVerjaardag(verjaardagskalender);
+};
+/**
+ * Vind een verjaardag met een gegeven id.
+ *
+ * @param {number} id - id van de gezochte verjaardag.
+ */
+const findVerjaardagById = async (id) => {
   const verjaardag = await getKnex()(tables.verjaardag)
   .join(
     tables.gezinslid,
     `${tables.gezinslid}.id`,
     '=',
-    `${tables.verjaardag}.gezinslid_id`
-  ).where(`${tables.gezinslid}.id`,id)
+    `${tables.verjaardag}.gezinslid_id`)
+  .where('id',id)
   .first(SELECT_COLUMNS);
 
   return verjaardag && formatVerjaardag(verjaardag);
 };
 
 /**
- * Maak een nieuwe geplande taak.
+ * Maak een nieuwe verjaardag.
  *
  * @param {object} verjaardag - De nieuwe verjaardag
  * @param {number} verjaardag.dagnummer - Dagindex van de verjaardag
  * @param {number} verjaardag.maandnummer - Maandindex van de verjaardag
  * @param {object} verjaardag.voornaam - Voornaam van de jarige
  * @param {object} verjaardag.achternaam - Achternaam van de jarige
- * @param {number} verjaardag.gezinsId - Id van de gezin waartoe de verjaardag behoort
+ * @param {number} verjaardag.gezinsId - Id van de gezin waartoe de verjaardag behoort (voor op de kalender)
+ * @param {number} verjaardag.gezinsLidId - Id van het gezinslid indien van toepassing
  *
  * @returns {Promise<number>} Id van de gemaakte taak
  */
-const createVerjaardag = async ({ naam, dag, gezinslidId }) => {
+const createVerjaardag = async ({ gezinsId, voornaam, achternaam, dagnummer, maandnummer, gezinslidId }) => {
 
   try{
-  const [id] = await getKnex()(tables.geplandeTaak).insert({
-    naam,
-    dag,
+  const [id] = await getKnex()(tables.verjaardag).insert({
+    gezinsId,
+    voornaam,
+    achternaam,
+    dagnummer,
     gezinslid_id: gezinslidId,
+    dagnummer,
+    maandnummer,
   });
   return id;
   } catch (error) {
-    getLogger().error('Error in createGeplandeTaak', {
+    getLogger().error('Error in createVerjaardag', {
+      error,
+    });
+    throw error;
+  };
+};
+/**
+ * Wijzig een bestaande verjaardag.
+ *
+ * @param {object} verjaardag - De aan te passen verjaardag
+ * @param {number} id - Het is van de aan te passen verjaardag
+ * @param {number} verjaardag.dagnummer - Dagindex van de verjaardag
+ * @param {number} verjaardag.maandnummer - Maandindex van de verjaardag
+ * @param {object} verjaardag.voornaam - Voornaam van de jarige
+ * @param {object} verjaardag.achternaam - Achternaam van de jarige
+ * @param {number} verjaardag.gezinsId - Id van de gezin waartoe de verjaardag behoort (voor op de kalender)
+ * @param {number} verjaardag.gezinsLidId - Id van het gezinslid indien van toepassing
+ *
+ * @returns {Promise<number>} Id van de aan te passen verjaardag
+ * 
+ */
+
+const updateVerjaardag = async (id,{ gezinsId, voornaam, achternaam, dagnummer, maandnummer, gezinslidId }) => {
+
+  try{
+    await getKnex()(tables.verjaardag).update({
+      gezinsId,
+      voornaam,
+      achternaam,
+      dagnummer,
+      gezinslid_id: gezinslidId,
+      dagnummer,
+      maandnummer,
+    })
+    .where(`${tables.verjaardag}.id`, id);
+  return id;
+  } catch (error) {
+    getLogger().error('Error in updateVerjaardag', {
       error,
     });
     throw error;
@@ -111,8 +163,34 @@ const createVerjaardag = async ({ naam, dag, gezinslidId }) => {
 };
 
 
+/**
+ * Verwijder een verjaardag met een gegeven id.
+ *
+ * @param {number} id - Id van de te verwijderen verjaardag.
+  *
+ * @returns {Promise<boolean>} Of de verjaardag al dan niet is verwijderd.
+ */
+
+const deleteVerjaardag = async (id) => {
+  try{
+    const rowsAffected = await getKnex()(tables.verjaardag)
+    .where(`${tables.verjaardag}.id`,id)
+    .delete();
+    return rowsAffected>0;
+  }catch(error){
+    getLogger().error('Error in deleteVerjaardag', {
+      error
+    });
+    throw error;
+  };
+};
+
 module.exports = {
   findAllVerjaardagen,
   findCount,
-  findVerjaardagByGezinslidId,
+  findVerjaardagenByGezinsId,
+  findVerjaardagById,
+  createVerjaardag,
+  updateVerjaardag,
+  deleteVerjaardag,  
 };
