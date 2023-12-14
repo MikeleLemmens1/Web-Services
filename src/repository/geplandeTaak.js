@@ -21,7 +21,7 @@ const SELECT_COLUMNS = [
   'naam',
   'dag',
   `${tables.gezinslid}.id as gezinslid_id`,
-  `${tables.gesinslid}.voornaam as gezinslid_voornaam`,
+  `${tables.gezinslid}.voornaam as gezinslid_voornaam`,
 ];
 
 /**
@@ -40,7 +40,7 @@ const findAllGeplandeTaken = async()=> {
   .orderBy('dag','ASC');
 
   return geplandeTaken.map(formatGeplandeTaak);
-}
+};
 /**
  * Geef het totaal aantal geplande taken.
  *
@@ -107,7 +107,7 @@ const findGeplandeTakenByDay = async (dag) => {
  * Maak een nieuwe geplande taak.
  *
  * @param {object} geplandeTaak - De nieuwe geplande taak
- * @param {number} geplandeTaak.naam - Naam van de geplande taak
+ * @param {object} geplandeTaak.naam - Naam van de geplande taak
  * @param {Date} geplandeTaak.dag - Dag van de geplande taak
  * @param {number} geplandeTaak.gezinslidId - Id van de uitvoerder
  *

@@ -4,15 +4,14 @@ const geplandeTakenService = require('../service/geplande_taken');
 
 const getAllGeplandeTaken = async (ctx) => {
   if (ctx.request.query.dag){
-    ctx.body = geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));
+    ctx.body = await geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));
   }
   else if (ctx.request.query.week){
-    ctx.body = geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
+    ctx.body = await geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
   }
-  else if (ctx.request.query){
-    //! await plaatsen bij gebruik van Knex 
+  else
     ctx.body = await geplandeTakenService.getAll();
-  };
+  
   
 
 };
