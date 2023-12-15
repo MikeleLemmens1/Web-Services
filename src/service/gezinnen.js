@@ -1,6 +1,6 @@
 const { getLogger } = require('../core/logging');
 const gezinRepository = require('../repository/gezin');
-const handleDBError = require('./_handleDBError');
+// const handleDBError = require('./_handleDBError');
 
 // const ServiceError = require('../core/serviceError');
 // const handleDBError = require('./_handleDBError');
@@ -35,7 +35,7 @@ const create = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
   } catch (error) {
     
     getLogger().error("Fout bij het creëren van het gezin")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const updateGezinById = async (id, { familienaam, straat, huisnummer, postcode, stad}) => {
@@ -50,18 +50,18 @@ const updateGezinById = async (id, { familienaam, straat, huisnummer, postcode, 
     return getGezinById(id);
   } catch (error) {
     getLogger().error("Fout bij het wijzigen van het gezin")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const deleteGezinById = async (id) => {try {
   const deleted = await gezinRepository.deleteGezinById(id);
 
   if (!deleted) {
-    throw ServiceError.notFound(`Geen gezin met id ${id} gevonden`, { id });
+    // throw ServiceError.notFound(`Geen gezin met id ${id} gevonden`, { id });
   }
 } catch (error) {  
   getLogger().error("Fout bij het verwijderen van het gezin")
-  throw handleDBError(error);
+  // throw handleDBError(error);
 }
 };
 

@@ -7,6 +7,7 @@ module.exports = {
       table.string('familienaam', 255).notNullable();
       table.string('straat', 255).notNullable();
       table.integer('huisnummer').notNullable();
+      table.integer('postcode').notNullable();
       table.string('stad', 255).notNullable();
 
       //Unique index nodig? 

@@ -1,7 +1,7 @@
 const { getLogger } = require('../core/logging');
 const geplandeTakenRepo = require('../repository/geplandeTaak');
 const gezinsledenService = require('./gezinsleden');
-const handleDBError = require('./_handleDBError');
+// const handleDBError = require('./_handleDBError');
 
 // const ServiceError = require('../core/serviceError');
 // const handleDBError = require('./_handleDBError');
@@ -40,7 +40,7 @@ const getById = async (id) => {
   const geplandeTaak = await geplandeTakenRepo.findGeplandeTaakById(id);
 
   if (!geplandeTaak) {
-    throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
+    // throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
   }
 
   return geplandeTaak;
@@ -51,7 +51,7 @@ const create = async ({ naam, dag, gezinslidId }) => {
   let bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
   if (!bestaandGezinslid){
     getLogger().error("Gezinslid niet gevonden")
-    throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
+    // throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
 
   }
   try {
@@ -64,7 +64,7 @@ const create = async ({ naam, dag, gezinslidId }) => {
   } catch (error) {
     
     getLogger().error("Fout bij het maken van de geplande taak")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const updateById = async (id, { naam, dag, gezinslidId}) => {
@@ -72,7 +72,7 @@ const updateById = async (id, { naam, dag, gezinslidId}) => {
     const bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
 
     if (!bestaandGezinslid) {
-      throw ServiceError.notFound(`Er is geen gezinslid met id ${id}.`, { id });
+      // throw ServiceError.notFound(`Er is geen gezinslid met id ${id}.`, { id });
     }
   }
   try {
@@ -84,7 +84,7 @@ const updateById = async (id, { naam, dag, gezinslidId}) => {
     return getById(id);
   } catch (error) {
     getLogger().error("Fout bij het wijzigen van de geplande taak")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const deleteById = async (id) => {
@@ -92,11 +92,11 @@ const deleteById = async (id) => {
     const deleted = await geplandeTakenRepo.deleteGeplandeTaakById(id);
 
     if (!deleted) {
-      throw ServiceError.notFound(`Geen geplande taak met id ${id} gevonden`, { id });
+      // throw ServiceError.notFound(`Geen geplande taak met id ${id} gevonden`, { id });
     }
   } catch (error) {
     getLogger().error("Fout bij het verwijderen van de geplande taak")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 

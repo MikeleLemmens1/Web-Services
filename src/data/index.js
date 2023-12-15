@@ -33,7 +33,11 @@ async function initializeData() {
     migrations: {
         tableName: 'knex_meta',
         directory: join('src', 'data', 'migrations'),
-      },
+    },
+    seeds: {
+  
+        directory: join('src', 'data', 'seeds'),
+     },
     };
 
     knexInstance = knex(knexOptions); 
@@ -66,8 +70,19 @@ async function initializeData() {
     
     logger.info('Successfully initialized connection to the database');
     
+    if (isDevelopment) {
+      // 👈 2
+      // 👇 3
+      try {
+        await knexInstance.seed.run();
+      } catch (error) {
+        logger.error('Error while seeding database', {
+          error,
+        });
+      };
+    };
     return knexInstance;
-  }
+  };
 
 function getKnex() {
   if (!knexInstance)
@@ -89,5 +104,3 @@ module.exports = {
   getKnex, 
   tables, 
 };
-
-//TODO Gebruik maken van ORM om connectie te maken met de databan

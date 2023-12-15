@@ -24,7 +24,7 @@ const getById = async (id) => {
   const verjaardag = await verjaardagRepo.findVerjaardagById(id);
 
   if (!verjaardag) {
-    throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
+    // throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
   }
 
   return verjaardag;
@@ -34,12 +34,12 @@ const create = async ({ voornaam, achternaam, dagnummer, maandnummer, gezinsId, 
   let bestaandGezin = await gezinService.getGezinById(gezinsId);
   if (!bestaandGezinslid){
     getLogger().error("Gezinslid niet gevonden")
-    throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
+    // throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
 
   };
   if (!bestaandGezin){
     getLogger().error("Gezins niet gevonden")
-    throw ServiceError.notFound(`Er is geen gezinsid ${id}.`, { id });
+    // throw ServiceError.notFound(`Er is geen gezinsid ${id}.`, { id });
 
   }
   try {
@@ -55,14 +55,14 @@ const create = async ({ voornaam, achternaam, dagnummer, maandnummer, gezinsId, 
   } catch (error) {
     
     getLogger().error("Fout bij het maken van de verjaardag")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const updateById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gezinsId, gezinslidId}) => {
   if (gezinsId){
     const bestaandGezin = await gezinService.getGezinById(gezinsId);
     if (!gezinsId){
-      throw ServiceError.notFound(`Er is geen gezin met id ${id}.`,{id})
+      // throw ServiceError.notFound(`Er is geen gezin met id ${id}.`,{id})
     }
 
   }
@@ -79,7 +79,7 @@ const updateById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gez
 
   }catch (error){
     getLogger().error("Fout bij het wijzigen van de verjaardag");
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const deleteById = async (id) => {
@@ -87,11 +87,11 @@ const deleteById = async (id) => {
     const deleted = await verjaardagRepo.deleteVerjaardag(id);
 
     if (!deleted) {
-      throw ServiceError.notFound(`Geen verjaardag met id ${id} gevonden`, { id });
+      // throw ServiceError.notFound(`Geen verjaardag met id ${id} gevonden`, { id });
     }
   } catch (error) {
     getLogger().error("Fout bij het verwijderen van de verjaardag")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 

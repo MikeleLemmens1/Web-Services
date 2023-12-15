@@ -1,7 +1,7 @@
 const { getLogger } = require('../core/logging');
 const boodschappenRepo = require('../repository/boodschap');
 const gezinService = require('./gezinnen');
-const handleDBError = require('./_handleDBError');
+// const handleDBError = require('./_handleDBError');
 
 // const ServiceError = require('../core/serviceError');
 
@@ -36,7 +36,7 @@ const getById = async (id) => {
   const boodschap = await boodschappenRepo.findBoodschapByid(id);
 
   if (!boodschap) {
-    throw ServiceError.notFound(`Er bestaat geen boodschap met id ${id}`, { id });
+    // throw ServiceError.notFound(`Er bestaat geen boodschap met id ${id}`, { id });
   }
 
   return boodschap;
@@ -47,7 +47,7 @@ const create = async ({ naam, winkel, hoeveelheid, gezinsId }) => {
   let bestaandGezin = await gezinService.getGezinById(gezinsId);
   if (!bestaandGezin){
     getLogger().error("Gezin niet gevonden")
-    throw ServiceError.notFound(`Er is geen gezin id ${id}.`, { id });
+    // throw ServiceError.notFound(`Er is geen gezin id ${id}.`, { id });
 
   }
   try {
@@ -61,7 +61,7 @@ const create = async ({ naam, winkel, hoeveelheid, gezinsId }) => {
   } catch (error) {
     
     getLogger().error("Fout bij het maken van de boodschap")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const updateById = async (id, { naam, winkel, hoeveelheid, gezinsId}) => {
@@ -69,7 +69,7 @@ const updateById = async (id, { naam, winkel, hoeveelheid, gezinsId}) => {
     const bestaandGezin = await gezinService.getGezinById(gezinsId);
 
     if (!bestaandGezin) {
-      throw ServiceError.notFound(`Er is geen gezin met id ${id}.`, { id });
+      // throw ServiceError.notFound(`Er is geen gezin met id ${id}.`, { id });
     }
   }
   try {
@@ -82,7 +82,7 @@ const updateById = async (id, { naam, winkel, hoeveelheid, gezinsId}) => {
     return getById(id);
   } catch (error) {
     getLogger().error("Fout bij het wijzigen van de boodschap")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 const deleteById = async (id) => {
@@ -90,11 +90,11 @@ const deleteById = async (id) => {
     const deleted = await boodschappenRepo.deleteBoodschapById(id);
 
     if (!deleted) {
-      throw ServiceError.notFound(`Geen booschap met id ${id} gevonden`, { id });
+      // throw ServiceError.notFound(`Geen booschap met id ${id} gevonden`, { id });
     }
   } catch (error) {
     getLogger().error("Fout bij het verwijderen van de boodschap")
-    throw handleDBError(error);
+    // throw handleDBError(error);
   }
 };
 
