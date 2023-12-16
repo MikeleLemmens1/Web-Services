@@ -5,9 +5,8 @@ const verjaardagenService = require('../service/verjaardagen');
 const getAllVerjaardagen = async (ctx) => {
   ctx.body = await verjaardagenService.getAllVerjaardagen();
 };
-//getAllByName? Om te zien wie er voor x dagen de hond uitlaat
 
-const getVerjaardagenByGezinsId = async (ctx) => {
+const getVerjaardagenByGezin_id = async (ctx) => {
   ctx.body = await verjaardagenService.getVerjaardagenByGezinsId(Number(ctx.params.id));
 };
 
@@ -16,8 +15,7 @@ const createVerjaardag = async (ctx) => {
     ...ctx.request.body,
     dagnummer: Number(ctx.request.body.dagnummer),
     maandnummer: Number(ctx.request.body.maandnummer),
-    gezinslidId: Number(ctx.request.body.gezinslidId),
-    gezinsId: Number(ctx.request.body.gezinsId)
+    gezin_id: Number(ctx.request.body.gezin_id)
 
   });  
   ctx.status = 201;
@@ -25,12 +23,11 @@ const createVerjaardag = async (ctx) => {
 };
 
 const updateVerjaardag = async (ctx) => {
-  ctx.body = await verjaardagenServiceService.updateVerjaardag(Number(ctx.params.id), {
+  ctx.body = await verjaardagenService.updateVerjaardagById(Number(ctx.params.id), {
     ...ctx.request.body,
     dagnummer: Number(ctx.request.body.dagnummer),
     maandnummer: Number(ctx.request.body.maandnummer),
-    gezinslidId: Number(ctx.request.body.gezinslidId),
-    gezinsId: Number(ctx.request.body.gezinsId)
+    gezin_id: Number(ctx.request.body.gezin_id)
   });
 };
 
@@ -51,7 +48,7 @@ module.exports = (app) => {
 
   router.get('/', getAllVerjaardagen);
   router.post('/', createVerjaardag);
-  router.get('/:id', getVerjaardagenByGezinsId);
+  router.get('/:id', getVerjaardagenByGezin_id);
   router.put('/:id', updateVerjaardag);
   router.delete('/:id', deleteVerjaardag);
 

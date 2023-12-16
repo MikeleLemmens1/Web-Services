@@ -10,12 +10,13 @@ const getGezinslidById = async (ctx) => {
 
 const createGezinslid = async (ctx) => {
   const newGezinslid = await gezinsledenService.createGezinslid({
-    voornaam: ctx.request.body.naam,
+    voornaam: ctx.request.body.voornaam,
     email: ctx.request.body.email,
     wachtwoord: ctx.request.body.wachtwoord,
-    gezinsId: Number(ctx.request.body.gezinsId),
-    verjaardagsId: Number(ctx.request.body.verjaardagsId)
+    gezin_id: Number(ctx.request.body.gezin_id),
+    verjaardag_id: Number(ctx.request.body.verjaardag_id)
   });
+  console.log(newGezinslid);
   ctx.body = newGezinslid;
   ctx.status = 201;
 };
@@ -23,8 +24,8 @@ const createGezinslid = async (ctx) => {
 const updateGezinslidById = async (ctx) => {
   ctx.body = await gezinsledenService.updateGezinslidById(Number(ctx.params.id),{
     ...ctx.request.body,
-    gezinsId: Number(ctx.request.body.gezinsId),
-    verjaardagsId: Number(ctx.request.body.verjaardagsId),
+    gezin_id: Number(ctx.request.body.gezin_id),
+    verjaardag_id: Number(ctx.request.body.verjaardag_id),
   });
 };
 

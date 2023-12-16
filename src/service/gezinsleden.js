@@ -29,14 +29,14 @@ const getAllGezinsledenByGezinsId = async (id) => {
   return gezinsleden;
 };
 
-const createGezinslid = async ({voornaam, email, wachtwoord, gezinsId, verjaardagsId}) => {
+const createGezinslid = async ({voornaam, email, wachtwoord, gezin_id, verjaardag_id}) => {
   let geldigGezin;
   let geldigeVerjaardag;
-  if(gezinsId){
-    geldigGezin = await gezinService.getGezinById(gezinsId);
+  if(gezin_id){
+    geldigGezin = await gezinService.getGezinById(gezin_id);
   }
-  if(verjaardagsId){
-    geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardagsId);
+  if(verjaardag_id){
+    geldigeVerjaardag = await verjaardagService.getAllVerjaardagen(verjaardag_id);
   }
   if(!geldigGezin){
     getLogger().error("Gezin niet gevonden")
@@ -46,11 +46,11 @@ const createGezinslid = async ({voornaam, email, wachtwoord, gezinsId, verjaarda
   }
   try{
     const id = await gezinsledenRepo.createGezinslid({
-      gezinsId,
+      gezin_id,
       voornaam,
       email,
       wachtwoord,
-      verjaardagsId,
+      verjaardag_id,
     });
     return getGezinslidById(id);
   }catch (error) {
@@ -59,30 +59,30 @@ const createGezinslid = async ({voornaam, email, wachtwoord, gezinsId, verjaarda
   }
 };
 
-const updateGezinslidById = async (id,{voornaam, email, wachtwoord, gezinsId, verjaardagsId}) => {
+const updateGezinslidById = async (id,{voornaam, email, wachtwoord, gezin_id, verjaardag_id}) => {
 
-  if(gezinsId){
-    const bestaandGezin = await gezinService.getGezinById(gezinsId);
+  if(gezin_id){
+    const bestaandGezin = await gezinService.getGezinById(gezin_id);
     if(!bestaandGezin){
       getLogger().error("Gezin niet gevonden");
-      // throw ServiceError.notFound(`Er is geen gezin met id ${gezinsId}.`,{gezinsId});
+      // throw ServiceError.notFound(`Er is geen gezin met id ${gezin_id}.`,{gezin_id});
     }
   }
-  if(verjaardagsId){
-    const geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardagsId);
+  if(verjaardag_id){
+    const geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
     if(!geldigeVerjaardag){
       getLogger().error("Verjaardag ongeldig")
-      // throw ServiceError.notFound(`Er is geen verjaardag met id ${verjaardagsId}.`,{verjaardagsId});
+      // throw ServiceError.notFound(`Er is geen verjaardag met id ${verjaardag_id}.`,{verjaardag_id});
       
     }
   }
   try{
     await gezinsledenRepo.updateGezinslidById(id, {
-      gezinsId,
+      gezin_id,
       voornaam,
       email,
       wachtwoord,
-      verjaardagsId,
+      verjaardag_id,
     });
     return getGezinslidById(id);
   }catch (error) {

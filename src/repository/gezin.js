@@ -55,7 +55,6 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad }) 
     huisnummer,
     postcode,
     stad,
-    gezinsId,
   }); 
   return id;
   }catch (error) {

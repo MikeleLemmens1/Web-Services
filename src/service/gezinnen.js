@@ -21,7 +21,7 @@ const getGezinById = async (id) => {
   }
   return gezin;
 };
-
+//TODO: zorgen dat er geen dubbels kunnen worden gemaakt
 const create = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
   try {
     const id = await gezinRepository.createGezin({

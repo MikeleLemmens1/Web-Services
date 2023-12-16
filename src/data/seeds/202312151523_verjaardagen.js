@@ -15,7 +15,6 @@ module.exports = {
         voornaam: "Mikele",
         achternaam: "Lemmens",
         gezin_id: 1,
-        gezinslid_id: 1
       },
       {
         // id: 2,
@@ -24,7 +23,6 @@ module.exports = {
         voornaam: "Charlotte",
         achternaam: "De Smet",
         gezin_id: 1,
-        gezinslid_id: 2
       },
       {
         // id: 3,
@@ -33,7 +31,6 @@ module.exports = {
         voornaam: "Ellis",
         achternaam: "Lemmens",
         gezin_id: 1,
-        gezinslid_id: 3,
         
       },
       {
@@ -43,7 +40,6 @@ module.exports = {
         voornaam: "Mattia",
         achternaam: "Lemmens",
         gezin_id: 2,
-        gezinslid_id: null
     
       }
     ]);

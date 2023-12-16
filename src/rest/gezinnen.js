@@ -7,10 +7,10 @@ const getAllGezinnen = async (ctx) => {
 }
 
 const getGezinById = async (ctx) => {
-  ctx.body = await gezinService.getByGezinsId(Number(ctx.params.id)); // 👈 2
+  ctx.body = await gezinService.getGezinById(Number(ctx.params.id)); // 👈 2
 };
 const createGezin = async (ctx) => {
-  const newGezin = gezinService.createGezin({
+  const newGezin = await gezinService.create({
     familienaam: ctx.request.body.familienaam,
     straat: ctx.request.body.straat,
     stad: ctx.request.body.stad,
@@ -22,7 +22,7 @@ const createGezin = async (ctx) => {
 };
 
 const updateGezinById = async (ctx) => {
-  ctx.body = await gezinService.updateById(Number(ctx.params.id), {
+  ctx.body = await gezinService.updateGezinById(Number(ctx.params.id), {
     ...ctx.request.body,
     gezinsId: Number(ctx.request.body.gezinsId),
     huisnummer: Number(ctx.request.body.huisnummer),
@@ -31,7 +31,7 @@ const updateGezinById = async (ctx) => {
 };
 
 const deleteGezinById = async (ctx) => {
-  await gezinService.deleteById(Number(ctx.params.id));
+  await gezinService.deleteGezinById(Number(ctx.params.id));
   ctx.status = 204;
 };
 

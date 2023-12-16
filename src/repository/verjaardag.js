@@ -1,37 +1,14 @@
 const {getKnex, tables}= require('../data');
 const { getLogger } = require('../core/logging');
 
-// {
-// id: 1,
-// dagnummer: 30,
-// maandnummer: 12,
-// voornaam: "Mikele",
-// achternaam: "Lemmens",
-// gezinsId: 1,
-// gezinslidId: 1
-// };
-
-const formatVerjaardag = ({
-  gezinslid_id,
-  ...verjaardag
-}) => {
-  return {
-    ...verjaardag,
-    gezinslid: {
-      id: gezinslid_id,
-      naam: voornaam,
-    }
-  };
-};
 
 const SELECT_COLUMNS = [
   `${tables.verjaardag}.id`,
   'dagnummer',
   'maandnummer',
-  'voornaam',
+  `${tables.verjaardag}.voornaam`,
   'achternaam',
-  `${tables.gezinslid}.id as gezinslid_id`,
-  `${tables.gezin}.id as gezins_id`,
+  `${tables.gezin}.id as gezin_id`,
 ];
 
 /**
@@ -41,16 +18,16 @@ const SELECT_COLUMNS = [
 const findAllVerjaardagen = async()=> {
   const verjaardagen = await getKnex()(tables.verjaardag)
   .join(
-    tables.gezinslid,
-    `${tables.gezinslid}.id`,
+    tables.gezin, 
+    `${tables.gezin}.id`,
     '=',
-    `${tables.verjaardag}.gezinslid_id`
+    `${tables.verjaardag}.gezin_id`
   )
   .select(SELECT_COLUMNS)
   .orderBy('maandnummer','ASC')
   .orderBy('dagnummer','ASC');
   
-  return verjaardagen.map(formatVerjaardag);
+  return verjaardagen;
 };
 /**
  * Geef het totaal aantal verjaardagen.
@@ -62,16 +39,22 @@ const findCount = async () => {
   return count['count(*)'];
 };
 /**
- * Vind alle geplande taken van een gezinslid.
+ * Vind alle verjaardagen van een gezin.
  *
- * @param {number} id - id van het gezinslid.
+ * @param {number} id - id van het gezin.
  */
 const findVerjaardagenByGezinsId = async (id) => {
   const verjaardagskalender = await getKnex()(tables.verjaardag)
+  .join(
+    tables.gezin, 
+    `${tables.gezin}.id`,
+    '=',
+    `${tables.verjaardag}.gezin_id`
+  )
   .where(`${tables.verjaardag}.gezin_id`,id)
   .select(SELECT_COLUMNS);
-
-  return verjaardagskalender && formatVerjaardag(verjaardagskalender);
+    
+  return verjaardagskalender;
 };
 /**
  * Vind een verjaardag met een gegeven id.
@@ -81,14 +64,15 @@ const findVerjaardagenByGezinsId = async (id) => {
 const findVerjaardagById = async (id) => {
   const verjaardag = await getKnex()(tables.verjaardag)
   .join(
-    tables.gezinslid,
-    `${tables.gezinslid}.id`,
+    tables.gezin, 
+    `${tables.gezin}.id`,
     '=',
-    `${tables.verjaardag}.gezinslid_id`)
-  .where('id',id)
+    `${tables.verjaardag}.gezin_id`
+  )
+  .where(`${tables.verjaardag}.id`,id)
   .first(SELECT_COLUMNS);
 
-  return verjaardag && formatVerjaardag(verjaardag);
+  return verjaardag;
 };
 
 /**
@@ -99,20 +83,17 @@ const findVerjaardagById = async (id) => {
  * @param {number} verjaardag.maandnummer - Maandindex van de verjaardag
  * @param {object} verjaardag.voornaam - Voornaam van de jarige
  * @param {object} verjaardag.achternaam - Achternaam van de jarige
- * @param {number} verjaardag.gezinsId - Id van de gezin waartoe de verjaardag behoort (voor op de kalender)
- * @param {number} verjaardag.gezinsLidId - Id van het gezinslid indien van toepassing
+ * @param {number} verjaardag.gezin_id - Id van de gezin waartoe de verjaardag behoort (voor op de kalender)
  *
  * @returns {Promise<number>} Id van de gemaakte taak
  */
-const createVerjaardag = async ({ gezinsId, voornaam, achternaam, dagnummer, maandnummer, gezinslidId }) => {
+const createVerjaardag = async ({ gezin_id, voornaam, achternaam, dagnummer, maandnummer}) => {
 
   try{
   const [id] = await getKnex()(tables.verjaardag).insert({
-    gezinsId,
+    gezin_id,
     voornaam,
     achternaam,
-    dagnummer,
-    gezinslid_id: gezinslidId,
     dagnummer,
     maandnummer,
   });
@@ -133,22 +114,20 @@ const createVerjaardag = async ({ gezinsId, voornaam, achternaam, dagnummer, maa
  * @param {number} verjaardag.maandnummer - Maandindex van de verjaardag
  * @param {object} verjaardag.voornaam - Voornaam van de jarige
  * @param {object} verjaardag.achternaam - Achternaam van de jarige
- * @param {number} verjaardag.gezinsId - Id van de gezin waartoe de verjaardag behoort (voor op de kalender)
- * @param {number} verjaardag.gezinsLidId - Id van het gezinslid indien van toepassing
+ * @param {number} verjaardag.gezin_id - Id van de gezin waartoe de verjaardag behoort (voor op de kalender)
  *
  * @returns {Promise<number>} Id van de aan te passen verjaardag
  * 
  */
 
-const updateVerjaardag = async (id,{ gezinsId, voornaam, achternaam, dagnummer, maandnummer, gezinslidId }) => {
+const updateVerjaardag = async (id,{ gezin_id, voornaam, achternaam, dagnummer, maandnummer}) => {
 
   try{
     await getKnex()(tables.verjaardag).update({
-      gezinsId,
+      gezin_id,
       voornaam,
       achternaam,
       dagnummer,
-      gezinslid_id: gezinslidId,
       dagnummer,
       maandnummer,
     })

@@ -31,7 +31,15 @@ module.exports = {
         wachtwoord: null,
         gezin_id: 1,
         verjaardag_id: 3,
-      }
+      },
+      {
+        // id: 1,
+        voornaam: "Mattia",
+        email: "Mattia.Lemmens@hotmail.com",
+        wachtwoord: "######",
+        gezin_id: 2,
+        verjaardag_id: 4
+      },
     ]);
   },
 };

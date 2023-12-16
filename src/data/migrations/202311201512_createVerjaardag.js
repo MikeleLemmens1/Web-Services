@@ -8,7 +8,6 @@ module.exports = {
       table.integer('maandnummer').notNullable();
       table.string('voornaam').notNullable();
       table.string('achternaam').notNullable();
-      table.string('gezinslid_id');
       table.integer('gezin_id').unsigned();
       table
       .foreign('gezin_id', 'fk_gezin_verjaardag')

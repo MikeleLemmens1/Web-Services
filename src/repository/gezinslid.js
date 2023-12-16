@@ -4,12 +4,12 @@ const {getKnex, tables}= require('../data');
 const formatGezinslid = ({
   gezin_id,
   gezin_familienaam,
-  verjaardag_dag,
+  verjaardag_id,
   ...gezinslid
   }) => {
   return {
     ...gezinslid,
-    verjaardag: verjaardag_dag,
+    verjaardag: verjaardag_id,
     gezin: {
       id: gezin_id,
       familienaam: gezin_familienaam,
@@ -21,10 +21,10 @@ const SELECT_COLUMNS = [
   `${tables.gezinslid}.id`,
   `${tables.gezin}.id as gezin_id`,
   `${tables.gezin}.familienaam as gezin_familienaam`,
-  'voornaam',
+  `${tables.verjaardag}.voornaam`,
   'email',
   'wachtwoord',
-  `${tables.verjaardag}.dag as verjaardag_dag`,
+  `${tables.verjaardag}.id as verjaardag_id  `,
 ];
 
 /**
@@ -40,9 +40,9 @@ const findAllGezinsleden = async()=> {
     `${tables.gezin}.id`
   ).join(
     tables.verjaardag,
-    `${tables.gezinslid}.verjaardag_dag`,
+    `${tables.gezinslid}.verjaardag_id`,
     '=',
-    `${tables.verjaardag}.dag`
+    `${tables.verjaardag}.id`
   ).select(SELECT_COLUMNS)
   .orderBy('voornaam','ASC');
 
@@ -79,9 +79,9 @@ const findGezinslidById = async(id)=> {
     `${tables.gezin}.id`
   ).join(
     tables.verjaardag,
-    `${tables.gezinslid}.verjaardag_dag`,
+    `${tables.gezinslid}.verjaardag_id`,
     '=',
-    `${tables.verjaardag}.dag`
+    `${tables.verjaardag}.id`
   ).where(`${tables.gezinslid}.id`,'=',id)
   .first(SELECT_COLUMNS);
   return gezinslid && formatGezinslid(gezinslid);

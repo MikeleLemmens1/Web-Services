@@ -11,8 +11,8 @@ const getAllVerjaardagen = async () => {
   };
 };
 
-const getAllVerjaardagenByGezin = async (id) => {
-  const verjaardagen = await verjaardagRepo.getAllVerjaardagenByGezin(id);
+const getVerjaardagenByGezinsId = async (id) => {
+  const verjaardagen = await verjaardagRepo.findVerjaardagenByGezinsId(id);
   if (!verjaardagen){
     //TODO Service en DB Error
     //throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
@@ -29,27 +29,21 @@ const getById = async (id) => {
 
   return verjaardag;
 };
-const create = async ({ voornaam, achternaam, dagnummer, maandnummer, gezinsId, gezinslidId }) => {
-  let bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
-  let bestaandGezin = await gezinService.getGezinById(gezinsId);
-  if (!bestaandGezinslid){
-    getLogger().error("Gezinslid niet gevonden")
-    // throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
-
-  };
-  if (!bestaandGezin){
-    getLogger().error("Gezins niet gevonden")
-    // throw ServiceError.notFound(`Er is geen gezinsid ${id}.`, { id });
-
-  }
+const createVerjaardag = async ({ voornaam, achternaam, dagnummer, maandnummer, gezin_id}) => {
+  if (gezin_id){
+    let bestaandGezin = await gezinService.getGezinById(gezin_id);
+    if (!bestaandGezin){
+      getLogger().error("Gezin niet gevonden")
+      // throw ServiceError.notFound(`Er is geen gezinsid ${id}.`, { id });
+    }
+  }  
   try {
     const id = await verjaardagRepo.createVerjaardag({
       voornaam,
       achternaam,
       dagnummer,
       maandnummer,
-      gezinslidId,
-      gezinsId,
+      gezin_id,
     });
     return getById(id);
   } catch (error) {
@@ -58,13 +52,12 @@ const create = async ({ voornaam, achternaam, dagnummer, maandnummer, gezinsId, 
     // throw handleDBError(error);
   }
 };
-const updateById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gezinsId, gezinslidId}) => {
-  if (gezinsId){
-    const bestaandGezin = await gezinService.getGezinById(gezinsId);
-    if (!gezinsId){
+const updateVerjaardagById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gezin_id}) => {
+  if (gezin_id){
+    const bestaandGezin = await gezinService.getGezinById(gezin_id);
+    if (!gezin_id){
       // throw ServiceError.notFound(`Er is geen gezin met id ${id}.`,{id})
     }
-
   }
   try{
     await verjaardagRepo.updateVerjaardag(id, {
@@ -72,8 +65,7 @@ const updateById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gez
       achternaam,
       dagnummer,
       maandnummer,
-      gezinsId,
-      gezinslidId,
+      gezin_id,
     });
     return getById(id);
 
@@ -82,7 +74,7 @@ const updateById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gez
     // throw handleDBError(error);
   }
 };
-const deleteById = async (id) => {
+const deleteVerjaardagById = async (id) => {
   try {
     const deleted = await verjaardagRepo.deleteVerjaardag(id);
 
@@ -97,8 +89,8 @@ const deleteById = async (id) => {
 
 module.exports = {
   getAllVerjaardagen,
-  getAllVerjaardagenByGezin,
-  create,
-  updateById,
-  deleteById,
+  getVerjaardagenByGezinsId,
+  createVerjaardag,
+  updateVerjaardagById,
+  deleteVerjaardagById,
 }
