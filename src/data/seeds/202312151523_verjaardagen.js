@@ -14,7 +14,7 @@ module.exports = {
         maandnummer: 12,
         voornaam: "Mikele",
         achternaam: "Lemmens",
-        gezin_id: 1,
+
       },
       {
         // id: 2,
@@ -22,7 +22,7 @@ module.exports = {
         maandnummer: 8,
         voornaam: "Charlotte",
         achternaam: "De Smet",
-        gezin_id: 1,
+
       },
       {
         // id: 3,
@@ -30,7 +30,6 @@ module.exports = {
         maandnummer: 9,
         voornaam: "Ellis",
         achternaam: "Lemmens",
-        gezin_id: 1,
         
       },
       {
@@ -39,7 +38,22 @@ module.exports = {
         maandnummer: 12,
         voornaam: "Mattia",
         achternaam: "Lemmens",
-        gezin_id: 2,
+    
+      },
+      {
+        // id: 5,
+        dagnummer: 15,
+        maandnummer: 12,
+        voornaam: "Katrijn",
+        achternaam: "Goens",
+    
+      },
+      {
+        // id: 6,
+        dagnummer: 10,
+        maandnummer: 11,
+        voornaam: "Myrthe",
+        achternaam: "Roebroek",
     
       }
     ]);

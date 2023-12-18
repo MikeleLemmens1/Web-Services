@@ -96,7 +96,8 @@ const tables = Object.freeze({
   gezinslid: 'gezinsleden',
   boodschap: 'boodschappen',
   verjaardag: 'verjaardagen',
-  geplandeTaak: 'geplandetaken'
+  geplandeTaak: 'geplandetaken',
+  kalender: 'kalenders'
 });
 
 module.exports = {

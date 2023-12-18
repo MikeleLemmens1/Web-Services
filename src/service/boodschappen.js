@@ -43,8 +43,8 @@ const getById = async (id) => {
 };
 
 
-const create = async ({ naam, winkel, hoeveelheid, gezinsId }) => {
-  let bestaandGezin = await gezinService.getGezinById(gezinsId);
+const create = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
+  let bestaandGezin = await gezinService.getGezinById(gezin_id);
   if (!bestaandGezin){
     getLogger().error("Gezin niet gevonden")
     // throw ServiceError.notFound(`Er is geen gezin id ${id}.`, { id });
@@ -55,18 +55,19 @@ const create = async ({ naam, winkel, hoeveelheid, gezinsId }) => {
       naam,
       winkel,
       hoeveelheid,
-      gezinsId,
+      gezin_id,
     });
-    return getById(id);
+    const boodschap = getById(id);
+    return boodschap;
   } catch (error) {
     
     getLogger().error("Fout bij het maken van de boodschap")
     // throw handleDBError(error);
   }
 };
-const updateById = async (id, { naam, winkel, hoeveelheid, gezinsId}) => {
-  if (gezinsId) {
-    const bestaandGezin = await gezinService.getGezinById(gezinsId);
+const updateById = async (id, { naam, winkel, hoeveelheid, gezin_id}) => {
+  if (gezin_id) {
+    const bestaandGezin = await gezinService.getGezinById(gezin_id);
 
     if (!bestaandGezin) {
       // throw ServiceError.notFound(`Er is geen gezin met id ${id}.`, { id });
@@ -77,7 +78,7 @@ const updateById = async (id, { naam, winkel, hoeveelheid, gezinsId}) => {
       naam,
       winkel,
       hoeveelheid,
-      gezinsId,
+      gezin_id,
     });
     return getById(id);
   } catch (error) {
@@ -102,6 +103,7 @@ module.exports = {
   getAll,
   getAllByGezinsId,
   getAllByWinkel,
+  getById,
   create,
   updateById,
   deleteById,

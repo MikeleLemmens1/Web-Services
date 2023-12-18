@@ -69,7 +69,7 @@ const updateGezinslidById = async (id,{voornaam, email, wachtwoord, gezin_id, ve
     }
   }
   if(verjaardag_id){
-    const geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
+    const geldigeVerjaardag = await verjaardagService.getById(verjaardag_id);
     if(!geldigeVerjaardag){
       getLogger().error("Verjaardag ongeldig")
       // throw ServiceError.notFound(`Er is geen verjaardag met id ${verjaardag_id}.`,{verjaardag_id});

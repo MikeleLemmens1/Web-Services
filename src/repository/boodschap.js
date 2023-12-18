@@ -10,7 +10,7 @@ const SELECT_COLUMNS = [
   'naam',
   'winkel',
   'hoeveelheid',
-  `${tables.gezin}.id as gezin_id`,
+  `gezin_id`,
 ];
 
 /**
@@ -19,12 +19,6 @@ const SELECT_COLUMNS = [
  */
 const findAllBoodschappen = async()=> {
   const boodschappen = await getKnex()(tables.boodschap)
-  .join(
-    tables.gezin,
-    `${tables.gezin}.id`,
-    '=',
-    `${tables.boodschap}.gezin_id`
-  )
   .select(SELECT_COLUMNS)
   .orderBy('winkel','ASC')
   .orderBy('naam','ASC');
@@ -49,12 +43,7 @@ const findCount = async () => {
  */
 const findBoodschapByid = async (id) => {
   const boodschap = await getKnex()(tables.boodschap)
-  .join(
-    tables.gezin,
-    `${tables.gezin}.id`,
-    '=',
-    `${tables.boodschap}.gezinslid_id`
-  ).where(`${tables.boodschap}.id`,id)
+  .where(`${tables.boodschap}.id`,id)
   .first(SELECT_COLUMNS);
 
   return boodschap;
@@ -66,12 +55,7 @@ const findBoodschapByid = async (id) => {
  */
 const findBoodschappenByGezinsId = async (id) => {
   const boodschappen = await getKnex()(tables.boodschap)
-  .join(
-    tables.gezin,
-    `${tables.gezin}.id`,
-    '=',
-    `${tables.boodschap}.gezinslid_id`
-  ).where(`${tables.boodschap}.gezin_id`,id)
+  .where(`${tables.boodschap}.gezin_id`,id)
   .select(SELECT_COLUMNS);
 
   return boodschappen;
@@ -84,13 +68,8 @@ const findBoodschappenByGezinsId = async (id) => {
  */
 const findBoodschappenByWinkel = async (id,winkel) => {
   const boodschappen = await getKnex()(tables.boodschap)
-  .join(
-    tables.gezin,
-    `${tables.gezin}.id`,
-    '=',
-    `${tables.boodschap}.gezinslid_id`
-  ).where(`${tables.boodschap}.id`,id)
-  .where(`{tables.boodschap}.winkel`,winkel)
+  .where(`${tables.boodschap}.gezin_id`,id)
+  .where(`${tables.boodschap}.winkel`,winkel)
   .select(SELECT_COLUMNS);
 
   return boodschappen;
@@ -102,18 +81,18 @@ const findBoodschappenByWinkel = async (id,winkel) => {
  * @param {object} boodschap.naam - Naam van de boodschap
  * @param {object} boodschap.winkel - Winkel van de boodschap
  * @param {object} boodschap.hoeveelheid - Hoeveelheid van de boodschap
- * @param {number} geplandeTaak.gezinsId - Id van het gezin
+ * @param {number} geplandeTaak.gezin_id - Id van het gezin
  *
  * @returns {Promise<number>} Id van de boodschap
  */
-const createBoodschap = async ({ naam, winkel, hoeveelheid, gezinsId }) => {
+const createBoodschap = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
 
   try{
   const [id] = await getKnex()(tables.boodschap).insert({
     naam,
     winkel,
     hoeveelheid,
-    gezin_id: gezinsId,
+    gezin_id,
   });
   return id;
   } catch (error) {
@@ -132,18 +111,18 @@ const createBoodschap = async ({ naam, winkel, hoeveelheid, gezinsId }) => {
  * @param {object} boodschap.naam - De naam van de boodschap
  * @param {Date} boodschap.winkel - De winkel van de boodschap
  * @param {object} boodschap.hoeveelheid - De hoeveelheid van de boodschap
- * @param {number} boodschap.gezinsId - Het gezin waartoe de boodschap behoort (in een boodschappenlijstje)
+ * @param {number} boodschap.gezin_id - Het gezin waartoe de boodschap behoort (in een boodschappenlijstje)
  * 
  * @returns {Promise<number>} Id van de taak
  */
-const updateBoodschapById = async (id, {naam, winkel, hoeveelheid, gezinsId}) => {
+const updateBoodschapById = async (id, {naam, winkel, hoeveelheid, gezin_id}) => {
   try{  
     await getKnex()(tables.boodschap)
     .update({
       naam,
       winkel,
       hoeveelheid,
-      gezin_id: gezinsId,
+      gezin_id: gezin_id,
     })
     .where(`${tables.boodschap}.id`, id);
     return id;

@@ -3,14 +3,16 @@ const boodschappenService = require('../service/boodschappen');
 //TODO Documentatie aanvullen
 
 const getAllBoodschappen = async (ctx) => {
-  if (ctx.request.query.winkel){
-    ctx.body = await boodschappenService.getAllByWinkel(Number(ctx.request.query.gezinsId,ctx.request.query.winkel));
+  if (ctx.query.winkel){
+    let id = Number(ctx.query.gezin_id);
+    let winkel = ctx.query.winkel;
+    ctx.body = await boodschappenService.getAllByWinkel(id,winkel);
   }
-  else if (ctx.request.query.gezinsId){
-    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.query.gezinsId));
+  else if (ctx.query.gezin_id){
+    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.body.gezin_id));
   }
   else
-    ctx.body = await geplandeTakenService.getAll();
+    ctx.body = await boodschappenService.getAll();
 };
 
 const getBoodschapById = async (ctx) => {
@@ -26,8 +28,7 @@ const getBoodschapById = async (ctx) => {
 const createBoodschap = async (ctx) => {
   const nieuweBoodschap = await boodschappenService.create({
     ...ctx.request.body,
-    gezinsId: Number(ctx.request.body.gezinsId)
-
+    gezin_id: Number(ctx.request.body.gezin_id)
   });  
   ctx.status = 201;
   ctx.body = nieuweBoodschap; 
@@ -36,7 +37,7 @@ const createBoodschap = async (ctx) => {
 const updateBoodschap = async (ctx) => {
   ctx.body = await boodschappenService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
-    gezinsId: Number(ctx.request.body.gezinsId),
+    gezin_id: Number(ctx.request.body.gezin_id),
   });
 };
 

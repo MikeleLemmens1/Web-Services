@@ -27,7 +27,7 @@ const updateVerjaardag = async (ctx) => {
     ...ctx.request.body,
     dagnummer: Number(ctx.request.body.dagnummer),
     maandnummer: Number(ctx.request.body.maandnummer),
-    gezin_id: Number(ctx.request.body.gezin_id)
+    // gezin_id: Number(ctx.request.body.gezin_id)
   });
 };
 

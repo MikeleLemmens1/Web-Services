@@ -1,7 +1,6 @@
 const { getLogger } = require('../core/logging');
 const verjaardagRepo = require('../repository/verjaardag')
 const gezinService = require('../service/gezinnen')
-const gezinsledenService = require('../service/gezinsleden')
 
 const getAllVerjaardagen = async () => {
   const items = await verjaardagRepo.findAllVerjaardagen();
@@ -52,20 +51,14 @@ const createVerjaardag = async ({ voornaam, achternaam, dagnummer, maandnummer, 
     // throw handleDBError(error);
   }
 };
-const updateVerjaardagById = async (id, {voornaam, achternaam, dagnummer, maandnummer, gezin_id}) => {
-  if (gezin_id){
-    const bestaandGezin = await gezinService.getGezinById(gezin_id);
-    if (!gezin_id){
-      // throw ServiceError.notFound(`Er is geen gezin met id ${id}.`,{id})
-    }
-  }
+const updateVerjaardagById = async (id, {voornaam, achternaam, dagnummer, maandnummer}) => {
+  
   try{
     await verjaardagRepo.updateVerjaardag(id, {
       voornaam,
       achternaam,
       dagnummer,
       maandnummer,
-      gezin_id,
     });
     return getById(id);
 
@@ -93,4 +86,5 @@ module.exports = {
   createVerjaardag,
   updateVerjaardagById,
   deleteVerjaardagById,
+  getById
 }

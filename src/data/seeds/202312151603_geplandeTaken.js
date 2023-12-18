@@ -11,7 +11,7 @@ module.exports = {
         {
           // id: 1,
           naam: "Ellis halen",
-          dag: "2017-06-15",
+          dag: "2023-10-16",
           gezinslid_id: 1,
         },
         {

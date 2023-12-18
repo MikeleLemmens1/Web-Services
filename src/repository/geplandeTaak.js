@@ -92,13 +92,14 @@ const findGeplandeTakenByGezinslidId = async (id) => {
  * @param {Date} dag - dag van de gezochte taak.
  */
 const findGeplandeTakenByDay = async (dag) => {
+  let dagString = `${dag.getFullYear()}-${dag.getMonth()+1}-${dag.getDate()+1}`
   const geplandeTaken = await getKnex()(tables.geplandeTaak)
   .join(
     tables.gezinslid,
     `${tables.gezinslid}.id`,
     '=',
     `${tables.geplandeTaak}.gezinslid_id`
-  ).where(`${tables.geplandeTaak}.dag`,dag)
+  ).where(`${tables.geplandeTaak}.dag`,dagString)
   .select(SELECT_COLUMNS);
 
   return geplandeTaken.map(formatGeplandeTaak);
@@ -109,17 +110,17 @@ const findGeplandeTakenByDay = async (dag) => {
  * @param {object} geplandeTaak - De nieuwe geplande taak
  * @param {object} geplandeTaak.naam - Naam van de geplande taak
  * @param {Date} geplandeTaak.dag - Dag van de geplande taak
- * @param {number} geplandeTaak.gezinslidId - Id van de uitvoerder
+ * @param {number} geplandeTaak.gezinslid_id - Id van de uitvoerder
  *
  * @returns {Promise<number>} Id van de gemaakte taak
  */
-const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
+const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
 
   try{
   const [id] = await getKnex()(tables.geplandeTaak).insert({
     naam,
     dag,
-    gezinslid_id: gezinslidId,
+    gezinslid_id,
   });
   return id;
   } catch (error) {
@@ -137,16 +138,16 @@ const createGeplandeTaak = async ({ naam, dag, gezinslidId }) => {
  * @param {object} geplandeTaak - De op te slagen taak
  * @param {object} geplandeTaak.naam - De naam van de taak
  * @param {Date} geplandeTaak.dag - De dag van de taak
- * @param {number} geplandeTaak.gezinslidId - De uitvoerder van de taak
+ * @param {number} geplandeTaak.gezinslid_id - De uitvoerder van de taak
  * 
  * @returns {Promise<number>} Id van de taak
  */
-const updateGeplandeTaakById = async (id, {naam, dag, gezinslidId}) => {
+const updateGeplandeTaakById = async (id, {naam, dag, gezinslid_id}) => {
   try{  
     await getKnex()(tables.geplandeTaak)
     .update({
       naam,
-      gezinslid_id: gezinslidId,
+      gezinslid_id: gezinslid_id,
       dag
     })
     .where(`${tables.geplandeTaak}.id`, id);

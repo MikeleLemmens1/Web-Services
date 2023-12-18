@@ -47,8 +47,8 @@ const getById = async (id) => {
 };
 
 
-const create = async ({ naam, dag, gezinslidId }) => {
-  let bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
+const create = async ({ naam, dag, gezinslid_id }) => {
+  let bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslid_id);
   if (!bestaandGezinslid){
     getLogger().error("Gezinslid niet gevonden")
     // throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
@@ -58,7 +58,7 @@ const create = async ({ naam, dag, gezinslidId }) => {
     const id = await geplandeTakenRepo.createGeplandeTaak({
       naam,
       dag,
-      gezinslidId,
+      gezinslid_id,
     });
     return getById(id);
   } catch (error) {
@@ -67,9 +67,9 @@ const create = async ({ naam, dag, gezinslidId }) => {
     // throw handleDBError(error);
   }
 };
-const updateById = async (id, { naam, dag, gezinslidId}) => {
-  if (gezinslidId) {
-    const bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslidId);
+const updateById = async (id, { naam, dag, gezinslid_id}) => {
+  if (gezinslid_id) {
+    const bestaandGezinslid = await gezinsledenService.getGezinslidById(gezinslid_id);
 
     if (!bestaandGezinslid) {
       // throw ServiceError.notFound(`Er is geen gezinslid met id ${id}.`, { id });
@@ -79,7 +79,7 @@ const updateById = async (id, { naam, dag, gezinslidId}) => {
     await geplandeTakenRepo.updateGeplandeTaakById(id, {
       naam,
       dag,
-      gezinslidId,
+      gezinslid_id,
     });
     return getById(id);
   } catch (error) {

@@ -40,6 +40,14 @@ module.exports = {
         gezin_id: 2,
         verjaardag_id: 4
       },
+      {
+        // id: 1,
+        voornaam: "Myrthe",
+        email: "Myrthe.Roebroek@gmail.com",
+        wachtwoord: "######",
+        gezin_id: 2,
+        verjaardag_id:6
+      },
     ]);
   },
 };

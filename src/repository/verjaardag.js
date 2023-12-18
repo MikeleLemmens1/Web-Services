@@ -6,9 +6,9 @@ const SELECT_COLUMNS = [
   `${tables.verjaardag}.id`,
   'dagnummer',
   'maandnummer',
-  `${tables.verjaardag}.voornaam`,
+  `voornaam`,
   'achternaam',
-  `${tables.gezin}.id as gezin_id`,
+  `${tables.kalender}.gezin_id`,
 ];
 
 /**
@@ -18,10 +18,10 @@ const SELECT_COLUMNS = [
 const findAllVerjaardagen = async()=> {
   const verjaardagen = await getKnex()(tables.verjaardag)
   .join(
-    tables.gezin, 
-    `${tables.gezin}.id`,
+    tables.kalender, 
+    `${tables.kalender}.verjaardag_id`,
     '=',
-    `${tables.verjaardag}.gezin_id`
+    `${tables.verjaardag}.id`
   )
   .select(SELECT_COLUMNS)
   .orderBy('maandnummer','ASC')
@@ -46,12 +46,12 @@ const findCount = async () => {
 const findVerjaardagenByGezinsId = async (id) => {
   const verjaardagskalender = await getKnex()(tables.verjaardag)
   .join(
-    tables.gezin, 
-    `${tables.gezin}.id`,
+    tables.kalender, 
+    `${tables.kalender}.verjaardag_id`,
     '=',
-    `${tables.verjaardag}.gezin_id`
+    `${tables.verjaardag}.id`
   )
-  .where(`${tables.verjaardag}.gezin_id`,id)
+  .where(`${tables.kalender}.gezin_id`,id)
   .select(SELECT_COLUMNS);
     
   return verjaardagskalender;
@@ -64,10 +64,10 @@ const findVerjaardagenByGezinsId = async (id) => {
 const findVerjaardagById = async (id) => {
   const verjaardag = await getKnex()(tables.verjaardag)
   .join(
-    tables.gezin, 
-    `${tables.gezin}.id`,
+    tables.kalender, 
+    `${tables.kalender}.verjaardag_id`,
     '=',
-    `${tables.verjaardag}.gezin_id`
+    `${tables.verjaardag}.id`
   )
   .where(`${tables.verjaardag}.id`,id)
   .first(SELECT_COLUMNS);
@@ -91,12 +91,12 @@ const createVerjaardag = async ({ gezin_id, voornaam, achternaam, dagnummer, maa
 
   try{
   const [id] = await getKnex()(tables.verjaardag).insert({
-    gezin_id,
     voornaam,
     achternaam,
     dagnummer,
     maandnummer,
   });
+  await voegToeAanKalender(id,gezin_id);
   return id;
   } catch (error) {
     getLogger().error('Error in createVerjaardag', {
@@ -105,6 +105,12 @@ const createVerjaardag = async ({ gezin_id, voornaam, achternaam, dagnummer, maa
     throw error;
   };
 };
+const voegToeAanKalender = async (verjaardag_id, gezin_id) => {
+  const id = await getKnex()(tables.kalender).insert({
+    gezin_id,
+    verjaardag_id,
+  })
+}
 /**
  * Wijzig een bestaande verjaardag.
  *
@@ -120,14 +126,12 @@ const createVerjaardag = async ({ gezin_id, voornaam, achternaam, dagnummer, maa
  * 
  */
 
-const updateVerjaardag = async (id,{ gezin_id, voornaam, achternaam, dagnummer, maandnummer}) => {
+const updateVerjaardag = async (id,{voornaam, achternaam, dagnummer, maandnummer}) => {
 
   try{
     await getKnex()(tables.verjaardag).update({
-      gezin_id,
       voornaam,
       achternaam,
-      dagnummer,
       dagnummer,
       maandnummer,
     })

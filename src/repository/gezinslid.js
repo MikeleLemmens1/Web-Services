@@ -1,3 +1,4 @@
+const { clear } = require('winston');
 const { getLogger } = require('../core/logging');
 const {getKnex, tables}= require('../data');
 
@@ -21,7 +22,7 @@ const SELECT_COLUMNS = [
   `${tables.gezinslid}.id`,
   `${tables.gezin}.id as gezin_id`,
   `${tables.gezin}.familienaam as gezin_familienaam`,
-  `${tables.verjaardag}.voornaam`,
+  `${tables.gezinslid}.voornaam`,
   'email',
   'wachtwoord',
   `${tables.verjaardag}.id as verjaardag_id  `,
@@ -46,7 +47,7 @@ const findAllGezinsleden = async()=> {
   ).select(SELECT_COLUMNS)
   .orderBy('voornaam','ASC');
 
-  return await gezinsleden.map(formatGezinslid);
+  return gezinsleden.map(formatGezinslid);
 };
 /**
  * Geef het totaal aantal gezinsleden
@@ -62,10 +63,24 @@ const findCount = async () => {
  * @param {number} id - id van het gezin 
  */
 const findAllGezinsledenByGezinsId = async(id) => {
-  return await getKnex()(tables.gezinslid).select().where('gezinslid.gezinsId',id);
-}
+  const gezinsleden = await getKnex()(tables.gezinslid)
+  .join(
+    tables.gezin,
+    `${tables.gezinslid}.gezin_id`,
+    '=',
+    `${tables.gezin}.id`
+  ).join(
+    tables.verjaardag,
+    `${tables.gezinslid}.verjaardag_id`,
+    '=',
+    `${tables.verjaardag}.id`
+  )
+  .select(SELECT_COLUMNS).where(`${tables.gezinslid}.gezin_id`,id);
+
+  return gezinsleden.map(formatGezinslid)}
 /**
  * Vind een gezinslid met een gegeven id
+ * Wordt momenteel niet gebruikt
  * 
  * @param {number} id - id van het gezochte gezinslid 
  * @returns 
@@ -90,22 +105,22 @@ const findGezinslidById = async(id)=> {
  * Maak een nieuw gezinslid
  * 
  * @param {object} gezinslid - Het aan te maken gezinslid
- * @param {number} gezinslid.gezinsId - Het id van het gezin waartoe het lid behoort
+ * @param {number} gezinslid.gezin_id - Het id van het gezin waartoe het lid behoort
  * @param {object} gezinslid.voornaam - De voornaam van het gezinslid
  * @param {object} gezinslid.email - Het e-mailadres van het gezinslid
  * @param {object} gezinslid.wachtwoord - Het wachtwoord van het gezinslid
- * @param {number} gezinslid.verjaardagsId - De verjaardag van het gezinslid
+ * @param {number} gezinslid.verjaardag_id - De verjaardag van het gezinslid
  * 
  * @returns {Promise<number>} id van het gemaakte gezinslid
  */
-const createGezinslid = async ({gezinsId, voornaam, email, wachtwoord, verjaardagsId}) => {
+const createGezinslid = async ({gezin_id, voornaam, email, wachtwoord, verjaardag_id}) => {
   try{
     const [id] = await getKnex()(tables.gezinslid).insert({
-      gezin_id: gezinsId,
+      gezin_id,
       voornaam,
       email,
       wachtwoord,
-      verjaardag_id: verjaardagsId,
+      verjaardag_id,
     });
     return id;
   } catch (error) {
@@ -122,22 +137,22 @@ const createGezinslid = async ({gezinsId, voornaam, email, wachtwoord, verjaarda
  * 
  * @param {number} id - Id van het aan te passen gezinslid 
  * @param {object} gezinslid - Het aan te passen gezinslid
- * @param {number} gezinslid.gezinsId - Het id van het gezin waartoe het lid behoort 
+ * @param {number} gezinslid.gezin_id - Het id van het gezin waartoe het lid behoort 
  * @param {object} gezinslid.voornaam - De voornaam van het gezinslid
  * @param {object} gezinslid.email - Het e-mailadres van het gezinslid
  * @param {object} gezinslid.wachtwoord - Het wachtwoord van het gezinslid
- * @param {number} gezinslid.verjaardagsId - de verjaardagsid van het gezinslid
+ * @param {number} gezinslid.verjaardag_id - de verjaardag_id van het gezinslid
  * 
  * @returns {Promise<number>} Id van het gezinslid
  */
-const updateGezinslidById = async (id, {gezinsId, voornaam, email, wachtwoord, verjaardagsId}) => {
+const updateGezinslidById = async (id, {gezin_id, voornaam, email, wachtwoord, verjaardag_id}) => {
   try{
     await getKnex()(tables.gezinslid).update({
-      gezins_id:gezinsId,
+      gezin_id,
       voornaam,
       email,
       wachtwoord,
-      verjaardags_id: verjaardagsId,
+      verjaardag_id,
     })
     .where('id',id);
     return id;

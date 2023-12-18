@@ -4,7 +4,8 @@ const geplandeTakenService = require('../service/geplande_taken');
 
 const getAllGeplandeTaken = async (ctx) => {
   if (ctx.request.query.dag){
-    ctx.body = await geplandeTakenService.getAllByDay(Number(ctx.request.query.dag));
+    let dag = new Date(ctx.request.query.dag)
+    ctx.body = await geplandeTakenService.getAllByDay(dag);
   }
   else if (ctx.request.query.week){
     ctx.body = await geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
@@ -25,7 +26,7 @@ const createGeplandeTaak = async (ctx) => {
   const newTask = await geplandeTakenService.create({
     ...ctx.request.body,
     dag: new Date(ctx.request.body.dag),
-    gezinslidId: Number(ctx.request.body.gezinslidId)
+    gezinslid_id: Number(ctx.request.body.gezinslid_id)
 
   });  
   ctx.status = 201;

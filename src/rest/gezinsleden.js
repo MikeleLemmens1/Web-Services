@@ -5,7 +5,8 @@ const getAllGezinsleden = async (ctx) => {
   ctx.body = await gezinsledenService.getAllGezinsleden();
 }
 const getGezinslidById = async (ctx) => {
-  ctx.body = await gezinsledenService.getGezinslidById(Number(ctx.params.id));
+  // ctx.body = await gezinsledenService.getGezinslidById(Number(ctx.params.id));
+  ctx.body = await gezinsledenService.getAllGezinsledenByGezinsId(Number(ctx.params.id));
 };
 
 const createGezinslid = async (ctx) => {
@@ -16,7 +17,6 @@ const createGezinslid = async (ctx) => {
     gezin_id: Number(ctx.request.body.gezin_id),
     verjaardag_id: Number(ctx.request.body.verjaardag_id)
   });
-  console.log(newGezinslid);
   ctx.body = newGezinslid;
   ctx.status = 201;
 };
