@@ -1,8 +1,10 @@
+const config = require('config');
 const winston = require('winston');
 const { combine, timestamp, colorize, printf } = winston.format;
 
 let rootLogger;
 
+const NODE_ENV = config.get('env');
 /**
  * Get the root logger.
  */
@@ -47,15 +49,22 @@ const initializeLogger = ({
   disabled = false,
   defaultMeta = {}
 }) => {
+  const transports = NODE_ENV === 'test' ? [
+    new winston.transports.File({
+      filename: 'test.log',
+      silent: disabled,
+    }),
+  ] : [
+    new winston.transports.Console({
+      silent: disabled,
+    }),
+  ];
+
   rootLogger = winston.createLogger({
     level,
     format: loggerFormat(),
     defaultMeta,
-    transports: [
-      new winston.transports.Console({
-        silent: disabled,
-      }),
-    ],
+    transports,
   });
 
   return rootLogger;

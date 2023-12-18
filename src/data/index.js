@@ -71,8 +71,7 @@ async function initializeData() {
     logger.info('Successfully initialized connection to the database');
     
     if (isDevelopment) {
-      // 👈 2
-      // 👇 3
+    
       try {
         await knexInstance.seed.run();
       } catch (error) {
@@ -99,9 +98,20 @@ const tables = Object.freeze({
   geplandeTaak: 'geplandetaken',
   kalender: 'kalenders'
 });
+async function shutdownData() {
+  const logger = getLogger();
+
+  logger.info('Shutting down database connection');
+
+  await knexInstance.destroy();
+  knexInstance = null;
+
+  logger.info('Database connection closed');
+}
 
 module.exports = {
   initializeData,
   getKnex, 
   tables, 
+  shutdownData,
 };
