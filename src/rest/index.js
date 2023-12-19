@@ -4,6 +4,7 @@ const installGezinsledenRouter = require('./gezinsleden');
 const installBoodschappenRouter = require('./boodschappen');
 const installGezinnenRouter = require('./gezinnen');
 const installVerjaardagenRouter = require('./verjaardagen');
+const installHealthRouter = require('./health')
 
 /**
  * Install all routes in the given Koa application.
@@ -20,6 +21,7 @@ module.exports = (app) => {
   installGezinnenRouter(router);
   installBoodschappenRouter(router);
   installVerjaardagenRouter(router);
+  installHealthRouter(router);
 
   app.use(router.routes())
      .use(router.allowedMethods());

@@ -107,7 +107,10 @@ const updateGezinById = async (id, {familienaam, straat, huisnummer, postcode, s
 const deleteGezinById = async (id) => {
 
   try{
-  const rowsAffected = await getKnex()(tables.gezin).where(`${tables.gezin}.id`, id).delete();
+  const rowsAffected = await getKnex()(tables.gezin)
+  .where(`${tables.gezin}.id`, id)
+  .delete();
+  
   return rowsAffected > 0;
   } catch (error){
     getLogger().error('Error in verwijderen van gezin', {

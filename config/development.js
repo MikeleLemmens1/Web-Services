@@ -7,7 +7,7 @@ module.exports = {
     port:9000
   },
   cors: { // 👈 1
-    origins: ['http://localhost:5173'], // 👈 2
+    origins: ['http://localhost:5173'],
     maxAge: 3 * 60 * 60, // 👈 3
   },
   database: {
