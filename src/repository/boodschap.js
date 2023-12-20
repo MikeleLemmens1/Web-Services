@@ -1,9 +1,6 @@
 const { getLogger } = require('../core/logging')
 const { getKnex, tables }= require('../data');
 
-// const findAll = async()=> {
-//   return await getKnex()(tables.boodschap).select().orderBy('boodschapId','ascending');
-// }
 
 const SELECT_COLUMNS = [
   `${tables.boodschap}.id`,
@@ -34,7 +31,6 @@ const findCount = async () => {
 
   return count['count(*)'];
 };
-// TODO Misschien totaal aantal boodschappen van een gezin?
 
 /**
  * Vind een boodschap met een gegeven id.

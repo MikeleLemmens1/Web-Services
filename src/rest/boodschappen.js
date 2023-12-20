@@ -1,29 +1,36 @@
 const Router = require('@koa/router');
 const boodschappenService = require('../service/boodschappen');
-//TODO Documentatie aanvullen
+const Joi = require('joi');
+const validate = require('../core/validation');
 
 const getAllBoodschappen = async (ctx) => {
-  if (ctx.query.winkel){
+  if (ctx.request.query.winkel){
     let id = Number(ctx.query.gezin_id);
     let winkel = ctx.query.winkel;
     ctx.body = await boodschappenService.getAllByWinkel(id,winkel);
   }
   else if (ctx.query.gezin_id){
-    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.body.gezin_id));
+    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.query.gezin_id));
   }
   else
     ctx.body = await boodschappenService.getAll();
+};
+getAllBoodschappen.validationScheme = {
+  query: {
+    winkel: Joi.string().max(255).optional(),
+    gezin_id: Joi.number().integer().positive().optional(),
+  },
 };
 
 const getBoodschapById = async (ctx) => {
   ctx.body = await boodschappenService.getById(Number(ctx.params.id));
 };
 
-// getTransactionById.validationScheme = {
-//   params: Joi.object({
-//     id: Joi.number().integer().positive(),
-//   }),
-
+getBoodschapById.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
 
 const createBoodschap = async (ctx) => {
   const nieuweBoodschap = await boodschappenService.create({
@@ -34,6 +41,15 @@ const createBoodschap = async (ctx) => {
   ctx.body = nieuweBoodschap; 
 };
 
+createBoodschap.validationScheme = {
+  body: {
+    naam: Joi.string().max(255),
+    winkel: Joi.string().max(255).optional(),
+    hoeveelheid: Joi.string().max(255).optional(),
+    gezin_id: Joi.number().integer().positive(),
+  },
+};
+
 const updateBoodschap = async (ctx) => {
   ctx.body = await boodschappenService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
@@ -41,9 +57,26 @@ const updateBoodschap = async (ctx) => {
   });
 };
 
+updateBoodschap.validationScheme = {
+  params: {
+    id: Joi.number().integer().positive(),
+  },
+  body: {
+    naam: Joi.string().max(255),
+    winkel: Joi.string().max(255).optional(),
+    hoeveelheid: Joi.string().max(255).optional(),
+    gezin_id: Joi.number().integer().positive(),
+  },
+};
+
 const deleteBoodschap = async (ctx) => {
   await boodschappenService.deleteById(Number(ctx.params.id));
   ctx.status = 204;
+};
+deleteBoodschap.validationScheme = {
+  params: {
+    id: Joi.number().integer().positive(),
+  },
 };
 
 /**
@@ -56,11 +89,35 @@ module.exports = (app) => {
     prefix: '/boodschappen',
   });
 
-  router.get('/', getAllBoodschappen);
-  router.post('/', createBoodschap);
-  router.get('/:id', getBoodschapById);
-  router.put('/:id', updateBoodschap);
-  router.delete('/:id', deleteBoodschap);
+  router.get(
+    '/',
+    validate(getAllBoodschappen.validationScheme),
+    getAllBoodschappen
+  );
+
+  router.post(
+    '/',  
+  validate(createBoodschap.validationScheme),
+  createBoodschap
+  );
+
+  router.get(
+    '/:id',
+  validate(getBoodschapById.validationScheme),
+  getBoodschapById
+  );
+
+  router.put(
+    '/:id',
+  validate(updateBoodschap.validationScheme),
+  updateBoodschap
+  );
+
+  router.delete(
+    '/:id',
+  validate(deleteBoodschap.validationScheme),
+  deleteBoodschap
+  );
 
   app.use(router.routes())
      .use(router.allowedMethods());

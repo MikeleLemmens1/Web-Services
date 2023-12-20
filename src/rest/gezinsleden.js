@@ -65,7 +65,7 @@ deleteGezinslidById.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
   },
-}
+};
 
 /**
  * Installeer gezinsleden routes in de gegeven router

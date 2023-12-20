@@ -2,6 +2,7 @@ const knex = require('knex');
 const { getLogger } = require('../core/logging');
 const { join } = require('path');
 const config = require('config');
+const { database } = require('../../config/test');
 
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
@@ -12,6 +13,7 @@ const DATABASE_HOST = config.get('database.host');
 const DATABASE_PORT = config.get('database.port');
 const DATABASE_USERNAME = config.get('database.username');
 const DATABASE_PASSWORD = config.get('database.password');
+const DATABASE_TIMEZONE = config.get('database.timezone')
 
 let knexInstance;
 
@@ -27,6 +29,7 @@ async function initializeData() {
       // database: DATABASE_NAME,
       user: DATABASE_USERNAME,
       password: DATABASE_PASSWORD,
+      timezone: DATABASE_TIMEZONE,
       insecureAuth: isDevelopment
     },
     // debug: isDevelopment,

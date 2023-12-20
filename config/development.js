@@ -17,5 +17,6 @@ module.exports = {
     name: 'gezinsplanner2',
     username: 'root2',
     password: '',
+    timezone: '+00:00'
   },
 }

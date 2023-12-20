@@ -11,7 +11,7 @@ const formatGeplandeTaak = ({
     ...geplandeTaak,
     gezinslid: {
       id: gezinslid_id,
-      naam: gezinslid_voornaam
+      voornaam: gezinslid_voornaam
     }
   };
 };

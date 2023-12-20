@@ -12,15 +12,6 @@ const getAllVerjaardagen = async () => {
   };
 };
 
-const getVerjaardagenByGezinsId = async (id) => {
-  const verjaardagen = await verjaardagRepo.findVerjaardagenByGezinsId(id);
-  if (!verjaardagen){
-    //TODO Service en DB Error
-    throw ServiceError.notFound(`Er bestaat geen taak met id ${id}`, { id });
-  }
-  return verjaardagen;
-};
-
 const getById = async (id) => {
   const verjaardag = await verjaardagRepo.findVerjaardagById(id);
 
@@ -29,6 +20,14 @@ const getById = async (id) => {
   }
 
   return verjaardag;
+};
+
+const getVerjaardagenByGezinsId = async (id) => {
+  const verjaardagen = await verjaardagRepo.findVerjaardagenByGezinsId(id);
+  if (!verjaardagen){
+    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+  }
+  return verjaardagen;
 };
 const createVerjaardag = async ({ voornaam, achternaam, dagnummer, maandnummer, gezin_id}) => {
   const bestaandGezin = await gezinService.getGezinById(gezin_id);

@@ -1,4 +1,4 @@
-const {getKnex, tables}= require('../data');
+const {getKnex, tables}= require('../data/index');
 const { getLogger } = require('../core/logging');
 
 
@@ -16,12 +16,7 @@ const SELECT_COLUMNS = [
  */
 const findAllVerjaardagen = async()=> {
   const verjaardagen = await getKnex()(tables.verjaardag)
-  .join(
-    tables.kalender, 
-    `${tables.kalender}.verjaardag_id`,
-    '=',
-    `${tables.verjaardag}.id`
-  )
+  
   .select(SELECT_COLUMNS)
   .orderBy('maandnummer','ASC')
   .orderBy('dagnummer','ASC');
@@ -50,8 +45,9 @@ const findVerjaardagenByGezinsId = async (id) => {
     '=',
     `${tables.verjaardag}.id`
   )
+  .select(SELECT_COLUMNS)
   .where(`${tables.kalender}.gezin_id`,id)
-  .select(SELECT_COLUMNS);
+  ;
     
   return verjaardagskalender;
 };
@@ -99,11 +95,11 @@ const createVerjaardag = async ({ gezin_id, voornaam, achternaam, dagnummer, maa
   };
 };
 const voegToeAanKalender = async (verjaardag_id, gezin_id) => {
-  const id = await getKnex()(tables.kalender).insert({
+  const [id] = await getKnex()(tables.kalender).insert({
     gezin_id,
     verjaardag_id,
-  })
-}
+  });
+};
 /**
  * Wijzig een bestaande verjaardag.
  *
