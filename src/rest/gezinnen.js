@@ -9,19 +9,10 @@ const getAllGezinnen = async (ctx) => {
 };
 getAllGezinnen.validationScheme = null;
 
-const getGezinById = async (ctx) => {
-  ctx.body = await gezinService.getGezinById(Number(ctx.params.id));
-};
-getGezinById.validationScheme = {
-  params: ({
-    id: Joi.number().integer().positive(),
-  }),
-};
+
 const createGezin = async (ctx) => {
   const newGezin = await gezinService.create({
-    familienaam: ctx.request.body.familienaam,
-    straat: ctx.request.body.straat,
-    stad: ctx.request.body.stad,
+    ...ctx.request.body,
     huisnummer: Number(ctx.request.body.huisnummer),
     postcode: Number(ctx.request.body.postcode),
   });
@@ -30,12 +21,19 @@ const createGezin = async (ctx) => {
 };
 createGezin.validationScheme = {
   body: {
-    // id: Joi.number().integer().positive(),
-    familienaam: Joi.string(),
-    straat: Joi.string(),
+    familienaam: Joi.string().max(255),
+    straat: Joi.string().max(255),
     postcode: Joi.number().integer().min(1000).max(9999),
     huisnummer: Joi.number().integer().positive(),
-    stad: Joi.string(),
+    stad: Joi.string().max(255),
+  },
+};
+const getGezinById = async (ctx) => {
+  ctx.body = await gezinService.getGezinById(Number(ctx.params.id));
+};
+getGezinById.validationScheme = {
+  params: {
+    id: Joi.number().integer().positive(),
   },
 };
 
@@ -51,11 +49,11 @@ updateGezinById.validationScheme = {
     id: Joi.number().integer().positive(),
   },
   body: {
-    familienaam: Joi.string(),
-    straat: Joi.string(),
+    familienaam: Joi.string().max(255),
+    straat: Joi.string().max(255),
     postcode: Joi.number().integer().min(1000).max(9999),
     huisnummer: Joi.number().integer().positive(),
-    stad: Joi.string(),
+    stad: Joi.string().max(255),
   },
 };
 

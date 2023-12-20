@@ -1,4 +1,3 @@
-const { clear } = require('winston');
 const { getLogger } = require('../core/logging');
 const {getKnex, tables}= require('../data');
 
@@ -25,25 +24,20 @@ const SELECT_COLUMNS = [
   `${tables.gezinslid}.voornaam`,
   'email',
   'wachtwoord',
-  `${tables.verjaardag}.id as verjaardag_id  `,
+  `${tables.gezinslid}.verjaardag_id`
 ];
 
 /**
  * Geef alle gezinsleden
  * 
  */
-const findAllGezinsleden = async()=> {
+const findAllGezinsleden = async () => {
   const gezinsleden = await getKnex()(tables.gezinslid)
   .join(
     tables.gezin,
     `${tables.gezinslid}.gezin_id`,
     '=',
     `${tables.gezin}.id`
-  ).join(
-    tables.verjaardag,
-    `${tables.gezinslid}.verjaardag_id`,
-    '=',
-    `${tables.verjaardag}.id`
   ).select(SELECT_COLUMNS)
   .orderBy('voornaam','ASC');
 
@@ -59,46 +53,38 @@ const findCount = async () => {
 }
 /**
  * Vind alle gezinsleden van een gezin
+ * Wordt momenteel niet gebruikt
  * 
  * @param {number} id - id van het gezin 
+ * 
  */
-const findAllGezinsledenByGezinsId = async(id) => {
+const findAllGezinsledenByGezinsId = async (id) => {
   const gezinsleden = await getKnex()(tables.gezinslid)
   .join(
     tables.gezin,
     `${tables.gezinslid}.gezin_id`,
     '=',
     `${tables.gezin}.id`
-  ).join(
-    tables.verjaardag,
-    `${tables.gezinslid}.verjaardag_id`,
-    '=',
-    `${tables.verjaardag}.id`
   )
-  .select(SELECT_COLUMNS).where(`${tables.gezinslid}.gezin_id`,id);
+  .select(SELECT_COLUMNS).where(`${tables.gezin}.id`,id);
 
   return gezinsleden.map(formatGezinslid)}
 /**
  * Vind een gezinslid met een gegeven id
- * Wordt momenteel niet gebruikt
  * 
  * @param {number} id - id van het gezochte gezinslid 
- * @returns 
+ * 
  */
-const findGezinslidById = async(id)=> {
+const findGezinslidById = async (id) => {
   const gezinslid = await getKnex()(tables.gezinslid)
   .join(
     tables.gezin,
     `${tables.gezinslid}.gezin_id`,
     '=',
     `${tables.gezin}.id`
-  ).join(
-    tables.verjaardag,
-    `${tables.gezinslid}.verjaardag_id`,
-    '=',
-    `${tables.verjaardag}.id`
-  ).where(`${tables.gezinslid}.id`,'=',id)
+  ).where(`${tables.gezinslid}.id`,id)
   .first(SELECT_COLUMNS);
+
   return gezinslid && formatGezinslid(gezinslid);
 }
 /**
@@ -129,7 +115,7 @@ const createGezinslid = async ({gezin_id, voornaam, email, wachtwoord, verjaarda
     });
     throw error;
     
-  };
+  }
 
 };
 /**

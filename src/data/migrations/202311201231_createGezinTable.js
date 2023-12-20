@@ -10,7 +10,8 @@ module.exports = {
       table.integer('postcode').notNullable();
       table.string('stad', 255).notNullable();
 
-      table.unique('familienaam', 'idx_gezin_familienaam_unique'); // 👈 3
+        // table.unique('familienaam', 'idx_gezin_familienaam_unique'); // 👈 3
+
     });
   },
   down: (knex) => {

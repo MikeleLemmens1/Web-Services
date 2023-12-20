@@ -2,8 +2,6 @@ const Router = require('@koa/router');
 const gezinsledenService = require('../service/gezinsleden')
 const Joi = require('joi');
 const validate = require('../core/validation');
-const { get } = require('config');
-const ServiceError = require('../core/serviceError');
 
 const getAllGezinsleden = async (ctx) => {
   ctx.body = await gezinsledenService.getAllGezinsleden();
@@ -11,24 +9,18 @@ const getAllGezinsleden = async (ctx) => {
 getAllGezinsleden.validationScheme = null;
 
 const getGezinslidById = async (ctx) => {
-  // ctx.body = await gezinsledenService.getGezinslidById(Number(ctx.params.id));
-    try{
-    ctx.body = await gezinsledenService.getAllGezinsledenByGezinsId(Number(ctx.params.id));
-    } catch (error){
-      ctx.status = 404;
-      throw error;
-    }
+  ctx.body = await gezinsledenService.getGezinslidById(Number(ctx.params.id));
+    // ctx.body = await gezinsledenService.getAllGezinsledenByGezinsId(Number(ctx.params.id));
+
   };
 getGezinslidById.validationScheme = {
-  params: {
+  params: Joi.object({
     id: Joi.number().integer().positive(),
-  },
+  }),
 };
 const createGezinslid = async (ctx) => {
   const newGezinslid = await gezinsledenService.createGezinslid({
-    voornaam: ctx.request.body.voornaam,
-    email: ctx.request.body.email,
-    wachtwoord: ctx.request.body.wachtwoord,
+    ...ctx.request.body,
     gezin_id: Number(ctx.request.body.gezin_id),
     verjaardag_id: Number(ctx.request.body.verjaardag_id)
   });
@@ -37,7 +29,12 @@ const createGezinslid = async (ctx) => {
 };
 createGezinslid.validationScheme = {
   body: {
-    voornaam: Joi.string(),
+    voornaam: Joi.string().max(255),
+    email: Joi.string().optional(),
+    wachtwoord: Joi.string().optional(),
+    gezin_id: Joi.number().integer().positive(),
+    verjaardag_id: Joi.number().integer().positive(),
+
   },
 };
 const updateGezinslidById = async (ctx) => {
@@ -53,6 +50,10 @@ updateGezinslidById.validationScheme = {
   },
   body: {
     voornaam: Joi.string(),
+    email: Joi.string().optional(),
+    wachtwoord: Joi.string().optional(),
+    gezin_id: Joi.number().integer().positive(),
+    verjaardag_id: Joi.number().integer().positive(),
   },
 };
 

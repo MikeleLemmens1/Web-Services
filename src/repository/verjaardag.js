@@ -8,7 +8,6 @@ const SELECT_COLUMNS = [
   'maandnummer',
   `voornaam`,
   'achternaam',
-  `${tables.kalender}.gezin_id`,
 ];
 
 /**
@@ -62,13 +61,7 @@ const findVerjaardagenByGezinsId = async (id) => {
  * @param {number} id - id van de gezochte verjaardag.
  */
 const findVerjaardagById = async (id) => {
-  const verjaardag = await getKnex()(tables.verjaardag)
-  .join(
-    tables.kalender, 
-    `${tables.kalender}.verjaardag_id`,
-    '=',
-    `${tables.verjaardag}.id`
-  )
+  const verjaardag = await getKnex()(tables.verjaardag)  
   .where(`${tables.verjaardag}.id`,id)
   .first(SELECT_COLUMNS);
 

@@ -14,6 +14,7 @@ module.exports = {
       .foreign('verjaardag_id', 'fk_verjaardag_kalender')
       .references(`${tables.verjaardag}.id`)
       .onDelete('CASCADE');
+
     });
   },
   down: (knex) => {

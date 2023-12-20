@@ -1,5 +1,4 @@
 const gezinsledenRepo = require('../repository/gezinslid');
-const { getLogger } = require('../core/logging');
 const verjaardagService = require('./verjaardagen');
 const gezinService = require('./gezinnen');
 const handleDBError = require('./_handleDBError');
@@ -14,7 +13,7 @@ const getAllGezinsleden = async () => {
 };
 
 const getGezinslidById = async (id) => {
-  const gezinslid = await (gezinsledenRepo.findGezinslidById(id));
+  const gezinslid = await gezinsledenRepo.findGezinslidById(id);
   if (!gezinslid) {
    throw ServiceError.notFound(`Er bestaat geen gezinslid met id ${id}`, { id });
   }
@@ -29,18 +28,14 @@ const getAllGezinsledenByGezinsId = async (id) => {
 };
 
 const createGezinslid = async ({voornaam, email, wachtwoord, gezin_id, verjaardag_id}) => {
-  let geldigGezin;
-  let geldigeVerjaardag;
-  if(gezin_id){
-    geldigGezin = await gezinService.getGezinById(gezin_id);
-  }
-  if(verjaardag_id){
-    geldigeVerjaardag = await verjaardagService.getAllVerjaardagen(verjaardag_id);
-  }
-  if(!geldigGezin){
+
+  const bestaandGezin = await gezinService.getGezinById(gezin_id);
+  const bestaandeVerjaardag = await verjaardagService.getById(verjaardag_id);
+
+  if(!bestaandGezin){
     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
   } 
-  if(!geldigeVerjaardag){
+  if(!bestaandeVerjaardag){
     throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
   }
   try{

@@ -2,20 +2,20 @@ const { getLogger } = require('../core/logging');
 const {getKnex, tables}= require('../data');
 
 
-const SELECT_COLUMNS = [
-  `${tables.gezin}.id`,
-  'familienaam',
-  'straat',
-  'huisnummer',
-  'postcode',
-  'stad',
-];
+// const SELECT_COLUMNS = [
+//   `${tables.gezin}.id`,
+//   'familienaam',
+//   'straat',
+//   'huisnummer',
+//   'postcode',
+//   'stad',
+// ];
 /**
  * Geef alle gezinnen
  * 
  */
-const findAllGezinnen = async() => {
-  return await getKnex()(tables.gezin).select()
+const findAllGezinnen = () => {
+  return getKnex()(tables.gezin).select()
 };
 
 /**
@@ -24,15 +24,15 @@ const findAllGezinnen = async() => {
  * @param {number} id - id van het gezochte gezin
  * 
  */
-const findGezinById = async(id)=> {
-  return await getKnex()(tables.gezin).select().where('id',id);
+const findGezinById = (id)=> {
+  return getKnex()(tables.gezin).where('id',id).first();
 }
 /**
  * Geef het totaal aantal gezinsleden
  * 
  */
-const findCount = async () => {
-  const [count] = await getKnex()(tables.gezin).count();
+const findCount = () => {
+  const [count] = getKnex()(tables.gezin).count();
   return count['count(*)'];
 }
 /**
@@ -71,7 +71,7 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad }) 
  * @param {number} id - id van het aan te passen gezin
  * @param {object} gezin - het op te slagen gezin
  * @param {string} gezin.familienaam - naam van het gezin
-  * @param {string} gezin.straat - straat van het gezin
+ * @param {string} gezin.straat - straat van het gezin
  * @param {number} gezin.huisnummer - huisnummer van het gezin
  * @param {number} gezin.postcode - postcode van het gezin
  * @param {string} gezin.stad - woonplaats van het gezin
