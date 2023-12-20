@@ -33,8 +33,7 @@
     "delay": "80",
     "watch": [
       "config",
-      "src",
-      "index.js"
+      "src"
     ],
     "ext": "js,json",
     "legacyWatch": true,

@@ -9,7 +9,7 @@ module.exports = {
     // then add the fresh gezinsleden
     await knex(tables.gezinslid).insert([
       {
-        // id: 1,
+        id: 1,
         voornaam: "Mikele",
         email: "mikele.lemmens@hotmail.com",
         wachtwoord: "######",
@@ -17,7 +17,7 @@ module.exports = {
         verjaardag_id: 1
       },
       {
-        // id: 2,
+        id: 2,
         voornaam: "Charlotte",
         email: "desmetcharlotte2@gmail.com",
         wachtwoord: "######",
@@ -25,7 +25,7 @@ module.exports = {
         verjaardag_id: 2
       },
       {
-        // id: 3,
+        id: 3,
         voornaam: "Ellis",
         email: null,
         wachtwoord: null,
@@ -33,7 +33,7 @@ module.exports = {
         verjaardag_id: 3,
       },
       {
-        // id: 1,
+        id: 4,
         voornaam: "Mattia",
         email: "Mattia.Lemmens@hotmail.com",
         wachtwoord: "######",
@@ -41,7 +41,7 @@ module.exports = {
         verjaardag_id: 4
       },
       {
-        // id: 1,
+        id: 5,
         voornaam: "Myrthe",
         email: "Myrthe.Roebroek@gmail.com",
         wachtwoord: "######",

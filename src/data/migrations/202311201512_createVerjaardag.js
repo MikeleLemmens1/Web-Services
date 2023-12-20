@@ -8,14 +8,7 @@ module.exports = {
       table.integer('maandnummer').notNullable();
       table.string('voornaam').notNullable();
       table.string('achternaam').notNullable();
-      // table.integer('gezin_id').unsigned();
-      // table
-      // .foreign('gezin_id', 'fk_gezin_verjaardag')
-      // .references(`${tables.gezin}.id`)
-
-      //Unique index nodig? 
-      //table.unique('name', 'idx_place_name_unique'); // 👈 3
-    });
+      });
   },
   down: (knex) => {
     return knex.schema.dropTableIfExists(tables.verjaardag);

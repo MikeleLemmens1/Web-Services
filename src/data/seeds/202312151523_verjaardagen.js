@@ -6,10 +6,10 @@ module.exports = {
     // first delete all entries
     await knex(tables.verjaardag).delete(); // 👈 2
 
-    // then add the fresh verhaardagen
+    // then add the fresh verjaardagen
     await knex(tables.verjaardag).insert([
       {
-        // id: 1,
+        id: 1,
         dagnummer: 30,
         maandnummer: 12,
         voornaam: "Mikele",
@@ -17,7 +17,7 @@ module.exports = {
 
       },
       {
-        // id: 2,
+        id: 2,
         dagnummer: 24,
         maandnummer: 8,
         voornaam: "Charlotte",
@@ -25,7 +25,7 @@ module.exports = {
 
       },
       {
-        // id: 3,
+        id: 3,
         dagnummer: 23,
         maandnummer: 9,
         voornaam: "Ellis",
@@ -33,7 +33,7 @@ module.exports = {
         
       },
       {
-        // id: 4,
+        id: 4,
         dagnummer: 30,
         maandnummer: 12,
         voornaam: "Mattia",
@@ -41,7 +41,7 @@ module.exports = {
     
       },
       {
-        // id: 5,
+        id: 5,
         dagnummer: 15,
         maandnummer: 12,
         voornaam: "Katrijn",
@@ -49,7 +49,7 @@ module.exports = {
     
       },
       {
-        // id: 6,
+        id: 6,
         dagnummer: 10,
         maandnummer: 11,
         voornaam: "Myrthe",

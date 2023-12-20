@@ -8,12 +8,11 @@ module.exports = {
       table.string('naam', 255).notNullable();
       table.string('winkel', 255);
       table.string('hoeveelheid', 255);
-      table.integer('gezin_id').unsigned();
+      table.integer('gezin_id').unsigned().notNullable();
       table
       .foreign('gezin_id', 'fk_gezin_boodschap')
       .references(`${tables.gezin}.id`)
 
-      // table.unique('name', 'idx_place_name_unique');
     });
   },
   down: (knex) => {

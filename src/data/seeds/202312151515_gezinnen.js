@@ -8,7 +8,7 @@ module.exports = {
     // then add the fresh gezinnen
     await knex(tables.gezin).insert([
       {
-        // gezinsId: 1,
+        id:1,
         familienaam: "Lemmens - De Smet",
         straat: "Binnenslag",
         huisnummer: 63,
@@ -16,7 +16,7 @@ module.exports = {
         stad: "Lovendegem"
       },
       {
-        // gezinsId: 2,
+        id: 2,
         familienaam: "Lemmens - Roebroek",
         straat: "Joost Van De Vondelplein",
         huisnummer: 27,

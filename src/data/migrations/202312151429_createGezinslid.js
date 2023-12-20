@@ -7,8 +7,8 @@ module.exports = {
       table.string('voornaam', 255).notNullable();
       table.string('email', 255);
       table.string('wachtwoord', 255);
-      table.integer('gezin_id').unsigned();
-      table.integer('verjaardag_id').unsigned();
+      table.integer('gezin_id').unsigned().notNullable();
+      table.integer('verjaardag_id').unsigned().notNullable();
       table
       .foreign('gezin_id', 'fk_gezin_gezinslid')
       .references(`${tables.gezin}.id`)
@@ -16,9 +16,8 @@ module.exports = {
       table
       .foreign('verjaardag_id', 'fk_verjaardag_gezinslid')
       .references(`${tables.verjaardag}.id`)
+      .onDelete('CASCADE');
 
-      //Unique index nodig? 
-      //table.unique('name', 'idx_place_name_unique'); // 👈 3
     });
   },
   down: (knex) => {
