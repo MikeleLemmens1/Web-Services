@@ -14,7 +14,7 @@ module.exports = {
     client: 'mysql2',
     host: 'localhost',
     port: 3306,
-    name: 'gezinsplanner2',
+    name: 'gezinsplanner',
     username: 'root2',
     password: '',
     timezone: '+00:00'
