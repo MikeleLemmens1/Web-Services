@@ -2,14 +2,13 @@
 
 - [ ] Web Services: GITHUB URL
   - <https://github.com/Web-IV/2324-webservices-MikeleLemmens1.git>
-  - <LINK_ONLINE_VERSIE_HIER>
 
 **Logingegevens**
 
-- Gebruikersnaam/e-mailadres: <mikele.lemmens@student.hogent.be>
-- Wachtwoord:
+De onderstaande gegevens worden gebruikt om in te loggen als gezinslid in de app
 
-> Vul eventueel aan met extra accounts voor administrators of andere rollen.
+- Gebruikersnaam/e-mailadres: <mikele.lemmens@hotmail.com>
+- Wachtwoord: '12345678'
 
 ## Projectbeschrijving
 
@@ -17,89 +16,101 @@
 
 Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zullen de uiteindelijke gebruikers worden), en heeft een lijst met **geplande taken**, een **boodschappenlijst** en een **verjaardagskalender**. Hier nog extra info per entiteit:  
 
-- Een gezin heeft een *familienaam*, adres (bestaande uit *straat*, *huisnummer*, *postcode* en *stad*), een of meerdere gezinsleden en een *id*.
-- Ieder gezinslid heeft een *id*, *voornaam*, *email*, eventueel een *wachtwoord* (niet alle gezinsleden moeten gebruiker zijn) en een *verjaardagsId*.
+- Een gezin heeft een *familienaam*, adres (bestaande uit *straat*, *huisnummer*, *postcode* en *stad*), een of meerdere gezinsleden, een verjaardagkalender, boodschappenlijst en een *id*.
+- Ieder gezinslid heeft een *id*, *voornaam*, *email*, een *wachtwoord* en een *verjaardagsId*. Ieder gezinlid is een geregistreerde gebruiker.
 - Een geplande taak is een taak die toebehoort aan een gezinslid en dient te worden uitgevoerd op een bepaalde dag. De gezinsplanner kan een overzicht geven van alle taken die op een bepaalde dag of week zijn ingepland. Er is een *taakId*, *naam*, *dag* en *gezinslidId* (de uitvoerder).
-- Een boodschap wordt gekenmerkt door zijn *id*, en heeft verder een *naam* (of beschrijving), *winkel* en *hoeveelheid*. De winkel en hoeveelheid zijn optioneel.
+- Een boodschap wordt gekenmerkt door zijn *id*, en heeft verder een *naam* (of beschrijving), *winkel* en *hoeveelheid*. De winkel en hoeveelheid zijn optioneel. Iedere boodschap heeft een gezinId, deze stelt de verwijzing voor naar het boodschappenlijstje van het gezin waartoe de boodschap behoort.
 - De verjaardagen worden verzameld in een verjaardagskalender en bevatten een *id*, *dagnummer*, *maandnummer*, *voornaam* en *familienaam*. Ook de verjaardagen van de gezinsleden worden hierin opgenomen, maar de meerderheid van de verjaardagen zullen van mensen zijn die niet tot het gezin behoren.
 
-![ERD Gezinsplanner](./src/image-2.png)
+![ERD Gezinsplanner](image.png)
 
 ## API calls
-
-> Indien je als extra Swagger koos, dan voeg je hier een link toe naar jouw online documentatie. Swagger geeft nl. exact (en nog veel meer) wat je hieronder moet schrijven.
 
 ### Gezinsleden
 
 - `GET /api/gezinsleden`: alle gezinsleden ophalen
-- `GET /api/gezinsleden/:voornaam`: gezinslid ophalen op voornaam
+- `GET /api/gezinsleden/:id`: gezinslid ophalen op id
+- `POST /api/gezinsleden/login`: inloggen als gezinslid
+- `POST /api/gezinsleden/register`: registreren als gezinslid
+- `PUT /api/gezinsleden/:id`: gezinslid updaten
+- `DELETE /api/gezinsleden/:id`: gezinslid verwijderen
 
-### Gezin
+### Gezinnen
 
-- `GET /api/gezin`: alle info van het gezin ophalen
+- `GET /api/gezinnen`: alle gezinnen ophalen
+- `GET /api/gezinnen/id`: gezin ophalen op id
+- `POST /api/gezinnen/`: nieuw gezin maken
+- `PUT /api/gezinnen/:id`: gezin wijzigen
+- `DELETE /api/gezinnen/:id`: gezin verwijderen
 
-### Boodschap ###
+### Boodschappen ###
 
 - `GET /api/boodschappen`: alle boodschappen ophalen
-- `GET /api/boodschappen/:winkel`: alle boodschappen voor een bepaalde winkel ophalen
+- `GET /api/boodschappen/:id`: Boodschap ophalen op id
+- `GET /api/boodschappen?winkel=WINKEL&gezin=GEZIN_ID`: Boodschappen van een gezin ophalen op winkel
+- `POST /api/boodschappen`: Boodschap maken
+- `PUT /api/boodschappen/:id`: Boodschap wijzigen
+- `DELETE /api/boodschappen/:id`: Boodschap verwijderen
 
 ### GeplandeTaak ###
 
 - `GET /api/geplande_taken`: alle geplande taken ophalen, m.u.v. diegene die in het verleden liggen.
-- `GET /api/geplande_taken/:dag`: alle geplande taken van een bepaalde dag ophalen
-- `GET /api/geplande_taken/:week`: alle geplande taken van een bepaalde week ophalen
-- `GET /api/geplande_taken/:gezinslidId`: alle geplande taken van een bepaald gezinslid ophalen
+- `GET /api/geplande_taken?dag=YYYY-MM-DD`: alle geplande taken van een bepaalde dag ophalen
+- `GET /api/geplande_taken/:id`: alle geplande taken van een bepaald gezinslid ophalen
+- `POST /api/geplande_taken`: Taak maken
+- `PUT /api/geplande_taken/:id`: Taak wijzigen
+- `DELETE /api/geplande_taken/:id`: Taak verwijderen
 
 ### Verjaardag ###
 
-- `GET /api/verjaardagen`: alle geregistreerde verjaardagen ophalen
-- `GET /api/verjaardagen/:maand`: alle verjaardagen voor een bepaalde maand ophalen
-- `GET /api/verjaardagen/:voornaam`: de verjaardag van een persoon ophalen
+- `GET /api/verjaardagen`: alle verjaardagen ophalen
+- `GET /api/verjaardagen/:id`: verjaardag ophalen op id
+- `POST /api/verjaardagen`: verjaardag maken
+- `PUT /api/verjaardagen/:id`: verjaardag wijzigen
+- `DELETE /api/verjaardagen/:id`: verjaardag verwijderen
 
 ## Behaalde minimumvereisten
 
-> Duid per vak aan welke minimumvereisten je denkt behaald te hebben
->
 ### Web Services
 
 - **datalaag**
 
-  - [ ] voldoende complex (meer dan één tabel, 2 een-op-veel of veel-op-veel relaties)
-  - [ ] één module beheert de connectie + connectie wordt gesloten bij sluiten server
-  - [ ] heeft migraties - indien van toepassing
-  - [ ] heeft seeds
+  - [x] voldoende complex (meer dan één tabel, 2 een-op-veel of veel-op-veel relaties)
+  - [x] één module beheert de connectie + connectie wordt gesloten bij sluiten server
+  - [x] heeft migraties - indien van toepassing
+  - [x] heeft seeds
 <br />
 
 - **repositorylaag**
 
-  - [ ] definieert één repository per entiteit (niet voor tussentabellen) - indien van toepassing
-  - [ ] mapt OO-rijke data naar relationele tabellen en vice versa - indien van toepassing
+  - [x] definieert één repository per entiteit (niet voor tussentabellen) - indien van toepassing
+  - [x] mapt OO-rijke data naar relationele tabellen en vice versa - indien van toepassing
 <br />
 
 - **servicelaag met een zekere complexiteit**
 
-  - [ ] bevat alle domeinlogica
-  - [ ] bevat geen SQL-queries of databank-gerelateerde code
+  - [x] bevat alle domeinlogica
+  - [x] bevat geen SQL-queries of databank-gerelateerde code
 <br />
 
 - **REST-laag**
 
-  - [ ] meerdere routes met invoervalidatie
-  - [ ] degelijke foutboodschappen
-  - [ ] volgt de conventies van een RESTful API
-  - [ ] bevat geen domeinlogica
-  - [ ] geen API calls voor entiteiten die geen zin hebben zonder hun ouder (bvb tussentabellen)
+  - [x] meerdere routes met invoervalidatie
+  - [x] degelijke foutboodschappen
+  - [x] volgt de conventies van een RESTful API
+  - [x] bevat geen domeinlogica
+  - [x] geen API calls voor entiteiten die geen zin hebben zonder hun ouder (bvb tussentabellen)
   - [ ] degelijke authorisatie/authenticatie op alle routes
 <br />
 
 - **algemeen**
 
-  - [ ] er is een minimum aan logging voorzien
-  - [ ] een aantal niet-triviale integratietesten (min. 1 controller >=80% coverage)
+  - [x] er is een minimum aan logging voorzien
+  - [x] een aantal niet-triviale integratietesten (min. 1 controller >=80% coverage)
   - [ ] minstens één extra technologie
-  - [ ] maakt gebruik van de laatste ES-features (async/await, object destructuring, spread operator...)
-  - [ ] duidelijke en volledige README.md
-  - [ ] volledig en tijdig ingediend dossier en voldoende commits
+  - [x] maakt gebruik van de laatste ES-features (async/await, object destructuring, spread operator...)
+  - [x] duidelijke en volledige README.md
+  - [x] volledig en tijdig ingediend dossier en voldoende commits
 
 ## Projectstructuur
 
