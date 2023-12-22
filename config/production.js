@@ -12,5 +12,6 @@ module.exports = {
     host: 'localhost',
     port: 3306,
     name: 'gezinsplanner',
+    timezone: '+00:00'
   },
 }
