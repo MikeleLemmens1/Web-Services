@@ -1,6 +1,6 @@
 # Mikele Lemmens (202291269)
 
-- [ ] Web Services: GITHUB URL
+- [x] Web Services: GITHUB URL
   - <https://github.com/Web-IV/2324-webservices-MikeleLemmens1.git>
 
 **Logingegevens**
@@ -9,6 +9,14 @@ De onderstaande gegevens worden gebruikt om in te loggen als gezinslid in de app
 
 - Gebruikersnaam/e-mailadres: <mikele.lemmens@hotmail.com>
 - Wachtwoord: '12345678'
+
+**DATABANK Credentials:**
+
+- Databank: 291269ml
+- Gebruikersnaam: 291269ml
+- Wachtwoord: SnKQ1eNSvgyaCkzOFFFU
+- Host: vichogent.be
+- Poort: 40043
 
 ## Projectbeschrijving
 
@@ -100,7 +108,7 @@ Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zulle
   - [x] volgt de conventies van een RESTful API
   - [x] bevat geen domeinlogica
   - [x] geen API calls voor entiteiten die geen zin hebben zonder hun ouder (bvb tussentabellen)
-  - [ ] degelijke authorisatie/authenticatie op alle routes
+  - [x] degelijke authorisatie/authenticatie op alle routes
 <br />
 
 - **algemeen**
@@ -114,24 +122,22 @@ Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zulle
 
 ## Projectstructuur
 
-### Web Services
+Ik heb de structuur gevolgd zoals in de voorbeeldapplicatie. Omdat ik wat tijd nodig had om alle onderdelen te begrijpen heb ik steeds de voorbeeldapplicatie gebruikt in de les om de getoonde zaken te kunnen reproduceren. Bij het implementeren in mijn eigen project heb ik bv andere domeinlogica toegevoegd, gebruik gemaakt van een tussentabel en alle endpoints voorzien van alle CRUD-operaties en testen.
 
-> Hoe heb je jouw applicatie gestructureerd (mappen, design patterns...)?
+Ik heb mijn repo opgesplitst in 2 belangrijke branches, de MAIN-branch en de Auth-branch. De main branch omvat alle endpoints, testen en deployment, maar alles omtrent authorisatie en authenticatie heb ik opgesplitst omdat ik de testen niet werkende kreeg. Ik heb de users voorzien als gezinsleden die een belangrijk onderdeel zijn van mijn database, en door de testen goed te proberen krijgen ben ik op een dwaalspoor terecht gekomen. Ik heb alle endpoints voorzien van authenticatie en autorisatie, maar krijg de testen niet werkende.
 
 ## Extra technologie
 
-### Web Services
-
-> Wat is de extra technologie? Hoe werkt het? Voeg een link naar het npm package toe!
+Ik heb vooral ingezet op het goed krijgen van mijn endpoints en testen. Doordat ik enerzijds veel testen heb geschreven, alsook verloren geraakt ben in de autorisatie ben ik er niet aan toe gekomen om extra technologieën te voorzien. Ik ben wel enige tijd genomen om de documentatie te lezen van Auth0 en de cookbook mapper package, maar doordat mijn applicatie met autorisatie niet lijkt te werken ben ik niet meer aan de implementatie toe geraakt.
 
 ## Testresultaten
 
-### Web Services
+In de main-branch zitten alle belangrijke testen (maar zonder autorisatie). Hiermee heb ik kunnen verzekeren dat de logica goed zit en dat de statuscodes en teruggegeven objecten de juiste zijn voor alle scenario's:
 
-> Schrijf hier een korte oplijsting en beschrijving van de geschreven testen + voeg een screenshot van de coverage en uitvoering toe
+![Alt text](image-1.png)
 
 ## Gekende bugs
 
-### Web Services
+De grootste bugs zitten hem in bv. het opzoeken van een gezin. Aanvankelijk wou ik een id kunnen meegeven en alle gezinsleden tonen van dat gezin, maar ik had er geen rekening mee gehouden dat dit in autorisatie mijn logica zou verdraaien. Omdat getById ook gebruikt werd in POST en PUT heb ik deze logica vereenvoudigd, wat oorspronkelijk niet de bedoeling was. Dit geld ook voor geplande taken (get /:id had alle geplande taken van een gezinslid moeten geven).
 
-> Zijn er gekende bugs?
+Ik hoop dat deze oplevering voldoende is om te kunnen deelnemen aan het examen. Mijn applicatie werkt niet, maar ik heb er altijd voor gezorgd dat ik zo goed mogelijk begreep wat ik overnam en implementeerde. Ik heb redelijk veel zaken ontdekt bij het debuggen, en heb het gevoel over de nodige kennis te beschikken om een kwalitatief product te kunnen opleveren.
