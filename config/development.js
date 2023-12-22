@@ -11,11 +11,20 @@ module.exports = {
   },
   database: {
     client: 'mysql2',
-    host: 'localhost',
-    port: 3306,
-    name: 'gezinsplanner',
+    // host: 'localhost',
+    // port: 3306,
+    // name: 'gezinsplanner',
+    // username: 'root2',
+    // password: '',
+    // timezone: '+00:00'
+
+    host: 'vichogent.be',
+    port: 40043,
+    name: '291269ml',
     username: 'root2',
     password: '',
     timezone: '+00:00'
   },
+
+  
 }
