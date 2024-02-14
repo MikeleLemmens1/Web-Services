@@ -12,6 +12,8 @@ module.exports = {
       table
       .foreign('gezin_id', 'fk_gezin_boodschap')
       .references(`${tables.gezin}.id`)
+      .onDelete('CASCADE');
+
 
     });
   },
