@@ -14,27 +14,6 @@ Ik verwacht dat volgende software reeds geïnstalleerd is:
 - [Yarn](https://yarnpkg.com)
 - [MySQL Community Server](https://dev.mysql.com/downloads/mysql/)
 
-Dit zijn de geïnstalleerde packages:
-
-```terminal
-yarn add koa
-yarn add nodemon --dev
-yarn add config
-yarn add env-cmd --dev
-yarn add @koa/router
-yarn add koa-bodyparser
-yarn add @koa/cors
-yarn add knex
-yarn add mysql2
-yarn add --dev jest
-yarn add --dev supertest
-yarn add joi
-yarn add node-emoji@1.11.0
-yarn add koa-helmet
-yarn add argon2
-yarn add jsonwebtoken
-```
-
 ## Opstarten
 
 Maak een .env met volgende inhoud:
@@ -45,6 +24,9 @@ DATABASE_PASSWORD='SnKQ1eNSvgyaCkzOFFFU'
 DATABASE_USER='291269ml'
 ```
 
+Start de applicatie in development met `yarn start`
+Start de applicatie in productie met `yarn start:prod`
+
 ## Testen
 
 Maak een .env.test met volgende inhoud:
@@ -54,3 +36,11 @@ NODE_ENV=test
 DATABASE_PASSWORD='SnKQ1eNSvgyaCkzOFFFU'
 DATABASE_USER='291269ml'
 ```
+
+Start de test met `yarn test`
+Voor coverage: gebruik `yarn test:coverage`
+
+## Gekende bugs
+
+- Modules not found: gebruik opnieuw `yarn install`
+- Migrations failed: drop de databank en start de app opnieuw op
