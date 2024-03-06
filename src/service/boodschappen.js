@@ -72,19 +72,20 @@ const create = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
     throw handleDBError(error);
   }
 };
-const updateById = async (id, { naam, winkel, hoeveelheid, gezin_id}) => {
-  const bestaandGezin = await gezinService.getGezinById(gezin_id);
+const updateById = async (id, { naam, winkel, hoeveelheid}) => {
+  // Het gezin meegeven is overbodig, met een id weet je voldoende
+  // const bestaandGezin = await gezinService.getGezinById(gezin_id);
 
-    if (!bestaandGezin) {
-      throw ServiceError.notFound(`Er is geen gezin met id ${id}.`, { id });
-    }
+  //   if (!bestaandGezin) {
+  //     throw ServiceError.notFound(`Er is geen gezin met id ${id}.`, { id });
+  //   }
 
   try {
     await boodschappenRepo.updateBoodschapById(id, {
       naam,
       winkel,
       hoeveelheid,
-      gezin_id,
+      // gezin_id,
     });
     return getById(id);
   } catch (error) {

@@ -4,17 +4,21 @@ const validate = require('../core/validation')
 const Joi = require('joi');
 
 const getAllVerjaardagen = async (ctx) => {
-  ctx.body = await verjaardagenService.getAllVerjaardagen();
+  // ctx.body = await verjaardagenService.getAllVerjaardagen();
+  ctx.body = await verjaardagenService.getVerjaardagenByGezinsId(ctx.captures[0])
 };
-getAllVerjaardagen.validationScheme = null;
+getAllVerjaardagen.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
 
 const createVerjaardag = async (ctx) => {
   const nieuweverjaardag = await verjaardagenService.createVerjaardag({
     ...ctx.request.body,
     dagnummer: Number(ctx.request.body.dagnummer),
     maandnummer: Number(ctx.request.body.maandnummer),
-    gezin_id: Number(ctx.request.body.gezin_id)
-
+    gezin_id: Number(ctx.params.id)
   });  
   ctx.status = 201;
   ctx.body = nieuweverjaardag; 
@@ -24,10 +28,12 @@ createVerjaardag.validationScheme = {
   body: {
     dagnummer: Joi.number().min(1).max(31),
     maandnummer: Joi.number().min(1).max(12),
-    gezin_id: Joi.number().integer().positive(),
     voornaam: Joi.string().max(255),
     achternaam: Joi.string().max(255),
-  }
+  },
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const getVerjaardagenById = async (ctx) => {
@@ -76,7 +82,7 @@ deleteVerjaardag.validationScheme = {
  */
 module.exports = (app) => {
   const router = new Router({
-    prefix: '/verjaardagen',
+    prefix: '/gezinnen/:id/verjaardagen',
   });
 
   router.get(

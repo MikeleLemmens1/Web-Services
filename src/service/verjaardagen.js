@@ -4,6 +4,7 @@ const gezinService = require('../service/gezinnen')
 const ServiceError = require('../core/serviceError')
 const handleDBError = require('./_handleDBError')
 
+// Vervangen door getByGezinsId
 const getAllVerjaardagen = async () => {
   const items = await verjaardagRepo.findAllVerjaardagen();
   return {
@@ -23,10 +24,13 @@ const getById = async (id) => {
 };
 
 const getVerjaardagenByGezinsId = async (id) => {
-  const verjaardagen = await verjaardagRepo.findVerjaardagenByGezinsId(id);
-  if (!verjaardagen){
-    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+  const bestaandGezin = await gezinService.getGezinById(id);
+  if (!bestaandGezin){
+    // getLogger().error("Gezin niet gevonden")
+    throw ServiceError.notFound(`Er is geen gezinsid ${id}.`, { id });
   }
+  const verjaardagen = await verjaardagRepo.findVerjaardagenByGezinsId(id);
+
   return verjaardagen;
 };
 const createVerjaardag = async ({ voornaam, achternaam, dagnummer, maandnummer, gezin_id}) => {

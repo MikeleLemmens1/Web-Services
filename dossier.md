@@ -52,31 +52,74 @@ Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zulle
 - `PUT /api/gezinnen/:id`: gezin wijzigen
 - `DELETE /api/gezinnen/:id`: gezin verwijderen
 
-### Boodschappen ###
+### Boodschappen
 
-- `GET /api/boodschappen`: alle boodschappen ophalen
-- `GET /api/boodschappen/:id`: Boodschap ophalen op id
-- `GET /api/boodschappen?winkel=WINKEL&gezin=GEZIN_ID`: Boodschappen van een gezin ophalen op winkel
-- `POST /api/boodschappen`: Boodschap maken
-- `PUT /api/boodschappen/:id`: Boodschap wijzigen
-- `DELETE /api/boodschappen/:id`: Boodschap verwijderen
+- `GET /api/gezinnen/:id/boodschappen`: alle boodschappen ophalen van een bepaald gezin
+- `GET /api/gezinnen/:id/boodschappen/:id`: Boodschap ophalen op id
+- `POST /api/gezinnen/:id/boodschappen`: Boodschap maken
+      body:
+          {
+            "naam",
+            "winkel",
+            "hoeveelheid"
+          }
+- `PUT /api/gezinnen/:id/boodschappen/:id`: Boodschap wijzigen
+      body:
+          {
+            "naam",
+            "winkel",
+            "hoeveelheid"
+          }
+- `DELETE /api/gezinnen/:id/boodschappen/:id`: Boodschap verwijderen
 
-### GeplandeTaak ###
+Optioneel:
 
-- `GET /api/geplande_taken`: alle geplande taken ophalen, m.u.v. diegene die in het verleden liggen.
-- `GET /api/geplande_taken?dag=YYYY-MM-DD`: alle geplande taken van een bepaalde dag ophalen
-- `GET /api/geplande_taken/:id`: alle geplande taken van een bepaald gezinslid ophalen
-- `POST /api/geplande_taken`: Taak maken
-- `PUT /api/geplande_taken/:id`: Taak wijzigen
-- `DELETE /api/geplande_taken/:id`: Taak verwijderen
+- `GET /api/gezinnen/:id/boodschappen?winkel=WINKEL`: Boodschappen van een gezin ophalen op winkel
+  
+### GeplandeTaak
 
-### Verjaardag ###
+- `GET /api/gezinsleden/:id/geplande_taken`: alle geplande taken ophalen, m.u.v. diegene die in het verleden liggen.
+- `GET /api/gezinsleden/:id/geplande_taken/:id`: Een taak ophalen op basis van zijn id
+- `POST /api/gezinsleden/:id/geplande_taken`: Taak maken voor een gezinslid
+    body:
+          {
+          "naam",
+          "dag",
+          }
+- `PUT /api/gezinsleden/:id/geplande_taken/:id`: Taak wijzigen
+    body:
+          {
+          "naam",
+          "dag",
+          }
+- `DELETE /api/gezinsleden/:id/geplande_taken/:id`: Taak verwijderen
 
-- `GET /api/verjaardagen`: alle verjaardagen ophalen
-- `GET /api/verjaardagen/:id`: verjaardag ophalen op id
-- `POST /api/verjaardagen`: verjaardag maken
-- `PUT /api/verjaardagen/:id`: verjaardag wijzigen
-- `DELETE /api/verjaardagen/:id`: verjaardag verwijderen
+Optioneel:
+
+- `GET /api/gezinsleden/:id/geplande_taken?dag=YYYY-MM-DD`: alle geplande taken van een bepaalde dag ophalen
+- `GET /api/gezinnen/:id/geplande_taken`: alle taken van een gezin ophalen
+
+### Verjaardag
+
+- `GET /api/gezinnen/:id/verjaardagen`: alle verjaardagen ophalen van een gezin
+- `GET /api/gezinnen/:id/verjaardagen/:id`: verjaardag ophalen op id
+- `POST /api/gezinnen/:id/verjaardagen`: verjaardag maken
+  Body:
+        {
+            "voornaam"
+            "achternaam"
+            "dagnummer"
+            "maandnummer"
+        }  
+- `PUT /api/gezinnen/:id/verjaardagen/:id`: verjaardag wijzigen
+    Body:
+        {
+            "voornaam"
+            "achternaam"
+            "dagnummer"
+            "maandnummer"
+        }
+- `DELETE /api/gezinnen/:id/verjaardagen/:id`: verjaardag verwijderen
 
 ## Behaalde minimumvereisten
 

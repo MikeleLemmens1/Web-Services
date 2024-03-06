@@ -9,17 +9,22 @@ const getAllBoodschappen = async (ctx) => {
     let winkel = ctx.query.winkel;
     ctx.body = await boodschappenService.getAllByWinkel(id,winkel);
   }
-  else if (ctx.query.gezin_id){
-    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.query.gezin_id));
-  }
+  // else if (ctx.query.gezin_id){
+  //   ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.query.gezin_id));
+  // }
   else
-    ctx.body = await boodschappenService.getAll();
+    // ctx.body = await boodschappenService.getAll();
+    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.params.id));
+
 };
 getAllBoodschappen.validationScheme = {
   query: {
     winkel: Joi.string().max(255).optional(),
     gezin_id: Joi.number().integer().positive().optional(),
   },
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const getBoodschapById = async (ctx) => {
@@ -35,7 +40,7 @@ getBoodschapById.validationScheme = {
 const createBoodschap = async (ctx) => {
   const nieuweBoodschap = await boodschappenService.create({
     ...ctx.request.body,
-    gezin_id: Number(ctx.request.body.gezin_id)
+    gezin_id: Number(ctx.params.id)
   });  
   ctx.status = 201;
   ctx.body = nieuweBoodschap; 
@@ -46,14 +51,23 @@ createBoodschap.validationScheme = {
     naam: Joi.string().max(255),
     winkel: Joi.string().max(255).optional(),
     hoeveelheid: Joi.string().max(255).optional(),
-    gezin_id: Joi.number().integer().positive(),
   },
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const updateBoodschap = async (ctx) => {
+  // Onderstaande zorgt ervoor dat taken van gezin kunnen veranderen (maar dat zou niet logisch zijn)
+  // Gezin_id is dus geschrapt in de andere lagen
+  // if (!ctx.request.body.gezin_id) {
+  //   gezin_id = ctx.captures[0];
+  // } else {
+  //   gezin_id = Number(ctx.request.body.gezin_id)
+  // }
   ctx.body = await boodschappenService.updateById(Number(ctx.params.id), {
     ...ctx.request.body,
-    gezin_id: Number(ctx.request.body.gezin_id),
+    // gezin_id: gezin_id,
   });
 };
 
@@ -65,7 +79,6 @@ updateBoodschap.validationScheme = {
     naam: Joi.string().max(255),
     winkel: Joi.string().max(255).optional(),
     hoeveelheid: Joi.string().max(255).optional(),
-    gezin_id: Joi.number().integer().positive(),
   },
 };
 
@@ -86,7 +99,7 @@ deleteBoodschap.validationScheme = {
  */
 module.exports = (app) => {
   const router = new Router({
-    prefix: '/boodschappen',
+    prefix: '/gezinnen/:id/boodschappen',
   });
 
   router.get(

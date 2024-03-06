@@ -22,9 +22,6 @@ const getAllByDay = async (dag) => {
   return geplandeTaken;
 }
 
-const getAllByWeek = (week) => {
-  //TODO
-}
 const getAllByGezinslidId = async (id) => {
   const geldigGezinslid = await gezinsledenService.getGezinslidById(id);
   if (!geldigGezinslid) {
@@ -107,7 +104,7 @@ const deleteById = async (id) => {
 module.exports = {
   getAll,
   getAllByDay,
-  getAllByWeek,
+  getById,
   getAllByGezinslidId,
   create,
   updateById,

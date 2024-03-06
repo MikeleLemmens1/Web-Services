@@ -111,14 +111,14 @@ const createBoodschap = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
  * 
  * @returns {Promise<number>} Id van de taak
  */
-const updateBoodschapById = async (id, {naam, winkel, hoeveelheid, gezin_id}) => {
+const updateBoodschapById = async (id, {naam, winkel, hoeveelheid}) => {
   try{  
     await getKnex()(tables.boodschap)
     .update({
       naam,
       winkel,
       hoeveelheid,
-      gezin_id: gezin_id,
+      // gezin_id: gezin_id,
     })
     .where(`${tables.boodschap}.id`, id);
     return id;

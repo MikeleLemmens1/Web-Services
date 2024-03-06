@@ -20,8 +20,7 @@ const getAllGeplandeTaken = async (ctx) => {
 };
 getAllGeplandeTaken.validationScheme = null;
 
-//getAllByName? Om te zien wie er voor x dagen de hond uitlaat
-
+// Vervangen door GetById
 const getTaskByGezinslidId = async (ctx) => {
   ctx.body = await geplandeTakenService.getAllByGezinslidId(Number(ctx.params.id));
 };
@@ -31,11 +30,21 @@ getTaskByGezinslidId.validationScheme = {
   }),
 };
 
+const getTaskById = async (ctx) => {
+  ctx.body = await geplandeTakenService.getById(Number(ctx.params.id));
+};
+getTaskById.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
+
 const createGeplandeTaak = async (ctx) => {
   const newTask = await geplandeTakenService.create({
     ...ctx.request.body,
     dag: new Date(ctx.request.body.dag),
-    gezinslid_id: Number(ctx.request.body.gezinslid_id)
+    // gezinslid_id: Number(ctx.request.body.gezinslid_id)
+    gezinslid_id: Number(ctx.params.id)
 
   });  
   ctx.status = 201;
@@ -46,8 +55,11 @@ createGeplandeTaak.validationScheme = {
     naam: Joi.string().max(255),
     dag: Joi.string()
     // .format("YYYY-MM-DD").min(today()).message('"date" cannot be earlier than today'),
-    ,gezinslid_id: Joi.number().integer().positive(),
+    // ,gezinslid_id: Joi.number().integer().positive(),
   },
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const updateTask = async (ctx) => {
@@ -65,7 +77,7 @@ updateTask.validationScheme = {
     naam: Joi.string().max(255),
     dag: Joi.string()
     // .format("YYYY-MM-DD").min(today()).message('"date" cannot be earlier than today'),
-    ,gezinslid_id: Joi.number().integer().positive(),
+    ,gezinslid_id: Joi.number().integer().positive().optional(),
   },
 };
 
@@ -85,23 +97,26 @@ deleteTask.validationScheme = {
  */
 module.exports = (app) => {
   const router = new Router({
-    prefix: '/geplande_taken',
+    prefix: '/gezinsleden/:id/geplande_taken',
   });
 
   router.get(
     '/',
-    validate(getAllGeplandeTaken.validationScheme),
-    getAllGeplandeTaken
+    // validate(getAllGeplandeTaken.validationScheme),
+    // getAllGeplandeTaken
+    validate(getTaskByGezinslidId.validationScheme),
+    getTaskByGezinslidId
   );
   router.post(
     '/',
     validate(createGeplandeTaak.validationScheme),
     createGeplandeTaak
   );
+  
   router.get(
     '/:id',
-    validate(getTaskByGezinslidId.validationScheme),
-    getTaskByGezinslidId
+    validate(getTaskById.validationScheme),
+    getTaskById
   );
   router.put(
     '/:id',

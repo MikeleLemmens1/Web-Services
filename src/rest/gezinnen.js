@@ -3,7 +3,6 @@ const gezinService = require('../service/gezinnen');
 const Joi = require('joi')
 const validate = require('../core/validation');
 
-
 const getAllGezinnen = async (ctx) => {
   ctx.body = await gezinService.getAllGezinnen();
 };
@@ -76,6 +75,7 @@ module.exports = (app) => {
   const router = new Router({
     prefix: '/gezinnen',
   });
+
   router.get(
     '/',
     validate(getAllGezinnen.validationScheme),
@@ -93,6 +93,7 @@ module.exports = (app) => {
     validate(getGezinById.validationScheme),
     getGezinById
   );
+
   router.put(
     '/:id',
     validate(updateGezinById.validationScheme),
