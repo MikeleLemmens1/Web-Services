@@ -2,7 +2,7 @@ const knex = require('knex');
 const { getLogger } = require('../core/logging');
 const { join } = require('path');
 const config = require('config');
-const { database } = require('../../config/test');
+const { Sequelize, Sequelize } = require('sequelize');
 
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
@@ -14,6 +14,7 @@ const DATABASE_PORT = config.get('database.port');
 const DATABASE_USERNAME = config.get('database.username');
 const DATABASE_PASSWORD = config.get('database.password');
 const DATABASE_TIMEZONE = config.get('database.timezone')
+const DATABASE_NAME_SEQ = config.get('database.name_seq')
 
 let knexInstance;
 
@@ -44,8 +45,6 @@ async function initializeData() {
     };
 
     knexInstance = knex(knexOptions); 
-    
-    
     
     try {
       await knexInstance.raw('SELECT 1+1 AS result');
@@ -111,6 +110,39 @@ async function shutdownData() {
 
   logger.info('Database connection closed');
 }
+
+async function initSequelize(){
+  const options = {
+    host: DATABASE_HOST,
+    dialect: DATABASE_CLIENT,
+    timezone: DATABASE_TIMEZONE,
+    port: DATABASE_PORT,
+    logging: (msg) => logger.info(msg),
+    };
+
+  let sequelize;
+  try {
+    sequelize = new Sequelize(DATABASE_NAME_SEQ,DATABASE_USERNAME,DATABASE_PASSWORD,options)
+    await sequelize.authenticate();
+    logger.info('Successfully initialized connection to the database');
+
+  } catch (error){
+    if (error.name === 'SequelizeConnectionError') {
+      // If the database does not exist, create it
+      sequelize = new Sequelize('', DATABASE_USERNAME, DATABASE_PASSWORD, seqOptions);
+      await sequelize.query(`CREATE DATABASE IF NOT EXISTS \`${DATABASE_NAME_SEQ}\`;`);
+    } else {
+      logger.error(error.message, { error });
+      throw new Error('Could not initialize the data layer'); 
+    }
+  } finally {
+    if (sequelize) {
+      await sequelize.close();
+    }
+  }
+}
+  
+
 
 module.exports = {
   initializeData,

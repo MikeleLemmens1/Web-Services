@@ -14,6 +14,7 @@ module.exports = {
     host: 'localhost',
     port: 3306,
     name: 'gezinsplanner',
+    name_seq: 'gezinsplanner_seq',
     username: 'root2',
     password: '',
     timezone: '+00:00'

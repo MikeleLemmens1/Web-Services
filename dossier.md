@@ -31,7 +31,7 @@ Een gezin is de groep van gebruikers. Het bestaat uit **gezinsleden** (dit zulle
 - Een boodschap wordt gekenmerkt door zijn *id*, en heeft verder een *naam* (of beschrijving), *winkel* en *hoeveelheid*. De winkel en hoeveelheid zijn optioneel. Iedere boodschap heeft een gezinId, deze stelt de verwijzing voor naar het boodschappenlijstje van het gezin waartoe de boodschap behoort.
 - De verjaardagen worden verzameld in een verjaardagskalender en bevatten een *id*, *dagnummer*, *maandnummer*, *voornaam* en *familienaam*. Ook de verjaardagen van de gezinsleden worden hierin opgenomen, maar de meerderheid van de verjaardagen zullen van mensen zijn die niet tot het gezin behoren.
 
-![ERD Gezinsplanner](image.png)
+![ERD Gezinsplanner](ERD%20WS.png)
 
 ## API calls
 
