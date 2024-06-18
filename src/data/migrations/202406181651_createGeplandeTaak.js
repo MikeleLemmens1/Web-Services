@@ -1,36 +1,25 @@
 'use strict';
 /**
- * Migration file for creating Gezin table
+ * Migration file for creating Geplande Taak table
  * @type {import('sequelize-cli').Migration} 
  */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Gezinnen', {
+    await queryInterface.createTable('GeplandeTaken', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      familienaam: {
+      naam:{
         type: Sequelize.STRING,
         allowNull: false,
+        unique:false
       },
-      straat: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      huisnummer: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      postcode: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      stad: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      dag: {
+        type: Sequelize.DATE,
+        unique: false,
       },
       createdAt: {
         allowNull: false,
@@ -39,11 +28,21 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      },
+      gezinslidId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Gezinsleden',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+
       
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Gezinnen');
+    await queryInterface.dropTable('GeplandeTaken');
   }
 };

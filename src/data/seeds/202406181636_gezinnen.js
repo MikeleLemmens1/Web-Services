@@ -14,8 +14,8 @@ module.exports = {
         huisnummer: 63,
         postcode: 9920,
         stad: "Lovendegem",
-        // createdAt: new Date(),
-        // updatedAt: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         id: 2,
@@ -24,8 +24,8 @@ module.exports = {
         huisnummer: 27,
         postcode: 9940,
         stad: "Ertvelde",
-        // createdAt: new Date(),
-        // updatedAt: new Date()
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ])
   },
