@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Gezinslid.hasMany(models.GeplandeTaken, {foreignKey: 'gezinslid_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
       Gezinslid.belongsTo(models.Gezin,{foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
-      Gezinslid.belongsTo(models.Verjaardag, {foreignKey: 'verjaardag_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+      Gezinslid.hasOne(models.Verjaardag, {foreignKey: {allowNull: false, name: 'verjaardag_id'}, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
     }
   }
   Gezinslid.init({

@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Gezin.hasMany(models.Gezinslid, {foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
       Gezin.hasMany(models.Boodschap, {foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+      // FK's worden automatisch gegenereerd indien niet gespecifieerd -> Testen
       Gezin.belongsToMany(models.Verjaardag,{through: 'KalenderItem'})
 
     }

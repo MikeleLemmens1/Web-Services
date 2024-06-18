@@ -83,6 +83,7 @@ module.exports = function installMiddleware(app) {
       if (error.isValidationFailed) {
         statusCode = 400;
       }
+      // Conditions unauthorized and forbidden to be added
     };
     ctx.status = statusCode;
     ctx.body = errorBody;

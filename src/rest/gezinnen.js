@@ -12,13 +12,15 @@ getAllGezinnen.validationScheme = null;
 const createGezin = async (ctx) => {
   const newGezin = await gezinService.create({
     ...ctx.request.body,
-    huisnummer: Number(ctx.request.body.huisnummer),
-    postcode: Number(ctx.request.body.postcode),
+    // No longer necessary to cast numbers?
+    // huisnummer: Number(ctx.request.body.huisnummer),
+    // postcode: Number(ctx.request.body.postcode),
   });
   ctx.status = 201;
   ctx.body = newGezin; 
 };
 createGezin.validationScheme = {
+  // Check for alternate syntax ico errors (Joi.object({...}))
   body: {
     familienaam: Joi.string().max(255),
     straat: Joi.string().max(255),
@@ -36,11 +38,13 @@ getGezinById.validationScheme = {
   },
 };
 
+
+// TODO: setVerjaardagId's
 const updateGezinById = async (ctx) => {
   ctx.body = await gezinService.updateGezinById(Number(ctx.params.id), {
     ...ctx.request.body,
-    huisnummer: Number(ctx.request.body.huisnummer),
-    postcode: Number(ctx.request.body.postcode),
+    // huisnummer: Number(ctx.request.body.huisnummer),
+    // postcode: Number(ctx.request.body.postcode),
   });
 };
 updateGezinById.validationScheme = {
@@ -66,6 +70,10 @@ deleteGezinById.validationScheme = {
   },
 };
 
+// TODO: get by familienaam?
+// TODO: get all gezinsleden
+// TODO: get all verjaardagen
+
 /**
  * Installeer gezinsleden routes in de gegeven router
  *
@@ -81,6 +89,12 @@ module.exports = (app) => {
     validate(getAllGezinnen.validationScheme),
     getAllGezinnen
   );
+  
+  router.get(
+    '/:id',
+    validate(getGezinById.validationScheme),
+    getGezinById
+  );
 
   router.post(
     '/', 
@@ -88,11 +102,6 @@ module.exports = (app) => {
     createGezin
   );
 
-  router.get(
-    '/:id',
-    validate(getGezinById.validationScheme),
-    getGezinById
-  );
 
   router.put(
     '/:id',
