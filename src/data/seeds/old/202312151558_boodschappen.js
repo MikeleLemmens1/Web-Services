@@ -1,4 +1,4 @@
-const { tables } = require('..');
+const { tables } = require('../..');
 
 module.exports = {
   seed: async (knex) => {

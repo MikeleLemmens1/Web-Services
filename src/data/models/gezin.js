@@ -48,9 +48,13 @@ module.exports = (sequelize, DataTypes) => {
   }, 
   {
     sequelize,
-    name:{
-      singular:'Gezin',
-      plural:'Gezinnen',
-    },  });
+    tableName:'gezinnen',
+    // name:{
+    //   singular:'Gezin',
+    //   plural:'Gezinnen',
+    // },
+    // Make sure to use the self-defined plural
+    // freezeTableName: true,
+  });
   return Gezin;
 };

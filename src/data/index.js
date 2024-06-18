@@ -6,6 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const config = require('config');
 const {Sequelize} = require('sequelize');
+const { log } = require('console');
 
 const NODE_ENV = config.get('env');
 const isDevelopment = NODE_ENV === 'development';
@@ -42,6 +43,7 @@ async function initializeData(){
     };
 
   try {
+    
     sequelize = new Sequelize(DATABASE_NAME,DATABASE_USERNAME,DATABASE_PASSWORD,options);
     await sequelize.authenticate();
     logger.info('Successfully initialized connection to the database');
@@ -55,11 +57,7 @@ async function initializeData(){
       logger.error(error.message, { error });
       throw new Error('Could not initialize the data layer'); 
     }
-  } finally {
-    if (sequelize) {
-      await sequelize.close();
-    }
-  }
+  };
   // Simpler catch block for troubleshooting
   // catch (error) {
   //   logger.error('Unable to connect to the database', error);
@@ -116,14 +114,21 @@ async function shutdownData() {
 }
 
 
-  
+  const tables = Object.freeze({
+  gezin: 'gezinnen',
+  gezinslid: 'gezinsleden',
+  boodschap: 'boodschappen',
+  verjaardag: 'verjaardagen',
+  geplandeTaak: 'geplandetaken',
+  kalender: 'kalenders'
+});
 
 
 module.exports = {
   getSequelize,
   initializeData,
   // getKnex, 
-  // tables, 
+  tables, 
   shutdownData,
 };
 
@@ -204,11 +209,3 @@ module.exports = {
 //       return knexInstance;
 //     }
 
-// const tables = Object.freeze({
-//   gezin: 'gezinnen',
-//   gezinslid: 'gezinsleden',
-//   boodschap: 'boodschappen',
-//   verjaardag: 'verjaardagen',
-//   geplandeTaak: 'geplandetaken',
-//   kalender: 'kalenders'
-// });

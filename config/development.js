@@ -10,13 +10,15 @@ module.exports = {
     maxAge: 3 * 60 * 60, // 👈 3
   },
   database: {
-    client: 'mysql2',
+    dialect: 'mysql',
     host: 'localhost',
     port: 3306,
-    name: 'gezinsplanner',
-    name_seq: 'gezinsplanner_seq',
+    name: 'gezinsplanner_seq',
+    // Needed for migrations
+    database:'gezinsplanner_seq', 
+    // name_seq: 'gezinsplanner_seq',
     username: 'root2',
-    password: '',
+    password: 'WebServ2023',
     timezone: '+00:00'
 
     // host: 'vichogent.be',

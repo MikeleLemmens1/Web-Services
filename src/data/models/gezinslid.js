@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
     Een gezinslid behoort toe aan 1 gezin
     */
     static associate(models) {
-      Gezinslid.hasMany(models.GeplandeTaken, {foreignKey: 'gezinslid_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+      Gezinslid.hasMany(models.GeplandeTaak, {foreignKey: 'gezinslid_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
       Gezinslid.belongsTo(models.Gezin,{foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
       Gezinslid.hasOne(models.Verjaardag, {foreignKey: {allowNull: false, name: 'verjaardag_id'}, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
     }

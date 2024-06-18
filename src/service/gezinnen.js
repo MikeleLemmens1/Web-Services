@@ -2,9 +2,10 @@
 // const gezinRepository = require('../repository/gezin');
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
-const { getSequelize } = require('../data');
+const { getSequelize } = require('../data/index');
 
 
+// console.log(getSequelize());
 
 const includeGezinsleden = () => ({
   include: [{
@@ -15,7 +16,7 @@ const includeGezinsleden = () => ({
 });
 
 const getAllGezinnen = async () => {
-  const items = await getSequelize().models.Gezinslid.findAll(includeGezinsleden());
+  const items = await getSequelize().models.Gezin.findAll();
   return{
     items,
     count: items.length,
