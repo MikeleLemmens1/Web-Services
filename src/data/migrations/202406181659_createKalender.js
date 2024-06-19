@@ -12,7 +12,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      gezinId: {
+      gezin_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Gezinnen',
@@ -21,7 +21,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
-      verjaardagId: {
+      verjaardag_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Verjaardagen',

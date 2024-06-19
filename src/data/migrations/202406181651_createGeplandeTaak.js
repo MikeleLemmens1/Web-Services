@@ -29,7 +29,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      gezinslidId: {
+      gezinslid_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Gezinsleden',

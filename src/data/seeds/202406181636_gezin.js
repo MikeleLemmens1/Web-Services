@@ -1,6 +1,6 @@
 'use strict';
 /**
- * Seeder file for Anime table
+ * Seeder file for Gezin table
  * @type {import('sequelize-cli').Seeder} 
  */
 module.exports = {

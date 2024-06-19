@@ -35,7 +35,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      gezinId: {
+      gezin_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Gezinnen',

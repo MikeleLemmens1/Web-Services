@@ -17,7 +17,7 @@ module.exports = {
         allowNull: false,
         unique:false
       },
-      familienaam: {
+      achternaam: {
         type: Sequelize.STRING,
         allowNull: true,
         unique: false,
