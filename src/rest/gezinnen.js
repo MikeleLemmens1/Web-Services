@@ -10,7 +10,7 @@ getAllGezinnen.validationScheme = null;
 
 
 const createGezin = async (ctx) => {
-  const newGezin = await gezinService.create({
+  const newGezin = await gezinService.createGezin({
     ...ctx.request.body,
     // No longer necessary to cast numbers?
     // huisnummer: Number(ctx.request.body.huisnummer),
@@ -38,6 +38,14 @@ getGezinById.validationScheme = {
   },
 };
 
+const getGezinByFamilienaam = async (ctx) => {
+  ctx.body = await gezinService.getGezinByFamilienaam(ctx.params.familienaam);
+}
+getGezinByFamilienaam.validationScheme = {
+  params: {
+    familienaam: Joi.string().max(255),
+  },
+};
 
 // TODO: setVerjaardagId's
 const updateGezinById = async (ctx) => {
@@ -70,9 +78,36 @@ deleteGezinById.validationScheme = {
   },
 };
 
-// TODO: get by familienaam?
-// TODO: get all gezinsleden
-// TODO: get all verjaardagen
+const getAllGezinsledenFromGezin = async (ctx) => {
+  ctx.body = await gezinService.getAllGezinsleden(ctx.params.id);
+}
+
+getAllGezinsledenFromGezin.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
+const getAllBoodschappenFromGezin = async (ctx) => {
+  ctx.body = await gezinService.getAllBoodschappen(ctx.params.id);
+}
+
+getAllBoodschappenFromGezin.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
+
+const getAllVerjaardagenFromGezin = async (ctx) => {
+  ctx.body = await gezinService.getAllVerjaardagen(ctx.params.id);
+}
+
+getAllVerjaardagenFromGezin.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
+
+
 
 /**
  * Installeer gezinsleden routes in de gegeven router
@@ -94,6 +129,30 @@ module.exports = (app) => {
     '/:id',
     validate(getGezinById.validationScheme),
     getGezinById
+  );
+
+  router.get(
+    '/familienaam/:familienaam',
+    validate(getGezinByFamilienaam.validationScheme),
+    getGezinByFamilienaam
+  );
+
+  router.get(
+    '/:id/gezinsleden',
+    validate(getAllGezinsledenFromGezin.validationScheme),
+    getAllGezinsledenFromGezin
+  );
+
+  router.get(
+    '/:id/boodschappen',
+    validate(getAllBoodschappenFromGezin.validationScheme),
+    getAllBoodschappenFromGezin
+  );
+
+  router.get(
+    '/:id/verjaardagen',
+    validate(getAllVerjaardagenFromGezin.validationScheme),
+    getAllVerjaardagenFromGezin
   );
 
   router.post(

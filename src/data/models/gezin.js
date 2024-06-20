@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       // Geen alias bij hasMany
       Gezin.hasMany(models.Gezinslid, {foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
       Gezin.hasMany(models.Boodschap, {foreignKey: 'gezin_id',onDelete: 'CASCADE', onUpdate: 'CASCADE'});
-      Gezin.belongsToMany(models.Verjaardag, {through:'GezinVerjaardag',foreignKey:'gezin_id'})
+      Gezin.belongsToMany(models.Verjaardag, {through:'GezinVerjaardag',foreignKey:'gezin_id',as:'Verjaardagen'})
     }
   }
 

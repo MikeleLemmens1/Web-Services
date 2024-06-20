@@ -23,8 +23,8 @@ const include = () => ({
     },
     {
     model: getSequelize().models.Verjaardag,
-    as: 'Verjaardags',
-    through: { attributes: []}
+    as: 'Verjaardagen',
+    through: { attributes: [/*'voornaam','achternaam','dagnummer','maandnummer'*/]}
     }
           ]
 });
@@ -38,8 +38,6 @@ const getAllGezinnen = async () => {
   };
 }
 
-
-
 const getGezinById = async(id) => {
   const gezin = await getSequelize().models.Gezin.findByPk(id,include());
   if(!gezin){
@@ -48,8 +46,16 @@ const getGezinById = async(id) => {
   return gezin;
 };
 
-// TODO Use a transaction to create an instance to rollback when sth goes wrong?
-// No verjaardagen or gezinsleden when creating a gezin?
+const getGezinByFamilienaam = async(familienaam) => {
+  const gezin = await getSequelize().models.Gezin.findOne({
+    where: {
+      familienaam: familienaam,
+    },
+    ...include()
+  });
+  return gezin;
+};
+
 const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
   try{
     const gezin = await getSequelize().models.Gezin.create({
@@ -62,17 +68,20 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) =
     getLogger().error('Error creating gezin', {error});
     throw handleDBError(error);
   }
-};
+}
 
 const updateGezinById = async(id, { familienaam, straat, huisnummer, postcode, stad}) => {
-  try {
+  try{
     const gezin = await getGezinById(id);
-    gezin.set(
-      {familienaam, straat, huisnummer, postcode, stad}
-    );
+    gezin.set({
+      familienaam, straat, huisnummer, postcode, stad
+    });
+    gezin.save();
     return gezin;
-  } catch (error){
-    getLogger().error('Error updating gezin', {error});
+    // OR return await getGezinById(gezin.id) to use service error?
+  }
+  catch(error){
+    getLogger().error('Error creating gezin', {error});
     throw handleDBError(error);
   }
 }
@@ -87,7 +96,59 @@ const deleteGezinById = async (id) => {
   }
 };
 
+const getAllGezinsleden = async (id) => {
+  const gezin = await getGezinById(id);
+  const gezinsleden = await gezin.getGezinsleden();
+  const familienaam = gezin.dataValues.familienaam;
 
+  return{
+    gezin:familienaam,
+    gezinsleden,
+    count: gezinsleden.length
+  }
+}
+
+const getAllBoodschappen = async (id) => {
+  const gezin = await getGezinById(id);
+  const items = await gezin.getBoodschappen();
+  const boodschappen = []
+  for (const boodschap of items){
+    object  = {
+      naam: boodschap.dataValues.naam,
+      winkel: boodschap.dataValues.winkel,
+      hoeveelheid: boodschap.dataValues.hoeveelheid,
+    };
+    boodschappen.push(object);
+
+  }
+  const familienaam = gezin.dataValues.familienaam;
+
+  return{
+    gezin: familienaam,
+    boodschappen,
+    count: boodschappen.length
+  }
+}
+
+const getAllVerjaardagen = async (id) => {
+  const gezin = await getGezinById(id);
+  let items = await gezin.getVerjaardagen();
+  const verjaardagen = []
+  for (const verjaardag of items){
+    object  = {
+      voornaam: verjaardag.dataValues.voornaam,
+      achternaam: verjaardag.dataValues.achternaam
+    };
+    verjaardagen.push(object)
+  }
+  const familienaam = gezin.dataValues.familienaam;
+
+  return{
+    gezin:familienaam,
+    verjaardagen,
+    count: verjaardagen.length
+  }
+}
 
 module.exports = {
   getAllGezinnen,
@@ -95,6 +156,10 @@ module.exports = {
   createGezin,
   updateGezinById,
   deleteGezinById,
+  getGezinByFamilienaam,
+  getAllGezinsleden,
+  getAllBoodschappen,
+  getAllVerjaardagen
 };
 
 

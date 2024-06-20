@@ -34,19 +34,19 @@ const getAllGezinsleden = async () => {
 };
 
 const getGezinslidById = async (id) => {
-  const gezinslid = await gezinsledenRepo.findGezinslidById(id);
-  if (!gezinslid) {
-   throw ServiceError.notFound(`Er bestaat geen gezinslid met id ${id}`, { id });
+  const gezinslid = await getSequelize().models.Gezinslid.findByPk(id,include());
+  if(!gezinslid){
+    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
   }
   return gezinslid;
 };
-const getAllGezinsledenByGezinsId = async (id) => {
-  const gezinsleden = await (gezinsledenRepo.findAllGezinsledenByGezinsId(id));
-  if (!gezinsleden) {
-    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  }
-  return gezinsleden;
-};
+// const getAllGezinsledenByGezinsId = async (id) => {
+//   const gezinsleden = await (gezinsledenRepo.findAllGezinsledenByGezinsId(id));
+//   if (!gezinsleden) {
+//     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+//   }
+//   return gezinsleden;
+// };
 
 const createGezinslid = async ({voornaam, email, wachtwoord, gezin_id, verjaardag_id}) => {
 
@@ -123,7 +123,7 @@ const deleteGezinslidById = async (id) => {
 module.exports = {
   getAllGezinsleden,
   getGezinslidById,
-  getAllGezinsledenByGezinsId,
+  // getAllGezinsledenByGezinsId,
   createGezinslid,
   updateGezinslidById,
   deleteGezinslidById,
