@@ -16,11 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     Een gezin heeft N Boodschappen
     */
     static associate(models) {
+      // Geen alias bij hasMany
       Gezin.hasMany(models.Gezinslid, {foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
-      Gezin.hasMany(models.Boodschap, {foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
-      // FK's worden automatisch gegenereerd indien niet gespecifieerd -> Testen
-      Gezin.belongsToMany(models.Verjaardag,{through: 'KalenderItem'})
-
+      Gezin.hasMany(models.Boodschap, {foreignKey: 'gezin_id',onDelete: 'CASCADE', onUpdate: 'CASCADE'});
+      Gezin.belongsToMany(models.Verjaardag, {through:'GezinVerjaardag',foreignKey:'gezin_id'})
     }
   }
 
@@ -49,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
   {
     sequelize,
     tableName:'gezinnen',
+    modelName:'Gezin',
     // name:{
     //   singular:'Gezin',
     //   plural:'Gezinnen',

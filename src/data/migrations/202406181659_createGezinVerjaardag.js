@@ -1,11 +1,11 @@
 'use strict';
 /**
- * Migration file for creating Kalender table
+ * Migration file for creating GezinVerjaardag table
  * @type {import('sequelize-cli').Migration}
  */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Kalenders', {
+    await queryInterface.createTable('GezinVerjaardagen', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -41,6 +41,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Kalenders');
+    await queryInterface.dropTable('GezinVerjaardagen');
   }
 };

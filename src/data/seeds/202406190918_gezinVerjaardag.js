@@ -5,7 +5,7 @@
  */
 module.exports = {
   async up(queryInterface, Sequelize){
-    await queryInterface.bulkInsert('Kalenders',
+    await queryInterface.bulkInsert('GezinVerjaardagen',
     [
       {
         id:1,
@@ -59,6 +59,6 @@ module.exports = {
     ])
   },
   async down(queryInterface, Sequelize){
-    await queryInterface.bulkDelete('Kalenders', null, {});
+    await queryInterface.bulkDelete('GezinVerjaardagen', null, {});
   } 
 };

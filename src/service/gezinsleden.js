@@ -3,13 +3,34 @@ const verjaardagService = require('./verjaardagen');
 const gezinService = require('./gezinnen');
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
+const { getSequelize } = require('../data/index');
+
+const include = () => ({
+  attributes: {
+    exclude :['verjaardag_id','gezin_id']
+  },
+  include: [
+    {
+    model: getSequelize().models.GeplandeTaak,
+    as: 'GeplandeTaken',
+    attributes: ['naam','dag']
+    // through enkel gebruiken voor tussentabellen  
+    // through: { attributes: []},
+    },
+    {
+    model: getSequelize().models.Verjaardag,
+    as: 'Verjaardag',
+    attributes: ['dagnummer','maandnummer']
+    },
+          ]
+});
 
 const getAllGezinsleden = async () => {
-  const items = await gezinsledenRepo.findAllGezinsleden();
-  return {
+  const items = await getSequelize().models.Gezinslid.findAll(include());
+  return{
     items,
     count: items.length,
-  };  
+  }; 
 };
 
 const getGezinslidById = async (id) => {

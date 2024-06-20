@@ -16,9 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     Een gezinslid behoort toe aan 1 gezin
     */
     static associate(models) {
+      // Ook geen alias bij belongsTo
       Gezinslid.hasMany(models.GeplandeTaak, {foreignKey: 'gezinslid_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
       Gezinslid.belongsTo(models.Gezin,{foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
-      Gezinslid.hasOne(models.Verjaardag, {foreignKey: {allowNull: false, name: 'verjaardag_id'}, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+      Gezinslid.belongsTo(models.Verjaardag, {foreignKey: {allowNull: false, name: 'verjaardag_id'}, onDelete: 'CASCADE', onUpdate: 'CASCADE'})
     }
   }
   Gezinslid.init({
@@ -36,9 +37,13 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
+    tableName:'gezinsleden',
+    modelName:'Gezinslid',
     name:{
       singular:'Gezinslid',
       plural:'Gezinsleden',
-    },  });
+    },
+    // freezeTableName: true,
+    });
   return Gezinslid;
 };

@@ -17,9 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     belongs
     */
     static associate(models) {
-      // Verjaardag.hasMany(models.KalenderItem, {foreignKey: 'verjaardag_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
-      Verjaardag.belongsTo(models.Gezinslid,{foreignKey: 'verjaardag_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
-      Verjaardag.belongsToMany(models.Gezin,{through: 'KalenderItem'})
+      Verjaardag.hasOne(models.Gezinslid,{foreignKey: 'verjaardag_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'})
+      Verjaardag.belongsToMany(models.Gezin, {through: 'GezinVerjaardag',foreignKey:'verjaardag_id'})
     }
   }
   Verjaardag.init({
@@ -41,9 +40,13 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
-    name:{
-      singular:'Verjaardag',
-      plural:'Verjaardagen',
-    },  });
+    tableName: 'verjaardagen',
+    // name:{
+    //   singular:'Verjaardag',
+    //   plural:'Verjaardagen',
+    // },  
+    modelName: 'Verjaardag',
+    // freezeTableName:true,
+  });
   return Verjaardag;
 };

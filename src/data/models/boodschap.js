@@ -36,6 +36,8 @@ module.exports = (sequelize, DataTypes) => {
       singular:'Boodschap',
       plural:'Boodschappen',
     },
+    tableName:'boodschappen',
+    modelName:'Boodschap',
   });
   return Boodschap;
 };

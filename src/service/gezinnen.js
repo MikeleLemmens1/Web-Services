@@ -7,16 +7,31 @@ const { getSequelize } = require('../data/index');
 
 // console.log(getSequelize());
 
-const includeGezinsleden = () => ({
-  include: [{
+const include = () => ({
+  include: [
+    {
     model: getSequelize().models.Gezinslid,
-    as: 'gezinsleden',
-    through: { attributes: []},
-  }]
+    as: 'Gezinsleden',
+    attributes: ['voornaam','email']
+    // through enkel gebruiken voor tussentabellen  
+    // through: { attributes: []},
+    },
+    {
+    model: getSequelize().models.Boodschap,
+    as: 'Boodschappen',
+    attributes: ['naam','winkel']
+    },
+    {
+    model: getSequelize().models.Verjaardag,
+    as: 'Verjaardags',
+    through: { attributes: []}
+    }
+          ]
 });
 
+
 const getAllGezinnen = async () => {
-  const items = await getSequelize().models.Gezin.findAll();
+  const items = await getSequelize().models.Gezin.findAll(include());
   return{
     items,
     count: items.length,
@@ -26,7 +41,7 @@ const getAllGezinnen = async () => {
 
 
 const getGezinById = async(id) => {
-  const gezin = await getSequelize().models.Gezin.findByPk(id,includeGezinsleden());
+  const gezin = await getSequelize().models.Gezin.findByPk(id,include());
   if(!gezin){
     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
   }

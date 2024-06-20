@@ -29,6 +29,8 @@ module.exports = (sequelize, DataTypes) => {
 
   }, {
     sequelize,
+    tableName: 'geplandeTaken',
+    modelName: 'GeplandeTaak',
     name:{
       singular:'GeplandeTaak',
       plural:'GeplandeTaken',
