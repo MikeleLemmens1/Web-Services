@@ -5,46 +5,40 @@ const validate = require('../core/validation');
 
 
 const getAllGeplandeTaken = async (ctx) => {
-  if (ctx.request.query.dag){
-    let dag = new Date(ctx.request.query.dag)
-    ctx.body = await geplandeTakenService.getAllByDay(dag);
-  }
-  else if (ctx.request.query.week){
-    ctx.body = await geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
-  }
-  else
-    ctx.body = await geplandeTakenService.getAll();
-  
-  
-
-};
-getAllGeplandeTaken.validationScheme = null;
-
-// Vervangen door GetById
-const getTaskByGezinslidId = async (ctx) => {
-  ctx.body = await geplandeTakenService.getAllByGezinslidId(Number(ctx.params.id));
-};
-getTaskByGezinslidId.validationScheme = {
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
+  // if (ctx.request.query.dag){
+  //   let dag = new Date(ctx.request.query.dag)
+  //   ctx.body = await geplandeTakenService.getAllByDay(dag);
+  // }
+  // else if (ctx.request.query.week){
+  //   ctx.body = await geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
+  // }
+  // else
+  //   ctx.body = await geplandeTakenService.getAll();
+  ctx.body = await geplandeTakenService.getAllGeplandeTaken();
 };
 
-const getTaskById = async (ctx) => {
-  ctx.body = await geplandeTakenService.getById(Number(ctx.params.id));
+getAllGeplandeTaken.validationScheme = {
+  // params: Joi.object({
+  //   id: Joi.number().integer().positive(),
+  // }),
 };
-getTaskById.validationScheme = {
+
+const getGeplandeTaakById = async (ctx) => {
+  ctx.body = await geplandeTakenService.getGeplandeTaakById(ctx.params.id);
+};
+
+getGeplandeTaakById.validationScheme = {
   params: Joi.object({
     id: Joi.number().integer().positive(),
   }),
 };
 
 const createGeplandeTaak = async (ctx) => {
-  const newTask = await geplandeTakenService.create({
+  const newTask = await geplandeTakenService.createGeplandeTaak({
     ...ctx.request.body,
-    dag: new Date(ctx.request.body.dag),
-    // gezinslid_id: Number(ctx.request.body.gezinslid_id)
-    gezinslid_id: Number(ctx.params.id)
+    // dag: new Date(ctx.request.body.dag),
+    gezinslid_id: Number(ctx.request.body.gezinslid_id)
+    // gezinslid_id: Number(ctx.params.id)
 
   });  
   ctx.status = 201;
@@ -53,23 +47,22 @@ const createGeplandeTaak = async (ctx) => {
 createGeplandeTaak.validationScheme = {
   body: {
     naam: Joi.string().max(255),
-    dag: Joi.string()
-    // .format("YYYY-MM-DD").min(today()).message('"date" cannot be earlier than today'),
-    // ,gezinslid_id: Joi.number().integer().positive(),
+    dag: Joi.string()/*.min('now').message('"date" cannot be earlier than today')*/,
+    gezinslid_id: Joi.number().integer().positive(),
   },
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
+  // params: Joi.object({
+  //   id: Joi.number().integer().positive(),
+  // }),
 };
 
-const updateTask = async (ctx) => {
-  ctx.body = await geplandeTakenService.updateById(Number(ctx.params.id), {
+const updateGeplandeTaak = async (ctx) => {
+  ctx.body = await geplandeTakenService.updateGeplandeTaakById(ctx.params.id, {
     ...ctx.request.body,
-    gezinslidId: Number(ctx.request.body.gezinslidId),
-    dag: new Date(ctx.request.body.dag),
+    // gezinslidId: Number(ctx.request.body.gezinslidId),
+    // dag: new Date(ctx.request.body.dag),
   });
 };
-updateTask.validationScheme = {
+updateGeplandeTaak.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
   },
@@ -77,15 +70,16 @@ updateTask.validationScheme = {
     naam: Joi.string().max(255),
     dag: Joi.string()
     // .format("YYYY-MM-DD").min(today()).message('"date" cannot be earlier than today'),
-    ,gezinslid_id: Joi.number().integer().positive().optional(),
+    ,
+    gezinslid_id: Joi.number().integer().positive().optional(),
   },
 };
 
-const deleteTask = async (ctx) => {
-  await geplandeTakenService.deleteById(Number(ctx.params.id));
+const deleteGeplandeTaak = async (ctx) => {
+  await geplandeTakenService.deleteGeplandeTaakById(ctx.params.id);
   ctx.status = 204;
 };
-deleteTask.validationScheme = {
+deleteGeplandeTaak.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
   },
@@ -97,38 +91,40 @@ deleteTask.validationScheme = {
  */
 module.exports = (app) => {
   const router = new Router({
-    prefix: '/gezinsleden/:id/geplande_taken',
+    // prefix: '/gezinsleden/:id/geplande_taken',
+    prefix: '/geplande_taken'
   });
 
   router.get(
     '/',
-    // validate(getAllGeplandeTaken.validationScheme),
-    // getAllGeplandeTaken
-    validate(getTaskByGezinslidId.validationScheme),
-    getTaskByGezinslidId
+    validate(getAllGeplandeTaken.validationScheme),
+    getAllGeplandeTaken
+
   );
+
+  router.get(
+    '/:id',
+    validate(getGeplandeTaakById.validationScheme),
+    getGeplandeTaakById
+  );
+
   router.post(
     '/',
     validate(createGeplandeTaak.validationScheme),
     createGeplandeTaak
   );
   
-  router.get(
-    '/:id',
-    validate(getTaskById.validationScheme),
-    getTaskById
-  );
   router.put(
     '/:id',
-    validate(updateTask.validationScheme),
-    updateTask
+    validate(updateGeplandeTaak.validationScheme),
+    updateGeplandeTaak
   );
   router.delete(
     '/:id',
-    validate(deleteTask.validationScheme),
-    deleteTask
+    validate(deleteGeplandeTaak.validationScheme),
+    deleteGeplandeTaak
   );
-
+  // return router;
   app.use(router.routes())
      .use(router.allowedMethods());
 };

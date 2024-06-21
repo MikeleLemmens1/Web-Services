@@ -100,7 +100,7 @@ const createBoodschap = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
 };
 
 /**
- * Pas een bestaande geplande taak aan.
+ * Pas een bestaande boodschap aan.
  *
  * @param {number} id - Id van de aan te passen boodschap
  * @param {object} boodschap - De op te slagen boodschap

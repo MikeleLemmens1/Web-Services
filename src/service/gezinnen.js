@@ -53,6 +53,9 @@ const getGezinByFamilienaam = async(familienaam) => {
     },
     ...include()
   });
+  if(!gezin){
+    throw ServiceError.notFound(`Er bestaat geen gezin genaamd ${familienaam}`, { familienaam });
+  }
   return gezin;
 };
 
@@ -61,8 +64,7 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) =
     const gezin = await getSequelize().models.Gezin.create({
       familienaam, straat, huisnummer, postcode, stad
     });
-    return gezin;
-    // OR return await getGezinById(gezin.id) to use service error?
+    return await getGezinById(gezin.id);
   }
   catch(error){
     getLogger().error('Error creating gezin', {error});
@@ -77,11 +79,10 @@ const updateGezinById = async(id, { familienaam, straat, huisnummer, postcode, s
       familienaam, straat, huisnummer, postcode, stad
     });
     gezin.save();
-    return gezin;
-    // OR return await getGezinById(gezin.id) to use service error?
+    return await getGezinById(gezin.id);
   }
   catch(error){
-    getLogger().error('Error creating gezin', {error});
+    getLogger().error('Error updating gezin', {error});
     throw handleDBError(error);
   }
 }

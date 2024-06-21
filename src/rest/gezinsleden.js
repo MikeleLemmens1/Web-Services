@@ -2,6 +2,7 @@ const Router = require('@koa/router');
 const gezinsledenService = require('../service/gezinsleden')
 const Joi = require('joi');
 const validate = require('../core/validation');
+const { getAllGeplandeTaken } = require('../service/geplande_taken');
 
 const getAllGezinsleden = async (ctx) => {
   ctx.body = await gezinsledenService.getAllGezinsleden();
@@ -88,6 +89,12 @@ module.exports = (app) => {
     getGezinslidById
   );
 
+  // router.get(
+  //   '/:id/geplande_taken',
+  //   validate(getAllGeplandeTaken.validationScheme),
+  //   getAllGeplandeTaken
+  // );
+
   router.post(
     '/',
     validate(createGezinslid.validationScheme),
@@ -103,6 +110,9 @@ module.exports = (app) => {
     validate(deleteGezinslidById.validationScheme),
     deleteGezinslidById,
   );
+
+  // const geplandeTakenRoutes = require('./geplande_taken');
+  // router.use('/:id/geplande_taken',geplandeTakenRoutes.routes(),geplandeTakenRoutes.allowedMethods())
 
   app.use(router.routes())
      .use(router.allowedMethods())

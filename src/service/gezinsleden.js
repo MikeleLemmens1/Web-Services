@@ -36,7 +36,7 @@ const getAllGezinsleden = async () => {
 const getGezinslidById = async (id) => {
   const gezinslid = await getSequelize().models.Gezinslid.findByPk(id,include());
   if(!gezinslid){
-    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+    throw ServiceError.notFound(`Er bestaat geen gezinslid met id ${id}`, { id });
   }
   return gezinslid;
 };

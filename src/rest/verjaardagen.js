@@ -4,15 +4,22 @@ const validate = require('../core/validation')
 const Joi = require('joi');
 
 const getAllVerjaardagen = async (ctx) => {
-  // ctx.body = await verjaardagenService.getAllVerjaardagen();
-  ctx.body = await verjaardagenService.getVerjaardagenByGezinsId(ctx.captures[0])
+  ctx.body = await verjaardagenService.getAllVerjaardagen()
 };
 getAllVerjaardagen.validationScheme = {
+  // params: Joi.object({
+  //   id: Joi.number().integer().positive(),
+  // }),
+};
+
+const getVerjaardagenById = async (ctx) => {
+  ctx.body = await verjaardagenService.getVerjadardagById(Number(ctx.params.id));
+};
+getVerjaardagenById.validationScheme = {
   params: Joi.object({
     id: Joi.number().integer().positive(),
   }),
-};
-
+}
 const createVerjaardag = async (ctx) => {
   const nieuweverjaardag = await verjaardagenService.createVerjaardag({
     ...ctx.request.body,
@@ -36,15 +43,6 @@ createVerjaardag.validationScheme = {
   }),
 };
 
-const getVerjaardagenById = async (ctx) => {
-  ctx.body = await verjaardagenService.getById(Number(ctx.params.id));
-  // ctx.body = await verjaardagenService.getVerjaardagenByGezinsId(Number(ctx.params.id));
-};
-getVerjaardagenById.validationScheme = {
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
-}
 
 const updateVerjaardag = async (ctx) => {
   ctx.body = await verjaardagenService.updateVerjaardagById(Number(ctx.params.id), {

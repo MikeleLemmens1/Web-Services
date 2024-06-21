@@ -4,31 +4,14 @@ const Joi = require('joi');
 const validate = require('../core/validation');
 
 const getAllBoodschappen = async (ctx) => {
-  if (ctx.request.query.winkel){
-    let id = Number(ctx.query.gezin_id);
-    let winkel = ctx.query.winkel;
-    ctx.body = await boodschappenService.getAllByWinkel(id,winkel);
-  }
-  // else if (ctx.query.gezin_id){
-  //   ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.query.gezin_id));
-  // }
-  else
-    // ctx.body = await boodschappenService.getAll();
-    ctx.body = await boodschappenService.getAllByGezinsId(Number(ctx.request.params.id));
-
+  ctx.body = await boodschappenService.getAllBoodschappen()
 };
+
 getAllBoodschappen.validationScheme = {
-  query: {
-    winkel: Joi.string().max(255).optional(),
-    gezin_id: Joi.number().integer().positive().optional(),
-  },
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
 };
 
 const getBoodschapById = async (ctx) => {
-  ctx.body = await boodschappenService.getById(Number(ctx.params.id));
+  ctx.body = await boodschappenService.getBoodschapById(Number(ctx.params.id));
 };
 
 getBoodschapById.validationScheme = {
@@ -38,7 +21,7 @@ getBoodschapById.validationScheme = {
 };
 
 const createBoodschap = async (ctx) => {
-  const nieuweBoodschap = await boodschappenService.create({
+  const nieuweBoodschap = await boodschappenService.createBoodschap({
     ...ctx.request.body,
     gezin_id: Number(ctx.params.id)
   });  
@@ -58,14 +41,8 @@ createBoodschap.validationScheme = {
 };
 
 const updateBoodschap = async (ctx) => {
-  // Onderstaande zorgt ervoor dat taken van gezin kunnen veranderen (maar dat zou niet logisch zijn)
-  // Gezin_id is dus geschrapt in de andere lagen
-  // if (!ctx.request.body.gezin_id) {
-  //   gezin_id = ctx.captures[0];
-  // } else {
-  //   gezin_id = Number(ctx.request.body.gezin_id)
-  // }
-  ctx.body = await boodschappenService.updateById(Number(ctx.params.id), {
+
+  ctx.body = await boodschappenService.updateBoodschapById(Number(ctx.params.id), {
     ...ctx.request.body,
     // gezin_id: gezin_id,
   });
@@ -83,7 +60,7 @@ updateBoodschap.validationScheme = {
 };
 
 const deleteBoodschap = async (ctx) => {
-  await boodschappenService.deleteById(Number(ctx.params.id));
+  await boodschappenService.deleteBoodschapById(Number(ctx.params.id));
   ctx.status = 204;
 };
 deleteBoodschap.validationScheme = {
