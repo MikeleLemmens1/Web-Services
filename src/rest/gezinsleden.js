@@ -2,7 +2,9 @@ const Router = require('@koa/router');
 const gezinsledenService = require('../service/gezinsleden')
 const Joi = require('joi');
 const validate = require('../core/validation');
+const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const { getAllGeplandeTaken } = require('../service/geplande_taken');
+const Role = require('../core/roles');
 
 const getAllGezinsleden = async (ctx) => {
   ctx.body = await gezinsledenService.getAllGezinsleden();
@@ -68,6 +70,55 @@ deleteGezinslidById.validationScheme = {
   },
 };
 
+const register = async (ctx) => {
+  const gezinslid = await gezinsledenService.register({
+    ...ctx.request.body,
+  });
+  ctx.status = 200;
+  ctx.body = gezinslid;
+};
+
+register.validationScheme = {
+  body: Joi.object({
+    voornaam: Joi.string().max(255),
+    email: Joi.string().email(),
+    wachtwoord: Joi.string().min(8).max(30),
+    gezin_id: Joi.number().integer().positive(),
+    dagnummer: Joi.number().integer().positive(),
+    maandnummer: Joi.number().integer().positive()
+  })
+};
+
+const login = async (ctx) => {
+  const {email,wachtwoord} = ctx.request.body;
+  const token = await gezinsledenService.login(email,wachtwoord);
+  ctx.body = token;
+};
+
+login.validationScheme = {
+  body: {
+    email: Joi.string().email(),
+    wachtwoord: Joi.string(), 
+  },
+};
+
+const checkUserId = (ctx, next) => {
+  const { gezinslid_id, roles } = ctx.state.session;
+  const { id } = ctx.params;
+
+  
+  if (id !== gezinslid_id && !roles.includes(Role.ADMIN)) {
+    return ctx.throw(
+      403,
+      "You are not allowed to operate on this user's information.",
+      {
+        code: 'FORBIDDEN',
+      }
+    );
+  }
+  return next();
+};
+
 /**
  * Installeer gezinsleden routes in de gegeven router
  * 
@@ -77,17 +128,12 @@ module.exports = (app) => {
   const router = new Router({
     prefix: '/gezinsleden'
   });
-  router.get(
-    '/',
-    validate(getAllGezinsleden.validationScheme),
-    getAllGezinsleden
-  );
 
-  router.get(
-    '/:id',
-    validate(getGezinslidById.validationScheme),
-    getGezinslidById
-  );
+  router.post('/login', validate(login.validationScheme),login);
+  router.post('/register', validate(register.validationScheme),register);
+
+  router.get('/',validate(getAllGezinsleden.validationScheme),getAllGezinsleden);
+  router.get('/:id',validate(getGezinslidById.validationScheme),getGezinslidById);
 
   // router.get(
   //   '/:id/geplande_taken',

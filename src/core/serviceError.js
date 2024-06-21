@@ -20,6 +20,10 @@ class ServiceError extends Error {
   static validationFailed(message, details) {
     return new ServiceError(VALIDATION_FAILED, message, details);
   }
+  
+  static unauthorized(message,details){
+    return new ServiceError(UNAUTHORIZED,message,401,details);
+  }
 
   get isNotFound() {
     return this.code === NOT_FOUND;
