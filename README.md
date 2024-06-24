@@ -42,5 +42,3 @@ Voor coverage: gebruik `yarn test:coverage`
 
 ## Gekende bugs
 
-- Modules not found: gebruik opnieuw `yarn install`
-- Migrations failed: drop de databank en start de app opnieuw op

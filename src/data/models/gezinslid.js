@@ -29,7 +29,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     email: {
       type: DataTypes.STRING, 
-      allowNull: true
+      allowNull: true,
+      unique: true
+
     },
     wachtwoord: {
       type: DataTypes.STRING, 

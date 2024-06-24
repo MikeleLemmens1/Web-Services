@@ -80,10 +80,10 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) =
 const updateGezinById = async(id, { familienaam, straat, huisnummer, postcode, stad}) => {
   try{
     const gezin = await getGezinById(id);
-    gezin.set({
+    await gezin.set({
       familienaam, straat, huisnummer, postcode, stad
     });
-    gezin.save();
+    await gezin.save();
     return await getGezinById(gezin.id);
   }
   catch(error){

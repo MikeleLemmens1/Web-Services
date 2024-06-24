@@ -63,7 +63,7 @@ const login = async (email,wachtwoord) => {
 
   if(!gezinslid){
     throw ServiceError.unauthorized(
-      'The given email and password do not match');
+      'There is no gezinslid with this email');
   }
   
   const passwordValid = await verifyPassword(wachtwoord,gezinslid.wachtwoord);
@@ -165,7 +165,7 @@ const updateGezinslidById = async (id,{voornaam, email, gezin_id, verjaardag_id}
     }
   }
   if(verjaardag_id){
-    const geldigeVerjaardag = await verjaardagService.getById(verjaardag_id);
+    const geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
     if(!geldigeVerjaardag){
       getLogger().error("Verjaardag ongeldig")
       throw ServiceError.notFound(`Er is geen verjaardag met id ${verjaardag_id}.`,{verjaardag_id});
@@ -173,13 +173,13 @@ const updateGezinslidById = async (id,{voornaam, email, gezin_id, verjaardag_id}
     }
   }
   try{
-    await gezinsledenRepo.updateGezinslidById(id, {
-      gezin_id,
-      voornaam,
-      email,
-      verjaardag_id,
+    const gezinslid = await getGezinslidById(id);
+
+    await gezinslid.set({
+      voornaam, email, gezin_id, verjaardag_id
     });
-    return getGezinslidById(id);
+    await gezinslid.save();
+    return await getGezinslidById(gezinslid.id);
   }catch (error) {
     getLogger().error('Fout bij het maken van het gezinslid')
     throw handleDBError(error);
@@ -187,11 +187,9 @@ const updateGezinslidById = async (id,{voornaam, email, gezin_id, verjaardag_id}
 };
 const deleteGezinslidById = async (id) => {
   try {
-    const deleted = await gezinsledenRepo.deletegezinslidById(id);
+    const gezinslid = await getGezinslidById(id);
+    await gezinslid.destroy();
 
-    if (!deleted) {
-      throw ServiceError.notFound(`Geen gezinslid met id ${id} gevonden`, { id });
-    }
   } catch (error) {
     getLogger().error("Fout bij het verwijderen van het gezinslid")
     throw handleDBError(error);

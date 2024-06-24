@@ -4,6 +4,7 @@ const Joi = require('joi');
 const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
+const { getGezinById } = require('../service/gezinnen');
 
 
 const getAllGezinsleden = async (ctx) => {
@@ -120,12 +121,21 @@ const checkUserId = (ctx, next) => {
   return next();
 };
 
-const checkGezinId = (ctx, next) => {
+const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
-  const { id } = ctx.params;
-
-  
-  if (id !== gezin_id && !roles.includes(Role.ADMIN)) {
+  let { id } = ctx. params;
+  // Enable creation of gezinslid without being registered, only family members should be allowed to do this
+  let targetGezin_id;
+  if (!id){
+     targetGezin_id = ctx.body.gezin_id;
+  }
+  else {
+    const targetGezinslid = await gezinsledenService.getGezinslidById(id)
+    targetGezin_id = targetGezinslid.Gezin.id;
+  }
+  // targetGezin: gezin of the gezinslid being modified
+  // gezin_id: gezin of the active user
+  if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {
     return ctx.throw(
       403,
       "You are not allowed to operate on this family's information.",
@@ -143,8 +153,8 @@ const checkGezinId = (ctx, next) => {
  * @param {Router} app - De parent router.
  */
 module.exports = {
-  // checkUserId,
-  // checkGezinId,
+  checkUserId,
+  checkGezinId,
   install: (app) => {
 
   const router = new Router({
@@ -153,34 +163,16 @@ module.exports = {
 
   router.post('/login', validate(login.validationScheme),login);
   router.post('/register', validate(register.validationScheme),register);
-  router.get('/:id',requireAuthentication,validate(getGezinslidById.validationScheme),getGezinslidById);
+  
+  // Only family members can CRUD gezinsleden
+  router.get('/:id',requireAuthentication,validate(getGezinslidById.validationScheme),checkGezinId,getGezinslidById);
+  router.put('/:id',requireAuthentication,validate(updateGezinslidById.validationScheme),checkGezinId,updateGezinslidById);
+  router.delete('/:id',requireAuthentication,validate(deleteGezinslidById.validationScheme),checkGezinId,deleteGezinslidById);
+  router.post('/',requireAuthentication,validate(createGezinslid.validationScheme),checkGezinId,createGezinslid);
+
+  // Only admins can get all gezinsleden of all families
   const requireAdmin = makeRequireRole(Role.ADMIN);
   router.get('/', requireAuthentication , requireAdmin , validate(getAllGezinsleden.validationScheme),getAllGezinsleden);
-
-  // router.get(
-  //   '/:id/geplande_taken',
-  //   validate(getAllGeplandeTaken.validationScheme),
-  //   getAllGeplandeTaken
-  // );
-
-  router.post(
-    '/',
-    validate(createGezinslid.validationScheme),
-    createGezinslid,
-  );
-  router.put(
-    '/:id',
-    validate(updateGezinslidById.validationScheme),
-    updateGezinslidById,
-  );
-  router.delete(
-    '/:id',
-    validate(deleteGezinslidById.validationScheme),
-    deleteGezinslidById,
-  );
-
-  // const geplandeTakenRoutes = require('./geplande_taken');
-  // router.use('/:id/geplande_taken',geplandeTakenRoutes.routes(),geplandeTakenRoutes.allowedMethods())
 
   app.use(router.routes())
      .use(router.allowedMethods())
