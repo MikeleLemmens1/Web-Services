@@ -1,5 +1,7 @@
 const NOT_FOUND = 'NOT_FOUND';
 const VALIDATION_FAILED = 'VALIDATION_FAILED';
+const UNAUTHORIZED = 'UNAUTHORIZED';
+const FORBIDDEN = 'FORBIDDEN'
 
 
 class ServiceError extends Error {
@@ -15,7 +17,6 @@ class ServiceError extends Error {
   static notFound(message, details) {
     return new ServiceError(NOT_FOUND, message, details);
   }
-
  
   static validationFailed(message, details) {
     return new ServiceError(VALIDATION_FAILED, message, details);
@@ -23,6 +24,10 @@ class ServiceError extends Error {
   
   static unauthorized(message,details){
     return new ServiceError(UNAUTHORIZED,message,401,details);
+  }
+
+  static forbidden(message,details){
+    return new ServiceError(FORBIDDEN,message,403,details);
   }
 
   get isNotFound() {

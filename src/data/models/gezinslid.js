@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING, 
       allowNull: true
     },
+    roles: {
+      type: DataTypes.JSON, 
+      allowNull: false
+    }
   }, {
     sequelize,
     tableName:'gezinsleden',

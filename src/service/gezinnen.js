@@ -59,6 +59,11 @@ const getGezinByFamilienaam = async(familienaam) => {
   return gezin;
 };
 
+// const getGezinByGezinslidId = async(gezinslid_id) => {
+//   const gezinslid = gezinsledenService.getGezinslidById(gezinslid_id);
+//   return gezin;
+// };
+
 const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
   try{
     const gezin = await getSequelize().models.Gezin.create({

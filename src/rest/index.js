@@ -1,6 +1,6 @@
 const Router = require('@koa/router');
 const installGeplandeTakenRouter = require('./geplande_taken');
-const installGezinsledenRouter = require('./gezinsleden');
+const { install: installGezinsledenRouter } = require('./gezinsleden');
 const installBoodschappenRouter = require('./boodschappen');
 const installGezinnenRouter = require('./gezinnen');
 const installVerjaardagenRouter = require('./verjaardagen');

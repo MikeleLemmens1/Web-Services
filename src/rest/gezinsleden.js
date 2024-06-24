@@ -3,8 +3,8 @@ const gezinsledenService = require('../service/gezinsleden')
 const Joi = require('joi');
 const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
-const { getAllGeplandeTaken } = require('../service/geplande_taken');
 const Role = require('../core/roles');
+
 
 const getAllGezinsleden = async (ctx) => {
   ctx.body = await gezinsledenService.getAllGezinsleden();
@@ -34,7 +34,8 @@ createGezinslid.validationScheme = {
   body: {
     voornaam: Joi.string().max(255),
     email: Joi.string().optional(),
-    wachtwoord: Joi.string().optional(),
+    // Wachtwoord wordt meegegeven bij het registreren
+    // wachtwoord: Joi.string().optional(),
     gezin_id: Joi.number().integer().positive(),
     verjaardag_id: Joi.number().integer().positive(),
 
@@ -54,7 +55,7 @@ updateGezinslidById.validationScheme = {
   body: {
     voornaam: Joi.string(),
     email: Joi.string().optional(),
-    wachtwoord: Joi.string().optional(),
+    // wachtwoord: Joi.string().optional(),
     gezin_id: Joi.number().integer().positive(),
     verjaardag_id: Joi.number().integer().positive(),
   },
@@ -119,21 +120,42 @@ const checkUserId = (ctx, next) => {
   return next();
 };
 
+const checkGezinId = (ctx, next) => {
+  const { gezin_id, roles } = ctx.state.session;
+  const { id } = ctx.params;
+
+  
+  if (id !== gezin_id && !roles.includes(Role.ADMIN)) {
+    return ctx.throw(
+      403,
+      "You are not allowed to operate on this family's information.",
+      {
+        code: 'FORBIDDEN',
+      }
+    );
+  }
+  return next();
+};
+
 /**
  * Installeer gezinsleden routes in de gegeven router
  * 
  * @param {Router} app - De parent router.
  */
-module.exports = (app) => {
+module.exports = {
+  // checkUserId,
+  // checkGezinId,
+  install: (app) => {
+
   const router = new Router({
     prefix: '/gezinsleden'
   });
 
   router.post('/login', validate(login.validationScheme),login);
   router.post('/register', validate(register.validationScheme),register);
-
-  router.get('/',validate(getAllGezinsleden.validationScheme),getAllGezinsleden);
-  router.get('/:id',validate(getGezinslidById.validationScheme),getGezinslidById);
+  router.get('/:id',requireAuthentication,validate(getGezinslidById.validationScheme),getGezinslidById);
+  const requireAdmin = makeRequireRole(Role.ADMIN);
+  router.get('/', requireAuthentication , requireAdmin , validate(getAllGezinsleden.validationScheme),getAllGezinsleden);
 
   // router.get(
   //   '/:id/geplande_taken',
@@ -162,4 +184,5 @@ module.exports = (app) => {
 
   app.use(router.routes())
      .use(router.allowedMethods())
+  },
 }

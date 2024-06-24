@@ -38,7 +38,7 @@ module.exports = {
 
     jwt: {
       secret: 'eenveeltemoeilijksecretdatniemandooitzalradenandersisdesitegehacked',
-      expirationInterval: 60 * 60 * 1000, // ms (1 hour)
+      expirationInterval: 1000 * 60 * 60 * 1000, // ms (1000 hour)
       issuer: 'budget.hogent.be',
       audience: 'budget.hogent.be',
     },

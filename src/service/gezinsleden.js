@@ -20,10 +20,12 @@ const checkAndParseSession = async (authHeader) => {
   const authToken = authHeader.substring(7);
   try{
     const {roles, gezinslid_id} = await verifyJWT(authToken);
-    await getById(gezinslid_id);
+    gezinslid = await getGezinslidById(gezinslid_id);
+    gezin_id = gezinslid.Gezin.id;
     return {
       roles,
       gezinslid_id,
+      gezin_id,
       authToken
     };
   } 
@@ -99,6 +101,11 @@ const include = () => ({
     as: 'Verjaardag',
     attributes: ['dagnummer','maandnummer']
     },
+    {
+    model: getSequelize().models.Gezin,
+    as: 'Gezin',
+    attributes: ['id', 'familienaam']
+    }
           ]
 });
 
@@ -126,7 +133,7 @@ const getGezinslidById = async (id) => {
 //   return gezinsleden;
 // };
 
-const createGezinslid = async ({voornaam, email, wachtwoord, gezin_id, verjaardag_id}) => {
+const createGezinslid = async ({voornaam, email, gezin_id, verjaardag_id}) => {
 
   const bestaandGezin = await gezinService.getGezinById(gezin_id);
   const bestaandeVerjaardag = await verjaardagService.getById(verjaardag_id);
@@ -138,21 +145,17 @@ const createGezinslid = async ({voornaam, email, wachtwoord, gezin_id, verjaarda
     throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
   }
   try{
-    const id = await gezinsledenRepo.createGezinslid({
-      gezin_id,
-      voornaam,
-      email,
-      wachtwoord,
-      verjaardag_id,
-    });
-    return getGezinslidById(id);
+    const gezinslid = await getSequelize().models.Gezinslid.create({
+      voornaam, email, gezin_id, verjaardag_id, postcode, stad
+    }); 
+    return getGezinslidById(gezinslid.id);
   }catch (error) {
     getLogger().error('Fout bij het maken van het gezinslid')
     throw handleDBError(error);
   }
 };
 
-const updateGezinslidById = async (id,{voornaam, email, wachtwoord, gezin_id, verjaardag_id}) => {
+const updateGezinslidById = async (id,{voornaam, email, gezin_id, verjaardag_id}) => {
 
   if(gezin_id){
     const bestaandGezin = await gezinService.getGezinById(gezin_id);
@@ -174,7 +177,6 @@ const updateGezinslidById = async (id,{voornaam, email, wachtwoord, gezin_id, ve
       gezin_id,
       voornaam,
       email,
-      wachtwoord,
       verjaardag_id,
     });
     return getGezinslidById(id);
@@ -196,6 +198,7 @@ const deleteGezinslidById = async (id) => {
   }
 };
 
+// Wanneer je registreert moet er nog geen verjaardag zijn aangemaakt, dit gebeurt in deze methode
 const register = async ({voornaam,wachtwoord,email,gezin_id, dagnummer, maandnummer }) => {
 try{
   const password_hash = await hashPassword(wachtwoord);
