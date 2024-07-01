@@ -136,7 +136,7 @@ const getGezinslidById = async (id) => {
 const createGezinslid = async ({voornaam, email, gezin_id, verjaardag_id}) => {
 
   const bestaandGezin = await gezinService.getGezinById(gezin_id);
-  const bestaandeVerjaardag = await verjaardagService.getById(verjaardag_id);
+  const bestaandeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
 
   if(!bestaandGezin){
     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
@@ -146,9 +146,9 @@ const createGezinslid = async ({voornaam, email, gezin_id, verjaardag_id}) => {
   }
   try{
     const gezinslid = await getSequelize().models.Gezinslid.create({
-      voornaam, email, gezin_id, verjaardag_id, postcode, stad
+      voornaam, email, gezin_id, verjaardag_id, roles: JSON.stringify([Role.USER]),
     }); 
-    return getGezinslidById(gezinslid.id);
+    return await getGezinslidById(gezinslid.id);
   }catch (error) {
     getLogger().error('Fout bij het maken van het gezinslid')
     throw handleDBError(error);

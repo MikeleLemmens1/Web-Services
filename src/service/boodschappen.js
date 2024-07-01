@@ -1,5 +1,4 @@
 const { getLogger } = require('../core/logging');
-const boodschappenRepo = require('../repository/boodschap');
 const { getGezinById} = require('./gezinnen');
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');

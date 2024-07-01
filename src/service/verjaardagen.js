@@ -1,5 +1,4 @@
 const { getLogger } = require('../core/logging');
-const verjaardagRepo = require('../repository/verjaardag')
 const gezinService = require('../service/gezinnen')
 const ServiceError = require('../core/serviceError')
 const handleDBError = require('./_handleDBError');

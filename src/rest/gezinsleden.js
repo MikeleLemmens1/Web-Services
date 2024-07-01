@@ -127,7 +127,8 @@ const checkGezinId = async (ctx, next) => {
   // Enable creation of gezinslid without being registered, only family members should be allowed to do this
   let targetGezin_id;
   if (!id){
-     targetGezin_id = ctx.body.gezin_id;
+    //  targetGezin_id = ctx.body.gezin_id;
+     targetGezin_id = ctx.request.body.gezin_id;
   }
   else {
     const targetGezinslid = await gezinsledenService.getGezinslidById(id)
@@ -161,10 +162,11 @@ module.exports = {
     prefix: '/gezinsleden'
   });
 
+  // Anyone can register and login without authentication
   router.post('/login', validate(login.validationScheme),login);
   router.post('/register', validate(register.validationScheme),register);
   
-  // Only family members can CRUD gezinsleden
+  // Only members of the same family can CRUD gezinsleden
   router.get('/:id',requireAuthentication,validate(getGezinslidById.validationScheme),checkGezinId,getGezinslidById);
   router.put('/:id',requireAuthentication,validate(updateGezinslidById.validationScheme),checkGezinId,updateGezinslidById);
   router.delete('/:id',requireAuthentication,validate(deleteGezinslidById.validationScheme),checkGezinId,deleteGezinslidById);

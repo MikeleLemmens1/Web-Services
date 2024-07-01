@@ -2,11 +2,16 @@ const Router = require('@koa/router');
 const gezinService = require('../service/gezinnen');
 const Joi = require('joi')
 const validate = require('../core/validation');
+const { requireAuthentication , makeRequireRole } = require('../core/auth');
+const Role = require('../core/roles');
 
 const getAllGezinnen = async (ctx) => {
-  ctx.body = await gezinService.getAllGezinnen();
+  ctx.body = await gezinService.getAllGezinnen(ctx.query.familienaam);
 };
-getAllGezinnen.validationScheme = null;
+getAllGezinnen.validationScheme =   {
+query: {
+  familienaam: Joi.string().max(255).optional(),
+},};
 
 
 const createGezin = async (ctx) => {
@@ -79,7 +84,7 @@ deleteGezinById.validationScheme = {
 };
 
 const getAllGezinsledenFromGezin = async (ctx) => {
-  ctx.body = await gezinService.getAllGezinsleden(ctx.params.id);
+  ctx.body = await gezinService.getAllGezinsledenFromGezin(ctx.params.id);
 }
 
 getAllGezinsledenFromGezin.validationScheme = {
@@ -88,7 +93,7 @@ getAllGezinsledenFromGezin.validationScheme = {
   }),
 };
 const getAllBoodschappenFromGezin = async (ctx) => {
-  ctx.body = await gezinService.getAllBoodschappen(ctx.params.id);
+  ctx.body = await gezinService.getAllBoodschappenFromGezin(ctx.params.id);
 }
 
 getAllBoodschappenFromGezin.validationScheme = {
@@ -98,7 +103,7 @@ getAllBoodschappenFromGezin.validationScheme = {
 };
 
 const getAllVerjaardagenFromGezin = async (ctx) => {
-  ctx.body = await gezinService.getAllVerjaardagen(ctx.params.id);
+  ctx.body = await gezinService.getAllVerjaardagenFromGezin(ctx.params.id);
 }
 
 getAllVerjaardagenFromGezin.validationScheme = {
@@ -107,7 +112,32 @@ getAllVerjaardagenFromGezin.validationScheme = {
   }),
 };
 
-
+const checkGezinId = async (ctx, next) => {
+  const { gezin_id, roles } = ctx.state.session;
+  let { id } = ctx. params;
+  // Enable creation of gezinslid without being registered, only family members should be allowed to do this
+  let targetGezin_id;
+  if (!id){
+    //  for PUT POST 
+     targetGezin_id = ctx.request.body.gezin_id;
+  }
+  else {
+    // for GET or DELETE
+    targetGezin_id = id;
+  }
+  // targetGezin: gezin of the gezinslid being modified
+  // gezin_id: gezin of the active user
+  if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {
+    return ctx.throw(
+      403,
+      "You are not allowed to operate on this family's information.",
+      {
+        code: 'FORBIDDEN',
+      }
+    );
+  }
+  return next();
+};
 
 /**
  * Installeer gezinsleden routes in de gegeven router
@@ -121,40 +151,44 @@ module.exports = (app) => {
 
   router.get(
     '/',
+    requireAuthentication,
     validate(getAllGezinnen.validationScheme),
     getAllGezinnen
   );
   
   router.get(
     '/:id',
+    requireAuthentication,
     validate(getGezinById.validationScheme),
+    checkGezinId,
     getGezinById
   );
 
   router.get(
-    '/familienaam/:familienaam',
-    validate(getGezinByFamilienaam.validationScheme),
-    getGezinByFamilienaam
-  );
-
-  router.get(
     '/:id/gezinsleden',
+    requireAuthentication,
     validate(getAllGezinsledenFromGezin.validationScheme),
+    checkGezinId,
     getAllGezinsledenFromGezin
   );
 
   router.get(
     '/:id/boodschappen',
+    requireAuthentication,
     validate(getAllBoodschappenFromGezin.validationScheme),
+    checkGezinId,
     getAllBoodschappenFromGezin
   );
 
   router.get(
     '/:id/verjaardagen',
+    requireAuthentication,
     validate(getAllVerjaardagenFromGezin.validationScheme),
+    checkGezinId,
     getAllVerjaardagenFromGezin
   );
 
+  // Any unregistered user can post a new gezin
   router.post(
     '/', 
     validate(createGezin.validationScheme),
@@ -164,13 +198,17 @@ module.exports = (app) => {
 
   router.put(
     '/:id',
+    requireAuthentication,
     validate(updateGezinById.validationScheme),
+    checkGezinId,
     updateGezinById
   );
 
   router.delete(
     '/:id',
+    requireAuthentication,
     validate(deleteGezinById.validationScheme),
+    checkGezinId,
     deleteGezinById
   );
 

@@ -20,8 +20,7 @@ Maak een .env met volgende inhoud:
 
 ```.env
 NODE_ENV=development
-DATABASE_PASSWORD='SnKQ1eNSvgyaCkzOFFFU'
-DATABASE_USER='291269ml'
+DATABASE_PASSWORD en DATABASE_USER: vul je logingegevens in voor de databank
 ```
 
 Start de applicatie in development met `yarn start`
@@ -33,12 +32,18 @@ Maak een .env.test met volgende inhoud:
 
 ```.env
 NODE_ENV=test
-DATABASE_PASSWORD='SnKQ1eNSvgyaCkzOFFFU'
-DATABASE_USER='291269ml'
+DATABASE_PASSWORD en DATABASE_USER: vul je logingegevens in voor de databank
 ```
 
 Start de test met `yarn test`
 Voor coverage: gebruik `yarn test:coverage`
+
+## Migrations en seeds
+
+Er wordt gebruik gemaakt van Sequelize CLI om de databank op te stellen en te vullen. Hiervoor dienen volgende commando's te worden uitgevoerd:
+
+`yarn sequelize-cli db:migrate`
+`yarn sequelize-cli db:seed:all`
 
 ## Gekende bugs
 

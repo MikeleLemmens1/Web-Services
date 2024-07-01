@@ -1,11 +1,7 @@
-// Repository no longer necessary when using seq
-// const gezinRepository = require('../repository/gezin');
+
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data/index');
-
-
-// console.log(getSequelize());
 
 const include = () => ({
   include: [
@@ -30,7 +26,10 @@ const include = () => ({
 });
 
 
-const getAllGezinnen = async () => {
+const getAllGezinnen = async (familienaam) => {
+  if (familienaam){
+    return getGezinByFamilienaam(familienaam);
+  };
   const items = await getSequelize().models.Gezin.findAll(include());
   return{
     items,
@@ -102,7 +101,7 @@ const deleteGezinById = async (id) => {
   }
 };
 
-const getAllGezinsleden = async (id) => {
+const getAllGezinsledenFromGezin = async (id) => {
   const gezin = await getGezinById(id);
   const gezinsleden = await gezin.getGezinsleden();
   const familienaam = gezin.dataValues.familienaam;
@@ -114,7 +113,7 @@ const getAllGezinsleden = async (id) => {
   }
 }
 
-const getAllBoodschappen = async (id) => {
+const getAllBoodschappenFromGezin = async (id) => {
   const gezin = await getGezinById(id);
   const items = await gezin.getBoodschappen();
   const boodschappen = []
@@ -136,14 +135,16 @@ const getAllBoodschappen = async (id) => {
   }
 }
 
-const getAllVerjaardagen = async (id) => {
+const getAllVerjaardagenFromGezin = async (id) => {
   const gezin = await getGezinById(id);
   let items = await gezin.getVerjaardagen();
   const verjaardagen = []
   for (const verjaardag of items){
     object  = {
       voornaam: verjaardag.dataValues.voornaam,
-      achternaam: verjaardag.dataValues.achternaam
+      achternaam: verjaardag.dataValues.achternaam,
+      dagnummer: verjaardag.dataValues.dagnummer,
+      maandnummer: verjaardag.dataValues.maandnummer
     };
     verjaardagen.push(object)
   }
@@ -163,72 +164,9 @@ module.exports = {
   updateGezinById,
   deleteGezinById,
   getGezinByFamilienaam,
-  getAllGezinsleden,
-  getAllBoodschappen,
-  getAllVerjaardagen
+  getAllGezinsledenFromGezin,
+  getAllBoodschappenFromGezin,
+  getAllVerjaardagenFromGezin
 };
 
 
-// Using Knex
-
-// const getAllGezinnen = async () => {
-//   const items = await gezinRepository.findAllGezinnen();
-//   return {
-//     items,
-//     count: items.length,
-//   };
-// };
-
-// const getGezinById = async (id) => {
-//   const gezin = await gezinRepository.findGezinById(id);
-//   if (!gezin){
-//    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-//   }
-//   return gezin;
-// };
-//TODO: zorgen dat er geen dubbels kunnen worden gemaakt
-
-// const create = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
-  //   try {
-  //     const id = await gezinRepository.createGezin({
-  //       familienaam,
-  //       straat,
-  //       huisnummer,
-  //       postcode,
-  //       stad
-  //     });
-  //     return getGezinById(id);
-  //   } catch (error) {
-      
-  //     // getLogger().error("Fout bij het creëren van het gezin")
-  //     throw handleDBError(error);
-  //   }
-  // };
-
-  // const updateGezinById = async (id, { familienaam, straat, huisnummer, postcode, stad}) => {
-  //   try {
-  //     await gezinRepository.updateGezinById(id, {
-  //       familienaam,
-  //       straat,
-  //       huisnummer,
-  //       postcode,
-  //       stad,
-  //     });
-  //     return getGezinById(id);
-  //   } catch (error) {
-  //     // getLogger().error("Fout bij het wijzigen van het gezin")
-  //     throw handleDBError(error);
-  //   }
-  // };
-
-  // const deleteGezinById = async (id) => {try {
-  //   const deleted = await gezinRepository.deleteGezinById(id);
-  
-  //   if (!deleted) {
-  //     throw ServiceError.notFound(`Geen gezin met id ${id} gevonden`, { id });
-  //   }
-  // } catch (error) {  
-  //   // getLogger().error("Fout bij het verwijderen van het gezin")
-  //   throw handleDBError(error);
-  // }
-  // };

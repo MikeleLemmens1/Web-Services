@@ -1,16 +1,35 @@
 const { getLogger } = require('../core/logging');
-// const geplandeTakenRepo = require('../repository/geplandeTaak');
 const gezinsledenService = require('./gezinsleden');
+const gezinService = require('./gezinnen');
 const ServiceError = require('../core/serviceError');
 const handleDBError = require('./_handleDBError');
 const { getGezinslidById } = require('./gezinsleden');
 const { getSequelize } = require('../data');
+const { log } = require('winston');
 
 const getAllGeplandeTaken = async (id) => {
-  // const gezinslid = await getGezinslidById(id);
+  const gezinslid = await getGezinslidById(id);
   const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
-    // where: { gezinslid_id: gezinslid.id },
+    where: { gezinslid_id: gezinslid.id },
   });
+  return {
+    geplandeTaken,
+    count: geplandeTaken.length,  
+  };
+};
+
+const getAllGeplandeTakenByGezin = async (gezin_id) => {
+  const gezin = await gezinService.getAllGezinsleden(gezin_id)
+  const gezinsleden = await gezin.gezinsleden;
+  let ids = []
+  for (i in gezinsleden) {
+    ids.push(gezinsleden[i].id);
+    
+  }
+    const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
+    where: { 
+      gezinslid_id: ids,}
+    });
   return {
     geplandeTaken,
     count: geplandeTaken.length,  
@@ -92,6 +111,7 @@ const deleteGeplandeTaakById = async (id) => {
 module.exports = {
   getAllGeplandeTaken,
   getAllGeplandeTakenByDay,
+  getAllGeplandeTakenByGezin,
   getGeplandeTaakById,
   createGeplandeTaak,
   updateGeplandeTaakById,

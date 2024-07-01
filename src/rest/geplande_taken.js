@@ -2,6 +2,8 @@ const Router = require('@koa/router');
 const geplandeTakenService = require('../service/geplande_taken');
 const Joi = require('joi');
 const validate = require('../core/validation');
+const { requireAuthentication , makeRequireRole } = require('../core/auth');
+const Role = require('../core/roles');
 
 
 const getAllGeplandeTaken = async (ctx) => {
@@ -14,13 +16,23 @@ const getAllGeplandeTaken = async (ctx) => {
   // }
   // else
   //   ctx.body = await geplandeTakenService.getAll();
-  ctx.body = await geplandeTakenService.getAllGeplandeTaken();
+  ctx.body = await geplandeTakenService.getAllGeplandeTaken(ctx.params.id);
 };
 
 getAllGeplandeTaken.validationScheme = {
-  // params: Joi.object({
-  //   id: Joi.number().integer().positive(),
-  // }),
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
+
+const getAllGeplandeTakenByGezin = async (ctx) => {
+  ctx.body = await geplandeTakenService.getAllGeplandeTakenByGezin(ctx.params.id);
+};
+
+getAllGeplandeTakenByGezin.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const getGeplandeTaakById = async (ctx) => {
@@ -84,6 +96,37 @@ deleteGeplandeTaak.validationScheme = {
     id: Joi.number().integer().positive(),
   },
 };
+
+const checkGezinId = async (ctx, next) => {
+  const { gezin_id, roles } = ctx.state.session;
+  let { id } = ctx.params;
+  // Enable creation of gezinslid without being registered, only family members should be allowed to do this
+  let targetGezinslid;
+  let targetGezin_id;
+  if (!id){
+    //  targetGezin_id = ctx.body.gezin_id;
+     targetGezinslid = await getGezinslidById(ctx.request.body.gezinslid_id);
+     targetGezin_id = targetGezinslid.Gezin.id;
+    }
+  else {
+    const geplandeTaak = await getGeplandeTaakById(id);
+    const gezinslid = geplandeTaak.Gezinslid;
+    const targetGezin = gezinslid.Gezin;
+    targetGezin_id = targetGezin.id;
+  }
+  // targetGezin: gezin of the gezinslid being modified
+  // gezin_id: gezin of the active user
+  if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {
+    return ctx.throw(
+      403,
+      "You are not allowed to operate on this family's information.",
+      {
+        code: 'FORBIDDEN',
+      }
+    );
+  }
+  return next();
+};
 /**
  * Installeer geplande_taken routes in de gegeven router
  *
@@ -91,20 +134,31 @@ deleteGeplandeTaak.validationScheme = {
  */
 module.exports = (app) => {
   const router = new Router({
-    // prefix: '/gezinsleden/:id/geplande_taken',
-    prefix: '/geplande_taken'
+    prefix: '/gezinsleden/:id/geplande_taken',
+    // prefix: '/geplande_taken'
   });
+  router.use(requireAuthentication);
 
+  // All geplande taken for gezinslid
   router.get(
     '/',
     validate(getAllGeplandeTaken.validationScheme),
     getAllGeplandeTaken
 
+  // All geplande taken for the family of the active gezinslid
+  );
+  router.get(
+    '/all',
+    validate(getAllGeplandeTakenByGezin.validationScheme),
+    getAllGeplandeTakenByGezin
+
   );
 
+  // Only allowed if requested task belongs to a fellow gezinslid
   router.get(
     '/:id',
     validate(getGeplandeTaakById.validationScheme),
+    // checkGezinId,
     getGeplandeTaakById
   );
 
