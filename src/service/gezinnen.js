@@ -1,4 +1,4 @@
-
+const geplandeTakenService = require('./geplande_taken')
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data/index');
@@ -136,7 +136,6 @@ const getAllBoodschappenFromGezin = async (id) => {
 }
 
 const getAllVerjaardagenFromGezin = async (id) => {
-  const gezin = await getGezinById(id);
   let items = await gezin.getVerjaardagen();
   const verjaardagen = []
   for (const verjaardag of items){
@@ -157,6 +156,11 @@ const getAllVerjaardagenFromGezin = async (id) => {
   }
 }
 
+const getAllGeplandeTakenFromGezin = async (id) => {
+  return await geplandeTakenService.getAllGeplandeTakenFromGezin(id);
+  
+}
+
 module.exports = {
   getAllGezinnen,
   getGezinById,
@@ -166,7 +170,8 @@ module.exports = {
   getGezinByFamilienaam,
   getAllGezinsledenFromGezin,
   getAllBoodschappenFromGezin,
-  getAllVerjaardagenFromGezin
+  getAllVerjaardagenFromGezin,
+  getAllGeplandeTakenFromGezin
 };
 
 

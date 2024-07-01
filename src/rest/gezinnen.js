@@ -1,5 +1,6 @@
 const Router = require('@koa/router');
 const gezinService = require('../service/gezinnen');
+const geplandeTakenService = require('../service/geplande_taken');
 const Joi = require('joi')
 const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
@@ -112,6 +113,16 @@ getAllVerjaardagenFromGezin.validationScheme = {
   }),
 };
 
+const getAllGeplandeTakenFromGezin = async (ctx) => {
+  ctx.body = await geplandeTakenService.getAllGeplandeTakenFromGezin(ctx.params.id);
+}
+
+getAllGeplandeTakenFromGezin.validationScheme = {
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
+};
+
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
   let { id } = ctx. params;
@@ -186,6 +197,13 @@ module.exports = (app) => {
     validate(getAllVerjaardagenFromGezin.validationScheme),
     checkGezinId,
     getAllVerjaardagenFromGezin
+  );
+  router.get(
+    '/:id/geplande_taken',
+    requireAuthentication,
+    validate(getAllGeplandeTakenFromGezin.validationScheme),
+    checkGezinId,
+    getAllGeplandeTakenFromGezin
   );
 
   // Any unregistered user can post a new gezin

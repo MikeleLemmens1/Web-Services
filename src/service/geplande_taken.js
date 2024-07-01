@@ -7,8 +7,11 @@ const { getGezinslidById } = require('./gezinsleden');
 const { getSequelize } = require('../data');
 const { log } = require('winston');
 
-const getAllGeplandeTaken = async (id) => {
-  const gezinslid = await getGezinslidById(id);
+const getAllGeplandeTaken = async (ctx) => {
+  if (ctx.query.all){
+    return getAllGeplandeTakenFromGezin(gezin_id)
+  }
+  const gezinslid = await getGezinslidById(ctx.params.id);
   const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
     where: { gezinslid_id: gezinslid.id },
   });
@@ -18,8 +21,8 @@ const getAllGeplandeTaken = async (id) => {
   };
 };
 
-const getAllGeplandeTakenByGezin = async (gezin_id) => {
-  const gezin = await gezinService.getAllGezinsleden(gezin_id)
+const getAllGeplandeTakenFromGezin = async (gezin_id) => {
+  const gezin = await gezinService.getAllGezinsledenFromGezin(gezin_id)
   const gezinsleden = await gezin.gezinsleden;
   let ids = []
   for (i in gezinsleden) {
@@ -37,19 +40,19 @@ const getAllGeplandeTakenByGezin = async (gezin_id) => {
 };
 
 
-const getAllGeplandeTakenByDay = async (id,dag) => { 
-  const gezinslid = await getGezinslidById(id);
-  const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
-    where: { 
-      gezinslid_id: gezinslid.id,
-      dag: dag
-     },
-  });  if (!geplandeTaken) {
-    throw ServiceError.notFound(`Er bestaat geen taak voor ${dag}`, { dag });
-  }
+// const getAllGeplandeTakenByDay = async (id,dag) => { 
+//   const gezinslid = await getGezinslidById(id);
+//   const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
+//     where: { 
+//       gezinslid_id: gezinslid.id,
+//       dag: dag
+//      },
+//   });  if (!geplandeTaken) {
+//     throw ServiceError.notFound(`Er bestaat geen taak voor ${dag}`, { dag });
+//   }
 
-  return geplandeTaken;
-}
+//   return geplandeTaken;
+// }
 
 const getGeplandeTaakById = async (id) => {
   const geplandeTaak = await getSequelize().models.GeplandeTaak.findByPk(id);
@@ -79,9 +82,9 @@ const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
   }
 };
 
-const updateGeplandeTaakById = async (id, { naam, dag, gezinslid_id}) => {
+const updateGeplandeTaakById = async (id, taak_id, { naam, dag}) => {
   // Error thrown by getGeplandeTaakById if not found
-  const geplandeTaak = await getGeplandeTaakById(id);
+  const geplandeTaak = await getGeplandeTaakById(taak_id);
   await geplandeTaak.set({
     naam,
     dag,
@@ -89,9 +92,9 @@ const updateGeplandeTaakById = async (id, { naam, dag, gezinslid_id}) => {
     // gezinslid_id,
   })
   await geplandeTaak.save();
-  await geplandeTaak.setGezinslid(gezinslid_id);
+  await geplandeTaak.setGezinslid(id);
   try {
-    return getGeplandeTaakById(id);
+    return getGeplandeTaakById(taak_id);
   } catch (error) {
     getLogger().error("Fout bij het wijzigen van de geplande taak")
     throw handleDBError(error);
@@ -110,8 +113,8 @@ const deleteGeplandeTaakById = async (id) => {
 
 module.exports = {
   getAllGeplandeTaken,
-  getAllGeplandeTakenByDay,
-  getAllGeplandeTakenByGezin,
+  // getAllGeplandeTakenByDay,
+  getAllGeplandeTakenFromGezin,
   getGeplandeTaakById,
   createGeplandeTaak,
   updateGeplandeTaakById,

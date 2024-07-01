@@ -4,6 +4,7 @@ const Joi = require('joi');
 const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
+const { getGezinslidById } = require('../service/gezinsleden');
 
 
 const getAllGeplandeTaken = async (ctx) => {
@@ -16,12 +17,15 @@ const getAllGeplandeTaken = async (ctx) => {
   // }
   // else
   //   ctx.body = await geplandeTakenService.getAll();
-  ctx.body = await geplandeTakenService.getAllGeplandeTaken(ctx.params.id);
+  ctx.body = await geplandeTakenService.getAllGeplandeTaken(ctx);
 };
 
 getAllGeplandeTaken.validationScheme = {
   params: Joi.object({
     id: Joi.number().integer().positive(),
+  }),
+  query: Joi.object({
+    all: Joi.boolean().optional(),
   }),
 };
 
@@ -42,6 +46,7 @@ const getGeplandeTaakById = async (ctx) => {
 getGeplandeTaakById.validationScheme = {
   params: Joi.object({
     id: Joi.number().integer().positive(),
+    taak_id: Joi.number().integer().positive(),
   }),
 };
 
@@ -49,8 +54,8 @@ const createGeplandeTaak = async (ctx) => {
   const newTask = await geplandeTakenService.createGeplandeTaak({
     ...ctx.request.body,
     // dag: new Date(ctx.request.body.dag),
-    gezinslid_id: Number(ctx.request.body.gezinslid_id)
-    // gezinslid_id: Number(ctx.params.id)
+    // gezinslid_id: Number(ctx.request.body.gezinslid_id)
+    gezinslid_id: Number(ctx.params.id)
 
   });  
   ctx.status = 201;
@@ -60,15 +65,15 @@ createGeplandeTaak.validationScheme = {
   body: {
     naam: Joi.string().max(255),
     dag: Joi.string()/*.min('now').message('"date" cannot be earlier than today')*/,
-    gezinslid_id: Joi.number().integer().positive(),
+    // gezinslid_id: Joi.number().integer().positive(),
   },
-  // params: Joi.object({
-  //   id: Joi.number().integer().positive(),
-  // }),
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const updateGeplandeTaak = async (ctx) => {
-  ctx.body = await geplandeTakenService.updateGeplandeTaakById(ctx.params.id, {
+  ctx.body = await geplandeTakenService.updateGeplandeTaakById(ctx.params.id, ctx.params.taak_id, {
     ...ctx.request.body,
     // gezinslidId: Number(ctx.request.body.gezinslidId),
     // dag: new Date(ctx.request.body.dag),
@@ -77,43 +82,47 @@ const updateGeplandeTaak = async (ctx) => {
 updateGeplandeTaak.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
+    taak_id: Joi.number().integer().positive(),
+
   },
   body: {
     naam: Joi.string().max(255),
-    dag: Joi.string()
+    dag: Joi.string(), 
     // .format("YYYY-MM-DD").min(today()).message('"date" cannot be earlier than today'),
-    ,
-    gezinslid_id: Joi.number().integer().positive().optional(),
+    // gezinslid_id: Joi.number().integer().positive().optional(),
   },
 };
 
 const deleteGeplandeTaak = async (ctx) => {
-  await geplandeTakenService.deleteGeplandeTaakById(ctx.params.id);
+  await geplandeTakenService.deleteGeplandeTaakById(ctx.params.taak_id);
   ctx.status = 204;
 };
 deleteGeplandeTaak.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
+    taak_id: Joi.number().integer().positive(),
+
   },
 };
 
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
   let { id } = ctx.params;
-  // Enable creation of gezinslid without being registered, only family members should be allowed to do this
-  let targetGezinslid;
-  let targetGezin_id;
-  if (!id){
-    //  targetGezin_id = ctx.body.gezin_id;
-     targetGezinslid = await getGezinslidById(ctx.request.body.gezinslid_id);
-     targetGezin_id = targetGezinslid.Gezin.id;
-    }
-  else {
-    const geplandeTaak = await getGeplandeTaakById(id);
-    const gezinslid = geplandeTaak.Gezinslid;
-    const targetGezin = gezinslid.Gezin;
-    targetGezin_id = targetGezin.id;
-  }
+  const targetGezinslid = await getGezinslidById(id);
+  const targetGezin_id = targetGezinslid.Gezin.id;
+
+  // if (!id){
+  //   //  targetGezin_id = ctx.body.gezin_id;
+  //    targetGezinslid = await getGezinslidById(ctx.request.body.gezinslid_id);
+  //    targetGezin_id = targetGezinslid.Gezin.id;
+  //   }
+  // else {
+  //   // const geplandeTaak = await getGeplandeTaakById(id);
+  //   // const gezinslid = geplandeTaak.Gezinslid;
+  //   // const targetGezin = gezinslid.Gezin;
+  //   targetGezin_id = targetGezin.id;
+    
+  // }
   // targetGezin: gezin of the gezinslid being modified
   // gezin_id: gezin of the active user
   if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {
@@ -135,47 +144,45 @@ const checkGezinId = async (ctx, next) => {
 module.exports = (app) => {
   const router = new Router({
     prefix: '/gezinsleden/:id/geplande_taken',
-    // prefix: '/geplande_taken'
   });
+  
   router.use(requireAuthentication);
 
   // All geplande taken for gezinslid
   router.get(
     '/',
     validate(getAllGeplandeTaken.validationScheme),
+    checkGezinId,
     getAllGeplandeTaken
 
   // All geplande taken for the family of the active gezinslid
   );
-  router.get(
-    '/all',
-    validate(getAllGeplandeTakenByGezin.validationScheme),
-    getAllGeplandeTakenByGezin
-
-  );
 
   // Only allowed if requested task belongs to a fellow gezinslid
   router.get(
-    '/:id',
+    '/:taak_id',
     validate(getGeplandeTaakById.validationScheme),
-    // checkGezinId,
+    checkGezinId,
     getGeplandeTaakById
   );
 
   router.post(
     '/',
     validate(createGeplandeTaak.validationScheme),
+    checkGezinId,
     createGeplandeTaak
   );
   
   router.put(
-    '/:id',
+    '/:taak_id',
     validate(updateGeplandeTaak.validationScheme),
+    checkGezinId,
     updateGeplandeTaak
   );
   router.delete(
-    '/:id',
+    '/:taak_id',
     validate(deleteGeplandeTaak.validationScheme),
+    checkGezinId,
     deleteGeplandeTaak
   );
   // return router;
