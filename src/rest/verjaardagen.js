@@ -2,22 +2,24 @@ const Router = require('@koa/router');
 const verjaardagenService = require('../service/verjaardagen');
 const validate = require('../core/validation')
 const Joi = require('joi');
+const { requireAuthentication } = require('../core/auth');
 
 const getAllVerjaardagen = async (ctx) => {
   ctx.body = await verjaardagenService.getAllVerjaardagen()
 };
 getAllVerjaardagen.validationScheme = {
-  // params: Joi.object({
-  //   id: Joi.number().integer().positive(),
-  // }),
+  params: Joi.object({
+    id: Joi.number().integer().positive(),
+  }),
 };
 
 const getVerjaardagenById = async (ctx) => {
-  ctx.body = await verjaardagenService.getVerjadardagById(Number(ctx.params.id));
+  ctx.body = await verjaardagenService.getVerjaardagById(Number(ctx.params.id));
 };
 getVerjaardagenById.validationScheme = {
   params: Joi.object({
     id: Joi.number().integer().positive(),
+    verjaardag_id: Joi.number().integer().positive()
   }),
 }
 const createVerjaardag = async (ctx) => {
@@ -55,6 +57,8 @@ const updateVerjaardag = async (ctx) => {
 updateVerjaardag.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
+    verjaardag_id: Joi.number().integer().positive()
+
   },
   body: {
     dagnummer: Joi.number().min(1).max(31),
@@ -71,7 +75,31 @@ const deleteVerjaardag = async (ctx) => {
 deleteVerjaardag.validationScheme = {
   params: {
     id: Joi.number().integer().positive(),
+    verjaardag_id: Joi.number().integer().positive()
+
   },
+};
+
+const checkGezinId = async (ctx, next) => {
+  const { gezin_id, roles } = ctx.state.session;
+  let { id, verjaardag_id } = ctx.params;
+  let targetGezin_id;
+  if(verjaardag_id){
+    const verjaardag = await verjaardagenService.getVerjaardagById(verjaardag_id);
+    targetGezin_id = verjaardag.gezin_id;
+  }
+  else targetGezin_id = id;
+
+  if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {
+    return ctx.throw(
+      403,
+      "You are not allowed to operate on this family's information.",
+      {
+        code: 'FORBIDDEN',
+      }
+    );
+  }
+  return next();
 };
 /**
  * Installeer verjaardag routes in de gegeven router
@@ -83,32 +111,39 @@ module.exports = (app) => {
     prefix: '/gezinnen/:id/verjaardagen',
   });
 
+  router.use(requireAuthentication);
+
   router.get(
     '/',
     validate(getAllVerjaardagen.validationScheme),
+    checkGezinId,
     getAllVerjaardagen
   );
 
   router.post(
     '/', 
     validate(createVerjaardag.validationScheme),
+    checkGezinId,
     createVerjaardag
   );
   router.get(
-    '/:id',
+    '/:verjaardag_id',
     validate(getVerjaardagenById.validationScheme),
+    checkGezinId,
     getVerjaardagenById
   );
 
   router.put(
-    '/:id',
+    '/:verjaardag_id',
     validate(updateVerjaardag.validationScheme),
+    checkGezinId,
     updateVerjaardag
   );
   
   router.delete(
     '/:id',
     validate(deleteVerjaardag.validationScheme),
+    checkGezinId,
     deleteVerjaardag
   );
 

@@ -1,5 +1,5 @@
 const { getLogger } = require('../core/logging');
-const { getGezinById} = require('./gezinnen');
+const { getGezinById, getGezinByFamilienaam} = require('./gezinnen');
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data');
@@ -14,7 +14,7 @@ const getAllBoodschappen = async () => {
 
 
 const getAllBoodschappenByGezinsId = async (id) => { 
-c
+  const gezin = await getGezinById(id);
   const boodschappen = await getSequelize().models.Boodschap.findAll({
     where: { 
       gezin_id: gezin.id,
@@ -23,14 +23,14 @@ c
   if (!boodschappen) {
     throw ServiceError.notFound(`Er zijn geen boodschappen voor gezin met id ${id}`, { id });
   }
-
   return {
+    gezin: gezin.familienaam,
     boodschappen,
     count: boodschappen.length,
   };}
 
 const getAllBoodschappenByWinkel = async (id,winkel) => {
-  const gezin = await getSequelize().models.Gezin.findByPk(id);
+  const gezin = await getGezinById(id);
   if (!gezin) {
     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
   }
@@ -43,6 +43,7 @@ const getAllBoodschappenByWinkel = async (id,winkel) => {
     throw ServiceError.notFound(`Er zijn geen boodschappen voor de winkel ${id}`, { id });
   }
   return {
+    gezin: gezin.familienaam,
     boodschappen,
     count: boodschappen.length,
   };
@@ -109,7 +110,7 @@ const deleteBoodschapById = async (id) => {
 
 module.exports = {
   getAllBoodschappen,
-  // getAllBoodschappenByGezinsId,
+  getAllBoodschappenByGezinsId,
   getAllBoodschappenByWinkel,
   getBoodschapById,
   createBoodschap,

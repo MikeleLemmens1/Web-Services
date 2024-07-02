@@ -5,9 +5,17 @@ const handleDBError = require('./_handleDBError');
 const { getSequelize } = require('../data');
 
 const getAllVerjaardagen = async () => {
-  const verjaardagen = await getSequelize().models.Verjaardag.findAll();
+  // const verjaardagen = await getSequelize().models.Verjaardag.findAll();
+  const gezin = await getSequelize().models.Gezin.findByPk(gezin_id);
+  let verjaardagen = await gezin.getVerjaardagen(
+    {
+      attributes:{
+        exclude:['id','createdAt','updatedAt']
+      } ,
+    });
+  console.log(verjaardagen[0].dagnummer);
   return {
-    verjaardagen,
+    verjaardagen: verjaardagen,
     count: verjaardagen.length,
   };
 };

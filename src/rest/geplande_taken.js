@@ -111,20 +111,6 @@ const checkGezinId = async (ctx, next) => {
   const targetGezinslid = await getGezinslidById(id);
   const targetGezin_id = targetGezinslid.Gezin.id;
 
-  // if (!id){
-  //   //  targetGezin_id = ctx.body.gezin_id;
-  //    targetGezinslid = await getGezinslidById(ctx.request.body.gezinslid_id);
-  //    targetGezin_id = targetGezinslid.Gezin.id;
-  //   }
-  // else {
-  //   // const geplandeTaak = await getGeplandeTaakById(id);
-  //   // const gezinslid = geplandeTaak.Gezinslid;
-  //   // const targetGezin = gezinslid.Gezin;
-  //   targetGezin_id = targetGezin.id;
-    
-  // }
-  // targetGezin: gezin of the gezinslid being modified
-  // gezin_id: gezin of the active user
   if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {
     return ctx.throw(
       403,

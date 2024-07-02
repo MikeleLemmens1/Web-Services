@@ -183,21 +183,22 @@ module.exports = (app) => {
     getAllGezinsledenFromGezin
   );
 
-  router.get(
-    '/:id/boodschappen',
-    requireAuthentication,
-    validate(getAllBoodschappenFromGezin.validationScheme),
-    checkGezinId,
-    getAllBoodschappenFromGezin
-  );
+  // router.get(
+  //   '/:id/boodschappen',
+  //   requireAuthentication,
+  //   validate(getAllBoodschappenFromGezin.validationScheme),
+  //   checkGezinId,
+  //   getAllBoodschappenFromGezin
+  // );
 
-  router.get(
-    '/:id/verjaardagen',
-    requireAuthentication,
-    validate(getAllVerjaardagenFromGezin.validationScheme),
-    checkGezinId,
-    getAllVerjaardagenFromGezin
-  );
+  // router.get(
+  //   '/:id/verjaardagen',
+  //   requireAuthentication,
+  //   validate(getAllVerjaardagenFromGezin.validationScheme),
+  //   checkGezinId,
+  //   getAllVerjaardagenFromGezin
+  // );
+  
   router.get(
     '/:id/geplande_taken',
     requireAuthentication,
