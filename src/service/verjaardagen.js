@@ -4,16 +4,18 @@ const ServiceError = require('../core/serviceError')
 const handleDBError = require('./_handleDBError');
 const { getSequelize } = require('../data');
 
+
+const include = () => ({
+  attributes:{
+    exclude:['id','createdAt','updatedAt']
+  } ,
+  joinTableAttributes: []
+});
+
 const getAllVerjaardagen = async () => {
-  // const verjaardagen = await getSequelize().models.Verjaardag.findAll();
   const gezin = await getSequelize().models.Gezin.findByPk(gezin_id);
   let verjaardagen = await gezin.getVerjaardagen(
-    {
-      attributes:{
-        exclude:['id','createdAt','updatedAt']
-      } ,
-    });
-  console.log(verjaardagen[0].dagnummer);
+    include());
   return {
     verjaardagen: verjaardagen,
     count: verjaardagen.length,
@@ -30,18 +32,8 @@ const getVerjaardagById = async (id) => {
   return verjaardag;
 };
 
-// const getVerjaardagenByGezinsId = async (id) => {
-//   const gezin = await getSequelize().models.Gezin.findByPk(id);
-//   if (!gezin) {
-//     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-//   }
-//   const verjaardagen = await verjaardagRepo.findVerjaardagenByGezinsId(id);
-
-//   return verjaardagen;
-// };
-
 const createVerjaardag = async ({ voornaam, achternaam, dagnummer, maandnummer, gezin_id}) => {
-  const gezin = await getGezinById(gezin_id);
+  const gezin = await gezinService.getGezinById(gezin_id);
   if (!gezin) {
     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
   }
@@ -51,8 +43,8 @@ const createVerjaardag = async ({ voornaam, achternaam, dagnummer, maandnummer, 
       achternaam,
       dagnummer,
       maandnummer,
-      gezin_id,
     });
+    gezin.addVerjaardagen(verjaardag);
     return getVerjaardagById(verjaardag.id);
   } catch (error) {
     getLogger().error("Fout bij het maken van de verjaardag")
@@ -78,7 +70,7 @@ const updateVerjaardagById = async (id, {voornaam, achternaam, dagnummer, maandn
 };
 const deleteVerjaardagById = async (id) => {
   try {
-    const deleted = await getBoodschapById(id);
+    const deleted = await getVerjaardagById(id);
     await deleted.destroy();
     if (!deleted) {
       throw ServiceError.notFound(`Geen verjaardag met id ${id} gevonden`, { id });
@@ -91,7 +83,6 @@ const deleteVerjaardagById = async (id) => {
 
 module.exports = {
   getAllVerjaardagen,
-  // getVerjaardagenByGezinsId,
   createVerjaardag,
   updateVerjaardagById,
   deleteVerjaardagById,

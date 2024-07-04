@@ -3,6 +3,8 @@ const verjaardagenService = require('../service/verjaardagen');
 const validate = require('../core/validation')
 const Joi = require('joi');
 const { requireAuthentication } = require('../core/auth');
+const Role = require('../core/roles');
+
 
 const getAllVerjaardagen = async (ctx) => {
   ctx.body = await verjaardagenService.getAllVerjaardagen()
@@ -13,10 +15,10 @@ getAllVerjaardagen.validationScheme = {
   }),
 };
 
-const getVerjaardagenById = async (ctx) => {
-  ctx.body = await verjaardagenService.getVerjaardagById(Number(ctx.params.id));
+const getVerjaardagById = async (ctx) => {
+  ctx.body = await verjaardagenService.getVerjaardagById(Number(ctx.params.verjaardag_id));
 };
-getVerjaardagenById.validationScheme = {
+getVerjaardagById.validationScheme = {
   params: Joi.object({
     id: Joi.number().integer().positive(),
     verjaardag_id: Joi.number().integer().positive()
@@ -47,7 +49,7 @@ createVerjaardag.validationScheme = {
 
 
 const updateVerjaardag = async (ctx) => {
-  ctx.body = await verjaardagenService.updateVerjaardagById(Number(ctx.params.id), {
+  ctx.body = await verjaardagenService.updateVerjaardagById(Number(ctx.params.verjaardag_id), {
     ...ctx.request.body,
     dagnummer: Number(ctx.request.body.dagnummer),
     maandnummer: Number(ctx.request.body.maandnummer),
@@ -69,7 +71,7 @@ updateVerjaardag.validationScheme = {
 }
 
 const deleteVerjaardag = async (ctx) => {
-  await verjaardagenService.deleteVerjaardagById(Number(ctx.params.id));
+  await verjaardagenService.deleteVerjaardagById(Number(ctx.params.verjaardag_id));
   ctx.status = 204;
 };
 deleteVerjaardag.validationScheme = {
@@ -86,7 +88,11 @@ const checkGezinId = async (ctx, next) => {
   let targetGezin_id;
   if(verjaardag_id){
     const verjaardag = await verjaardagenService.getVerjaardagById(verjaardag_id);
-    targetGezin_id = verjaardag.gezin_id;
+    const gezinnen = await verjaardag.getGezins();
+    const targetGezin_ids = gezinnen.map((gezin)=> gezin.id)
+    if (targetGezin_ids.includes(gezin_id)){
+      targetGezin_id = gezin_id;
+    }
   }
   else targetGezin_id = id;
 
@@ -128,9 +134,9 @@ module.exports = (app) => {
   );
   router.get(
     '/:verjaardag_id',
-    validate(getVerjaardagenById.validationScheme),
+    validate(getVerjaardagById.validationScheme),
     checkGezinId,
-    getVerjaardagenById
+    getVerjaardagById
   );
 
   router.put(
@@ -141,7 +147,7 @@ module.exports = (app) => {
   );
   
   router.delete(
-    '/:id',
+    '/:verjaardag_id',
     validate(deleteVerjaardag.validationScheme),
     checkGezinId,
     deleteVerjaardag
