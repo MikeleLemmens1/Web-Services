@@ -5,6 +5,7 @@ module.exports = {
     host: 'DATABASE_HOST',
     port: 'DATABASE_PORT',
     name: 'DATABASE_NAME',
+    database: 'DATABASE_DATABASE',
     username: 'DATABASE_USERNAME',
     password: 'DATABASE_PASSWORD',
   },

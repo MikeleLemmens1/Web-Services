@@ -11,20 +11,23 @@ module.exports = {
   },
   database: {
     dialect: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    name: 'gezinsplanner_seq',
+    // host: 'localhost',
+    // port: 3306,
+    // name: 'gezinsplanner_seq',
     // Needed for migrations
-    database:'gezinsplanner_seq', 
+    // database:'gezinsplanner_seq', 
     // name_seq: 'gezinsplanner_seq',
-    username: 'root2',
-    password: 'WebServ2023',
-    timezone: '+00:00'
-
-    // host: 'vichogent.be',
-    // port: 40043,
-    // name: '291269ml',
     // username: 'root2',
+    // password: 'WebServ2023',
+    timezone: '+00:00',
+
+    host: 'vichogent.be',
+    port: 40043,
+    database: '291269ml',
+    username: '291269ml',
+    password: 'SnKQ1eNSvgyaCkzOFFFU',
+    ssl: true,
+    omitNull: true,
     // password: '',
     // timezone: '+00:00'
   },

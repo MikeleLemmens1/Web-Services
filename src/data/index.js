@@ -6,10 +6,9 @@ const fs = require('fs')
 const path = require('path')
 const config = require('config');
 const {Sequelize} = require('sequelize');
-const { log } = require('console');
 
-const NODE_ENV = config.get('env');
-const isDevelopment = NODE_ENV === 'development';
+// const NODE_ENV = config.get('env');
+// const isDevelopment = NODE_ENV === 'development';
 
 // const DATABASE_CLIENT = config.get('database.client');
 const DATABASE_NAME = config.get('database.name');
@@ -21,8 +20,8 @@ const DATABASE_TIMEZONE = config.get('database.timezone')
 // const DATABASE_NAME_SEQ = config.get('database.name_seq')
 
 const DATABASE_DIALECT = config.get('database.dialect');
-// const DATABASE_SSL  = config.get('database.ssl');
-// const DATABASE_OMITNULL = config.get('database.omitNull');
+const DATABASE_SSL  = config.get('database.ssl');
+const DATABASE_OMITNULL = config.get('database.omitNull');
 
 // Required to associate models stored in ./models
 const basename = path.basename(__filename);
