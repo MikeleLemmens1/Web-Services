@@ -106,9 +106,6 @@ async function shutdownData() {
   await sequelize.close();
   sequelize = null;
 
-  await knexInstance.destroy();
-  knexInstance = null;
-
   logger.info('Database connection closed');
 }
 
