@@ -1,11 +1,23 @@
-const supertest = require('supertest');
-const createServer = require('../../src/createServer');
-const { tables, getKnex } = require('../../src/data');
+const {withServer, login, loginAdmin} = require('../supertest.setup');
+const {testAuthHeader} = require('../common/auth');
+const Role = require('../../src/core/roles');
 
-const data = {
+const data = 
+{ 
+  gezinnen: [
+
+    {
+      id:2,
+      familienaam: "Lemmens - Roebroek",
+      straat: "Joost Van De Vondelplein",
+      huisnummer: 27,
+      postcode: 9940,
+      stad: "Ertvelde"
+    },
+  ],
   verjaardagen: [
     {
-      id: 1,
+      id: 3,
       dagnummer: 30,
       maandnummer: 12,
       voornaam: "Mikele",
@@ -13,7 +25,7 @@ const data = {
 
     },
     {
-      id: 2,
+      id: 4,
       dagnummer: 24,
       maandnummer: 8,
       voornaam: "Charlotte",
@@ -21,7 +33,7 @@ const data = {
 
     },
     {
-      id: 3,
+      id: 5,
       dagnummer: 23,
       maandnummer: 9,
       voornaam: "Ellis",
@@ -29,7 +41,7 @@ const data = {
       
     },
     {
-      id: 4,
+      id: 6,
       dagnummer: 30,
       maandnummer: 12,
       voornaam: "Mattia",
@@ -37,7 +49,7 @@ const data = {
   
     },
     {
-      id: 5,
+      id: 7,
       dagnummer: 15,
       maandnummer: 12,
       voornaam: "Katrijn",
@@ -45,201 +57,254 @@ const data = {
   
     },
     {
-      id: 6,
+      id: 8,
       dagnummer: 10,
       maandnummer: 11,
       voornaam: "Myrthe",
       achternaam: "Roebroek",
-  
     }
   ],
-  gezinnen: [
+  gezinsleden: [
     {
-      id:1,
-      familienaam: "Lemmens - De Smet",
-      straat: "Binnenslag",
-      huisnummer: 63,
-      postcode: 9920,
-      stad: "Lovendegem"
+      id: 3,
+      voornaam: "Mikele",
+      email: "mikele.lemmens@hotmail.com",
+      wachtwoord: "######",
+      gezin_id: 1,
+      verjaardag_id: 3,
+      roles: JSON.stringify([Role.ADMIN,Role.USER]),
+
     },
-    
-],
-kalender: [      {
-  id:1,
-  gezin_id: 1,
-  verjaardag_id: 1
-},
-{ 
-  id:2,
-  gezin_id: 1,
-  verjaardag_id: 2
-},
-{ 
-  id:3,
-  gezin_id: 1,
-  verjaardag_id: 3
-},
-{ 
-  id:4,
-  gezin_id: 1,
-  verjaardag_id: 4
-},
-{ 
-  id:5,
-  gezin_id: 1,
-  verjaardag_id: 5
-},
-{ 
-  id:6,
-  gezin_id: 1,
-  verjaardag_id: 6
-}],
+    {
+      id: 4,
+      voornaam: "Charlotte",
+      email: "desmetcharlotte2@gmail.com",
+      wachtwoord: "######",
+      gezin_id: 1,
+      verjaardag_id: 4,
+      roles: JSON.stringify([Role.USER]),
+
+    },
+    {
+      id: 5,
+      voornaam: "Ellis",
+      email: null,
+      wachtwoord: null,
+      gezin_id: 1,
+      verjaardag_id: 5,
+      roles: JSON.stringify([Role.USER]),
+
+    },
+    {
+      id: 6,
+      voornaam: "Mattia",
+      email: "Mattia.Lemmens@hotmail.com",
+      wachtwoord: "######",
+      gezin_id: 2,
+      verjaardag_id: 7,
+      roles: JSON.stringify([Role.USER]),
+
+    },
+    {
+      id: 7,
+      voornaam: "Myrthe",
+      email: "Myrthe.Roebroek@gmail.com",
+      wachtwoord: "######",
+      gezin_id: 2,
+      verjaardag_id:8,
+      roles: JSON.stringify([Role.USER]),
+
+    },
+  ],
+  gezinVerjaardagen:[
+
+    {
+      id: 3,
+      gezin_id: 1,
+      verjaardag_id: 3,
+    },
+    {
+      id: 4,
+      gezin_id: 1,
+      verjaardag_id: 4,
+    },
+    {
+      id: 5,
+      gezin_id: 1,
+      verjaardag_id: 5,
+    },
+    {
+      id: 6,
+      gezin_id: 2,
+      verjaardag_id: 6,
+    },
+    {
+      id: 7,
+      gezin_id: 2,
+      verjaardag_id: 7,
+    },
+    {
+      id: 8,
+      gezin_id: 2,
+      verjaardag_id: 8,
+    },
+    {
+      id: 9,
+      gezin_id: 1,
+      verjaardag_id: 7,
+    },
+  ],
 
 };
-
 const dataToDelete = {
-  gezinnen: [1],
-  kalender: [1, 2, 3, 4, 5, 6],
-  verjaardagen: [1, 2, 3, 4, 5, 6]
-}
+  // Don't delete instances created in global setup, they only get created once
+  gezinnen: [2],
+  verjaardagen: [3, 4, 5, 6, 7, 8],
+  gezinVerjaardagen: [3, 4, 5, 6, 7, 8, 9],
+  gezinsleden: [3, 4, 5, 6, 7],
+};
 
-describe('Verjaardagen', () => {
-  let server;
+describe('Gezinnen', () => {
+  let authHeader;
+  let adminAuthHeader;
   let request;
-  let knex;
+  let sequelize;
+
+  withServer(({
+    supertest,
+    sequelize: s
+  }) => {
+    setTimeout(() => console.log,4000);
+    request = supertest;
+    sequelize = s;
+  });
 
   beforeAll(async () => {
-    server = await createServer();
-    request = supertest(server.getApp().callback());
-    knex = getKnex();
+    // authHeader = await login(request);
+    adminAuthHeader = await loginAdmin(request);
   });
 
-  afterAll(async () => {
-    await server.stop();
-  });
+  const url = '/api/gezinnen/1/verjaardagen';
 
-  const url = '/api/verjaardagen';
-
-  describe('GET /api/verjaardagen', () => {
+  describe('GET /api/gezinnen/1/verjaardagen', () => {
     beforeAll(async () => {
-      await knex(tables.gezin).insert(data.gezinnen)
-      await knex(tables.verjaardag).insert(data.verjaardagen);
-      await knex(tables.kalender).insert(data.kalender)
+      await sequelize.models.Gezin.bulkCreate(data.gezinnen);
+      await sequelize.models.Verjaardag.bulkCreate(data.verjaardagen);
+      await sequelize.models.GezinVerjaardag.bulkCreate(data.gezinVerjaardagen);
+      await sequelize.models.Gezinslid.bulkCreate(data.gezinsleden);
     });
 
     afterAll(async () => {
-      await knex(tables.gezin)
-        .whereIn('id', dataToDelete.gezinnen)
-        .delete();
-      await knex(tables.verjaardag)
-        .whereIn('id', dataToDelete.verjaardagen)
-        .delete();
-      await knex(tables.kalender)
-        .whereIn('id', dataToDelete.kalender)
-        .delete();
+      await sequelize.models.Gezinslid.destroy({
+        where: {
+          id: dataToDelete.gezinsleden,
+        }
+      });
+      await sequelize.models.Verjaardag.destroy({
+        where: {
+          id: dataToDelete.verjaardagen,
+        }
+      });
+      await sequelize.models.Gezin.destroy({
+        where: {
+          id: dataToDelete.gezinnen,
+        }
+      });
     });
 
     it('should 200 and return all verjaardagen', async () => {
-      const response = await request.get(url);
+      const response = await request.get(url).set('Authorization',adminAuthHeader);
       expect(response.status).toBe(200);
-      expect(response.body.items.length).toBe(6);
+      expect(response.body.verjaardagen.length).toBe(6);
 
-      expect(response.body.items[0]).toEqual({
-          id: 2,
-          dagnummer: 24,
-          maandnummer: 8,
-          voornaam: "Charlotte",
-          achternaam: "De Smet",
+      expect(response.body.verjaardagen[0]).toEqual({
+          dagnummer: 1,
+          maandnummer: 1,
+          voornaam: "Test",
+          achternaam: "User",
       });
     });  
     it('should 400 when given an argument', async () => {
-      const response = await request.get(`${url}?invalid=true`);
+      const response = await request.get(`${url}?invalid=true`).set('Authorization',adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.query).toHaveProperty('invalid');
     });
+    testAuthHeader(() => request.get(url))
   });
-  describe('GET /api/verjaardagen/:id', () => {
+  describe('GET /api/gezinnen/1/verjaardagen/:id', () => {
     beforeAll(async () => {
-      await knex(tables.gezin).insert(data.gezinnen)
-      await knex(tables.verjaardag).insert(data.verjaardagen);
-      await knex(tables.kalender).insert(data.kalender)
+      await sequelize.models.Gezin.bulkCreate(data.gezinnen);
+      await sequelize.models.Verjaardag.bulkCreate(data.verjaardagen);
+      await sequelize.models.GezinVerjaardag.bulkCreate(data.gezinVerjaardagen);
+      await sequelize.models.Gezinslid.bulkCreate(data.gezinsleden);
     });
 
     afterAll(async () => {
-      await knex(tables.gezin)
-        .whereIn('id', dataToDelete.gezinnen)
-        .delete();
-      await knex(tables.verjaardag)
-        .whereIn('id', dataToDelete.verjaardagen)
-        .delete();
-      await knex(tables.kalender)
-        .whereIn('id', dataToDelete.kalender)
-        .delete();
+      await sequelize.models.Gezinslid.destroy({
+        where: {
+          id: dataToDelete.gezinsleden,
+        }
+      });
+      await sequelize.models.Verjaardag.destroy({
+        where: {
+          id: dataToDelete.verjaardagen,
+        }
+      });
+      await sequelize.models.Gezin.destroy({
+        where: {
+          id: dataToDelete.gezinnen,
+        }
+      });
     });
     it('should 200 and return the requested verjaardag', async () => {
-      const response = await request.get(`${url}/2`);
+      const response = await request.get(`${url}/1`).set('Authorization',adminAuthHeader);
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toEqual({ 
-        id: 2,
-        dagnummer: 24,
-        maandnummer: 8,
-        voornaam: "Charlotte",
-        achternaam: "De Smet",
+        id:1, 
+        dagnummer: 1,
+        maandnummer: 1,
+        voornaam: "Test",
+        achternaam: "User",
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
       });
     });
     it('should 404 when requesting not existing verjaardag', async () => {
-      const response = await request.get(`${url}/7`);
+      const response = await request.get(`${url}/100`).set('Authorization',adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
-        message: 'Er bestaat geen verjaardag met id 7',
+        message: 'Er bestaat geen verjaardag met id 100',
         details: {
-          id: 7,
+          id: 100,
         },
       });
       expect(response.body.stack).toBeTruthy();
     });
-    it('should 400 with invalid gezinslid id', async () => {
-      const response = await request.get(`${url}/invalid`);
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.params).toHaveProperty('id');
-    });
+    testAuthHeader(() => request.get(`${url}/1`))
   })
-  describe('POST /api/verjaardagen', () => {
+  describe('POST /api/gezinnen/1/verjaardagen', () => {
     const verjaardagenToDelete = [];
 
-    beforeAll(async () => {
-      await knex(tables.gezin).insert(data.gezinnen);
-      // await knex(tables.kalender).insert(data.kalender);
-    });
-
     afterAll(async () => {
-      await knex(tables.kalender)
-        .whereIn('id', dataToDelete.kalender)
-        .delete();
-
-      await knex(tables.verjaardag)
-        .whereIn('id', verjaardagenToDelete)
-        .delete();
-
-      await knex(tables.gezin)
-        .whereIn('id', dataToDelete.gezinnen)
-        .delete();
+      await sequelize.models.Verjaardag.destroy({
+        where: {
+          id: verjaardagenToDelete
+        }
+      });
     });
     it('should 201 and return the created verjaardag', async () => {
-      const response = await request.post(url)
+      const response = await request.post(url).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 3,
           maandnummer: 9,
           voornaam: "Basia",
           achternaam: "Nowak",
-          gezin_id: 1,
         });
 
       expect(response.status).toBe(201);
@@ -251,33 +316,13 @@ describe('Verjaardagen', () => {
 
       verjaardagenToDelete.push(response.body.id);
     });
-    it('should 404 when gezin does not exist', async () => {
-      const response = await request.post(url)
-        .send({
-          dagnummer: 3,
-          maandnummer: 9,
-          voornaam: "Basia",
-          achternaam: "Nowak",
-          gezin_id: 100,
-        });
 
-      expect(response.statusCode).toBe(404);
-      expect(response.body).toMatchObject({
-        code: 'NOT_FOUND',
-        message: 'Er bestaat geen gezin met id 100',
-        details: {
-          id: 100,
-        },
-      });
-      expect(response.body.stack).toBeTruthy();
-    });
     it('should 400 when missing dagnummer', async () => {
-      const response = await request.post(url)
+      const response = await request.post(url).set('Authorization',adminAuthHeader)
         .send({
           maandnummer: 9,
           voornaam: "Basia",
           achternaam: "Nowak",
-          gezin_id: 1,
         });
 
       expect(response.statusCode).toBe(400);
@@ -285,12 +330,11 @@ describe('Verjaardagen', () => {
       expect(response.body.details.body).toHaveProperty('dagnummer');
     });
     it('should 400 when missing maandnummer', async () => {
-      const response = await request.post(url)
+      const response = await request.post(url).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 3,
           voornaam: "Basia",
           achternaam: "Nowak",
-          gezin_id: 1,
         });
 
       expect(response.statusCode).toBe(400);
@@ -298,67 +342,41 @@ describe('Verjaardagen', () => {
       expect(response.body.details.body).toHaveProperty('maandnummer');
     });
     it('should 400 when missing voornaam', async () => {
-      const response = await request.post(url)
+      const response = await request.post(url).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 3,
           maandnummer: 9,
           achternaam: "Nowak",
-          gezin_id: 1,
         });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('voornaam');
     });
-    it('should 400 when missing achternaam', async () => {
-      const response = await request.post(url)
-        .send({
-          dagnummer: 3,
-          maandnummer: 9,
-          voornaam: "Basia",
-          gezin_id: 1,
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('achternaam');
-    });
-    it('should 400 when missing gezin_id', async () => {
-      const response = await request.post(url)
-        .send({
-          dagnummer: 3,
-          maandnummer: 9,
-          voornaam: "Basia",
-          achternaam: "Nowak",
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('gezin_id');
-    });
-
+    testAuthHeader(() => request.post(url))
   });
-  describe('PUT /api/verjaardagen', () => {
+  describe('PUT /api/gezinnen/1/verjaardagen', () => {
     beforeAll(async () => {
-      await knex(tables.gezin).insert(data.gezinnen)
-      await knex(tables.verjaardag).insert(data.verjaardagen);
-      await knex(tables.kalender).insert(data.kalender)
+      await sequelize.models.Verjaardag.create({
+        
+          id: 3,
+          dagnummer: 30,
+          maandnummer: 12,
+          voornaam: "Mikele",
+          achternaam: "Lemmens",
+         
+      })
     });
 
     afterAll(async () => {
-      await knex(tables.gezin)
-        .whereIn('id', dataToDelete.gezinnen)
-        .delete();
-      await knex(tables.verjaardag)
-        .whereIn('id', dataToDelete.verjaardagen)
-        .delete();
-      await knex(tables.kalender)
-        .whereIn('id', dataToDelete.kalender)
-        .delete();
+      await sequelize.models.Verjaardag.destroy({
+        where: {
+          id: 3
+        }
+      })
     });
-
     it('should 200 and return the updated verjaardag', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/3`).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 4,
           maandnummer: 9,
@@ -374,7 +392,7 @@ describe('Verjaardagen', () => {
       expect(response.body.achternaam).toBe("Nowak");
     });
     it('should 404 when updating not existing verjaardag', async () => {
-      const response = await request.put(`${url}/100`)
+      const response = await request.put(`${url}/100`).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 4,
           maandnummer: 9,
@@ -393,7 +411,7 @@ describe('Verjaardagen', () => {
       expect(response.body.stack).toBeTruthy();
     });
     it('should 400 when missing dagnummer', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/3`).set('Authorization',adminAuthHeader)
         .send({
           maandnummer: 9,
           voornaam: "Basia",
@@ -405,7 +423,7 @@ describe('Verjaardagen', () => {
       expect(response.body.details.body).toHaveProperty('dagnummer');
     });
     it('should 400 when missing maandnummer', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/3`).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 3,
           voornaam: "Basia",
@@ -417,7 +435,7 @@ describe('Verjaardagen', () => {
       expect(response.body.details.body).toHaveProperty('maandnummer');
     });
     it('should 400 when missing voornaam', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/1`).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 3,
           maandnummer: 9,
@@ -429,7 +447,7 @@ describe('Verjaardagen', () => {
       expect(response.body.details.body).toHaveProperty('voornaam');
     });
     it('should 400 when missing achternaam', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/3`).set('Authorization',adminAuthHeader)
         .send({
           dagnummer: 3,
           maandnummer: 9,
@@ -440,40 +458,35 @@ describe('Verjaardagen', () => {
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('achternaam');
     });
+    testAuthHeader(()=>request.put(`${url}/1`))
   });
   describe('DELETE /api/verjaardagen', () => {
    
     beforeAll(async () => {
-      await knex(tables.gezin).insert(data.gezinnen)
-      await knex(tables.verjaardag).insert(data.verjaardagen[0]);
-      await knex(tables.kalender).insert(data.kalender[0])
+      await sequelize.models.Verjaardag.create({
+        
+          id: 3,
+          dagnummer: 30,
+          maandnummer: 12,
+          voornaam: "Mikele",
+          achternaam: "Lemmens",
+         
+      })
     });
 
-    afterAll(async () => {
-      await knex(tables.gezin)
-        .whereIn('id', dataToDelete.gezinnen)
-        .delete();
-      await knex(tables.verjaardag)
-        .whereIn('id', dataToDelete.verjaardagen)
-        .delete();
-      await knex(tables.kalender)
-        .whereIn('id', dataToDelete.kalender)
-        .delete();
-    }); 
-
     it('should 204 and return nothing', async () => {
-      const response = await request.delete(`${url}/1`);
+      const response = await request.delete(`${url}/3`).set('Authorization',adminAuthHeader);
 
       expect(response.statusCode).toBe(204);
       expect(response.body).toEqual({});
     });
     it('should 404 with not existing verjaardag', async () => {
-      const response = await request.delete(`${url}/100`);
+      const response = await request.delete(`${url}/100`).set('Authorization',adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
-        message: 'Geen verjaardag met id 100 gevonden',
+        message: 'Er bestaat geen verjaardag met id 100',
         details: {
           id: 100,
         },
@@ -481,13 +494,13 @@ describe('Verjaardagen', () => {
       expect(response.body.stack).toBeTruthy();
     });
     it('should 400 with invalid verjaardag id', async () => {
-      const response = await request.delete(`${url}/invalid`);
+      const response = await request.delete(`${url}/invalid`).set('Authorization',adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.params).toHaveProperty('id');
+      expect(response.body.details.params).toHaveProperty('verjaardag_id');
     });
 
-
+    testAuthHeader(() => request.delete(`${url}/3`))
   });
 })

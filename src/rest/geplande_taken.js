@@ -40,7 +40,7 @@ getAllGeplandeTakenByGezin.validationScheme = {
 };
 
 const getGeplandeTaakById = async (ctx) => {
-  ctx.body = await geplandeTakenService.getGeplandeTaakById(ctx.params.id);
+  ctx.body = await geplandeTakenService.getGeplandeTaakById(ctx.params.taak_id);
 };
 
 getGeplandeTaakById.validationScheme = {
@@ -140,8 +140,6 @@ module.exports = (app) => {
     validate(getAllGeplandeTaken.validationScheme),
     checkGezinId,
     getAllGeplandeTaken
-
-  // All geplande taken for the family of the active gezinslid
   );
 
   // Only allowed if requested task belongs to a fellow gezinslid

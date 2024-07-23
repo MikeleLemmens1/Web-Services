@@ -44,16 +44,6 @@ getGezinById.validationScheme = {
   },
 };
 
-const getGezinByFamilienaam = async (ctx) => {
-  ctx.body = await gezinService.getGezinByFamilienaam(ctx.params.familienaam);
-}
-getGezinByFamilienaam.validationScheme = {
-  params: {
-    familienaam: Joi.string().max(255),
-  },
-};
-
-// TODO: setVerjaardagId's
 const updateGezinById = async (ctx) => {
   ctx.body = await gezinService.updateGezinById(Number(ctx.params.id), {
     ...ctx.request.body,
@@ -84,6 +74,7 @@ deleteGezinById.validationScheme = {
   },
 };
 
+
 const getAllGezinsledenFromGezin = async (ctx) => {
   ctx.body = await gezinService.getAllGezinsledenFromGezin(ctx.params.id);
 }
@@ -93,25 +84,28 @@ getAllGezinsledenFromGezin.validationScheme = {
     id: Joi.number().integer().positive(),
   }),
 };
-const getAllBoodschappenFromGezin = async (ctx) => {
-  ctx.body = await gezinService.getAllBoodschappenFromGezin(ctx.params.id);
-}
 
-getAllBoodschappenFromGezin.validationScheme = {
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
-};
+// The following functions are unnecessary: the associated objects are always returned when getting the gezin
 
-const getAllVerjaardagenFromGezin = async (ctx) => {
-  ctx.body = await gezinService.getAllVerjaardagenFromGezin(ctx.params.id);
-}
+// const getAllBoodschappenFromGezin = async (ctx) => {
+//   ctx.body = await gezinService.getAllBoodschappenFromGezin(ctx.params.id);
+// }
 
-getAllVerjaardagenFromGezin.validationScheme = {
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
-};
+// getAllBoodschappenFromGezin.validationScheme = {
+//   params: Joi.object({
+//     id: Joi.number().integer().positive(),
+//   }),
+// };
+
+// const getAllVerjaardagenFromGezin = async (ctx) => {
+//   ctx.body = await gezinService.getAllVerjaardagenFromGezin(ctx.params.id);
+// }
+
+// getAllVerjaardagenFromGezin.validationScheme = {
+//   params: Joi.object({
+//     id: Joi.number().integer().positive(),
+//   }),
+// };
 
 const getAllGeplandeTakenFromGezin = async (ctx) => {
   ctx.body = await geplandeTakenService.getAllGeplandeTakenFromGezin(ctx.params.id);
@@ -125,17 +119,10 @@ getAllGeplandeTakenFromGezin.validationScheme = {
 
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
-  let { id } = ctx. params;
+  const { id } = ctx. params;
   // Enable creation of gezinslid without being registered, only family members should be allowed to do this
-  let targetGezin_id;
-  if (!id){
-    //  for PUT POST 
-     targetGezin_id = ctx.request.body.gezin_id;
-  }
-  else {
-    // for GET or DELETE
-    targetGezin_id = id;
-  }
+  const targetGezin_id = id;
+
   // targetGezin: gezin of the gezinslid being modified
   // gezin_id: gezin of the active user
   if (targetGezin_id !== gezin_id && !roles.includes(Role.ADMIN)) {

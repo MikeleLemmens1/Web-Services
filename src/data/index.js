@@ -1,4 +1,3 @@
-// const knex = require('knex');
 const { getLogger } = require('../core/logging');
 // const { join } = require('path');
 // Navigate filesystem to associate models
@@ -38,7 +37,8 @@ async function initializeData(){
     timezone: DATABASE_TIMEZONE,
     port: DATABASE_PORT,
     logging: (msg) => logger.info(msg),
-    // SSL en OmitNull toevoegen?
+    ssl: DATABASE_SSL,
+    omitNull: DATABASE_OMITNULL,
     };
 
   try {
@@ -123,85 +123,9 @@ async function shutdownData() {
 module.exports = {
   getSequelize,
   initializeData,
-  // getKnex, 
   tables, 
   shutdownData,
 };
 
-// let knexInstance;
 
-// async function initializeData() {
-//   const logger = getLogger();
-//   logger.info('Initializing connection to the database');
-  
-//   const knexOptions = {
-//     client: DATABASE_CLIENT,
-//     connection: {
-//       host: DATABASE_HOST,
-//       port: DATABASE_PORT,
-//       // database: DATABASE_NAME,
-//       user: DATABASE_USERNAME,
-//       password: DATABASE_PASSWORD,
-//       timezone: DATABASE_TIMEZONE,
-//       insecureAuth: isDevelopment
-//     },
-//     // debug: isDevelopment,
-//     migrations: {
-//         tableName: 'knex_meta',
-//         directory: join('src', 'data', 'migrations'),
-//     },
-//     seeds: {
-  
-//         directory: join('src', 'data', 'seeds'),
-//      },
-//     };
-
-//     knexInstance = knex(knexOptions); 
-    
-//     try {
-//       await knexInstance.raw('SELECT 1+1 AS result');
-//       await knexInstance.raw(`CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}`);
-//       await knexInstance.destroy();
-      
-//       knexOptions.connection.database = DATABASE_NAME;
-//       knexInstance = knex(knexOptions);
-//       await knexInstance.raw('SELECT 1+1 AS result');
-      
-//     } catch (error) {
-//       logger.error(error.message, { error });
-//       throw new Error('Could not initialize the data layer'); 
-//     };
-//     try {
-//       await knexInstance.migrate.latest();
-//     } catch (error) {
-//       logger.error('Error while migrating the database', {
-//         error,
-//       });
-      
-//       // No point in starting the server when migrations failed
-//       throw new Error('Migrations failed, check the logs');
-//     };
-    
-//     logger.info('Successfully initialized connection to the database');
-    
-//     if (isDevelopment) {
-    
-//       try {
-//         await knexInstance.seed.run();
-//       } catch (error) {
-//         logger.error('Error while seeding database', {
-//           error,
-//         });
-//       };
-//     };
-//     return knexInstance;
-//   };
-
-// function getKnex() {
-//   if (!knexInstance)
-//   throw new Error(
-//       'Please initialize the data layer before getting the Knex instance'
-//       );
-//       return knexInstance;
-//     }
 

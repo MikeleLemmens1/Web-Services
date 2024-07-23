@@ -6,20 +6,21 @@ const FORBIDDEN = 'FORBIDDEN'
 
 class ServiceError extends Error {
  
-  constructor(code, message, details = {}) {
+  constructor(code, message,status, details = {}) {
     super(message);
     this.code = code;
+    this.status = status;
     this.details = details;
     this.name = 'ServiceError';
   }
 
  
   static notFound(message, details) {
-    return new ServiceError(NOT_FOUND, message, details);
+    return new ServiceError(NOT_FOUND, message,404, details);
   }
  
   static validationFailed(message, details) {
-    return new ServiceError(VALIDATION_FAILED, message, details);
+    return new ServiceError(VALIDATION_FAILED, message,400, details);
   }
   
   static unauthorized(message,details){
@@ -37,6 +38,14 @@ class ServiceError extends Error {
 
   get isValidationFailed() {
     return this.code === VALIDATION_FAILED;
+  }
+
+  get isUnauthorized(){
+    return this.code === UNAUTHORIZED;
+  }
+
+  get isForbidden(){
+    return this.code === FORBIDDEN;
   }
 }
 

@@ -47,3 +47,4 @@ Er wordt gebruik gemaakt van Sequelize CLI om de databank op te stellen en te vu
 
 ## Gekende bugs
 
+Bij het uitvoeren van de migrations in de databank gehost door het VC is de eerste letter van elke tabel een hoofdletter (ipv een kleine letter bij het migreren naar een lokale databank). Ik heb de oorzaak nog niet achterhaald en als workaround manueel de tabellen hernoemd.

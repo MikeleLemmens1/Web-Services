@@ -4,6 +4,7 @@ const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data');
 
+// Not used anymore
 const getAllBoodschappen = async () => {
   const boodschappen = await getSequelize().models.Boodschap.findAll();
   return {

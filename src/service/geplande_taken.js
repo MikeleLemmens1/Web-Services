@@ -75,6 +75,7 @@ const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
       dag,
       gezinslid_id,
     });
+    // gezinslid.addGeplandeTaken(geplandeTaak);
     return getGeplandeTaakById(geplandeTaak.id);
   } catch (error) {    
     getLogger().error("Fout bij het maken van de geplande taak")

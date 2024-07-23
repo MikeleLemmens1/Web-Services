@@ -1,283 +1,255 @@
-const supertest = require('supertest');
-const createServer = require('../../src/createServer');
-const { tables, getKnex } = require('../../src/data');
-const boodschappen = require('../../src/rest/boodschappen');
+const {withServer, login, loginAdmin} = require('../supertest.setup');
+const {testAuthHeader} = require('../common/auth');
 
 const data = {
-  gezinnen: {
-    id: 1,
-    familienaam: "Lemmens - De Smet",
-    straat: "Binnenslag",
-    huisnummer: 63,
-    postcode: 9920,
-    stad: "Lovendegem"
-  },
+  gezinnen: [
+
+    {
+      id:2,
+      familienaam: "Lemmens - Roebroek",
+      straat: "Joost Van De Vondelplein",
+      huisnummer: 27,
+      postcode: 9940,
+      stad: "Ertvelde"
+    },
+  ],
   boodschappen:
-    [
-      {
-        id: 1,
-        naam: "Choco",
-        winkel: "Colruyt",
-        hoeveelheid: "1 pot",
-        gezin_id: 1,
-      },
-      {
-        id: 2,
-        naam: "Hondenbrokken",
-        winkel: null,
-        hoeveelheid: null,
-        gezin_id: 1
-      },
-      {
-        id: 3,
-        naam: "Kaas",
-        winkel: "Colruyt",
-        hoeveelheid: null,
-        gezin_id:1
-      },
-      {
-        id: 4,
-        naam: "Pampers",
-        winkel: "Kruidvat",
-        hoeveelheid: null,
-        gezin_id: 1
-      },
-      {
-        id: 5,
-        naam: "Pampers",
-        winkel: "Kruidvat",
-        hoeveelheid: null,
-        gezin_id: 1
-      }
-    ]
+  [
+    {
+      id: 1,
+      naam: "Choco",
+      winkel: "Colruyt",
+      hoeveelheid: "1 pot",
+      gezin_id: 1,
+    },
+    {
+      id: 2,
+      naam: "Hondenbrokken",
+      winkel: null,
+      hoeveelheid: null,
+      gezin_id: 1
+    },
+    {
+      id: 3,
+      naam: "Kaas",
+      winkel: "Colruyt",
+      hoeveelheid: null,
+      gezin_id:1
+    },
+    {
+      id: 4,
+      naam: "Pampers",
+      winkel: "Kruidvat",
+      hoeveelheid: null,
+      gezin_id: 1
+    },
+    {
+      id: 5,
+      naam: "Pampers",
+      winkel: "Kruidvat",
+      hoeveelheid: null,
+      gezin_id: 2
+    }
+  ],
 };
 
 const dataToDelete = {
-  gezinnen: [1],
+  gezinnen: [2],
   boodschappen: [1, 2, 3, 4, 5]
 };
 
 describe('Boodschappen', () => {
-  let server;
+  let authHeader;
+  let adminAuthHeader;
   let request;
-  let knex;
+  let sequelize;
+
+  withServer(({
+    supertest,
+    sequelize: s
+  }) => {
+    // setTimeout(() => console.log,4000);
+    request = supertest;
+    sequelize = s;
+  });
 
   beforeAll(async () => {
-    server = await createServer();
-    request = supertest(server.getApp().callback());
-    knex = getKnex();
+    authHeader = await login(request);
+    adminAuthHeader = await loginAdmin(request);
   });
 
-  afterAll(async () => {
-    await server.stop();
-  });
+  const url = '/api/gezinnen/1/boodschappen';
 
-  const url = '/api/boodschappen';
-
-  describe('GET /api/boodschappen', () => {
+  describe('GET /api/gezinnen/1/boodschappen', () => {
     beforeAll(async () => {
-      await getKnex()(tables.gezin).insert(data.gezinnen);
-      await getKnex()(tables.boodschap).insert(data.boodschappen);
+      await sequelize.models.Gezin.bulkCreate(data.gezinnen);
+      await sequelize.models.Boodschap.bulkCreate(data.boodschappen);
     });
     afterAll(async () => {
-      await knex(tables.boodschap)
-      .whereIn('id', dataToDelete.boodschappen)
-      .delete();
-
-      await knex(tables.gezin)
-      .whereIn('id', dataToDelete.gezinnen)
-      .delete();
+      await sequelize.models.Boodschap.destroy({
+        where: {
+          id: dataToDelete.boodschappen,
+        },
+      });
+      await sequelize.models.Gezin.destroy({
+        where: {
+          id: dataToDelete.gezinnen,
+        },
+      });
     });
-    it('should 200 and return all boodschappen', async () => {
-      const response = await request.get(url);
+    it('should 200 and return all boodschappen for the gezin', async () => {
+      const response = await request.get(url).set('Authorization', adminAuthHeader);
       expect(response.status).toBe(200);
-      expect(response.body.items.length).toBe(5);
+      expect(response.body.boodschappen.length).toBe(4);
 
-      expect(response.body.items[1]).toEqual({
+      expect(response.body.boodschappen[0]).toEqual({
         id: 1,
         naam: "Choco",
         winkel: "Colruyt",
         hoeveelheid: "1 pot",
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
         gezin_id: 1,
       });
     });
-    it('should 200 and return all boodschappen voor een gekozen winkel en gezin', async () => {
-      const response = await request.get(`${url}?winkel=Kruidvat&gezin_id=1`);
+    it('should 200 and return all boodschappen by winkel for the gezin', async () => {
+      const response = await request.get(`${url}?winkel=Colruyt`).set('Authorization', adminAuthHeader);
       expect(response.status).toBe(200);
-      expect(response.body.items.length).toBe(2);
+      expect(response.body.boodschappen.length).toBe(2);
 
-      expect(response.body.items[0]).toEqual({
-        id: 4,
-        naam: "Pampers",
-        winkel: "Kruidvat",
-        hoeveelheid: null,
-        gezin_id: 1
-      });
-    });
-    it('should 200 and return all boodschappen voor een gekozen gezin', async () => {
-      const response = await request.get(`${url}?gezin_id=1`);
-      expect(response.status).toBe(200);
-      expect(response.body.items.length).toBe(5);
-
-      expect(response.body.items[0]).toEqual({
+      expect(response.body.boodschappen[0]).toEqual({
         id: 1,
         naam: "Choco",
         winkel: "Colruyt",
         hoeveelheid: "1 pot",
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
         gezin_id: 1,
       });
     });
+
+    testAuthHeader(() => request.get(url))
+
   });
   describe('GET /api/boodschappen/:id', () => {
     beforeAll(async () => {
-      await getKnex()(tables.gezin).insert(data.gezinnen);
-      await getKnex()(tables.boodschap).insert(data.boodschappen[0]);
+      await sequelize.models.Gezin.bulkCreate(data.gezinnen);
+      await sequelize.models.Boodschap.bulkCreate(data.boodschappen);
     });
     afterAll(async () => {
-      await knex(tables.boodschap)
-      .whereIn('id', dataToDelete.boodschappen)
-      .delete();
-
-    await knex(tables.gezin)
-      .whereIn('id', dataToDelete.gezinnen)
-      .delete();
+      await sequelize.models.Boodschap.destroy({
+        where: {
+          id: dataToDelete.boodschappen,
+        },
+      });
+      await sequelize.models.Gezin.destroy({
+        where: {
+          id: dataToDelete.gezinnen,
+        },
+      });
     });
     it('should 200 and return requested boodschap', async () => {
-      const response = await request.get(`${url}/1`);
+      const response = await request.get(`${url}/1`).set('Authorization', adminAuthHeader);
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         id: 1,
         naam: "Choco",
         winkel: "Colruyt",
         hoeveelheid: "1 pot",
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
         gezin_id: 1,
       });
     });
     it('should 404 when requesting not existing boodschap', async () => {
-      const response = await request.get(`${url}/4`);
+      const response = await request.get(`${url}/7`).set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
-        message: 'Er bestaat geen boodschap met id 4',
+        message: 'Er bestaat geen boodschap met id 7',
         details: {
-          id: 4,
+          id: 7,
         },
       });
       expect(response.body.stack).toBeTruthy();
     });
 
     it('should 400 with invalid boodschap id', async () => {
-      const response = await request.get(`${url}/invalid`);
+      const response = await request.get(`${url}/invalid`).set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.params).toHaveProperty('id');
+      expect(response.body.details.params).toHaveProperty('boodschap_id');
     });
-    
+    testAuthHeader(()=>request.get(`${url}/1`))
   });
   describe('POST /api/boodschappen/', () => {
     const boodschappenToDelete = [];
 
-    beforeAll(async () => {
-      await getKnex()(tables.gezin).insert(data.gezinnen);
-    });
     afterAll(async () => {
-      await knex(tables.boodschap)
-      .whereIn('id', boodschappenToDelete)
-      .delete();
-
-      await knex(tables.gezin)
-      .whereIn('id', dataToDelete.gezinnen)
-      .delete();
+      await sequelize.models.Boodschap.destroy({
+        where: {
+          id: boodschappenToDelete,
+        }
+      });
     });
 
     it('should 201 and return the created boodschap', async () => {
-      const response = await request.post(url)
+      const response = await request.post(url).set('Authorization', adminAuthHeader)
         .send({
           naam: "Choco",
           winkel: "Colruyt",
           hoeveelheid: "1 pot",
-          gezin_id: 1,
         });
 
       expect(response.status).toBe(201);
       expect(response.body.id).toBeTruthy();
       expect(response.body.naam).toBe("Choco");
+      expect(response.body.winkel).toBe("Colruyt");
       expect(response.body.hoeveelheid).toBe("1 pot");
       boodschappenToDelete.push(response.body.id);
      
     });
-    
-    it('should 404 when gezin does not exist', async () => {
-      const response = await request.post(url)
-        .send({
-          naam: "Choco",
-          winkel: "Colruyt",
-          hoeveelheid: "1 pot",
-          gezin_id: 100,
-        });
-
-      expect(response.statusCode).toBe(404);
-      expect(response.body).toMatchObject({
-        code: 'NOT_FOUND',
-        message: 'Er bestaat geen gezin met id 100',
-        details: {
-          id: 100,
-        },
-      });
-      expect(response.body.stack).toBeTruthy();
-    });
-
-    it('should 400 when missing gezin id', async () => {
-      const response = await request.post(url)
-        .send({
-          naam: "Choco",
-          winkel: "Colruyt",
-          hoeveelheid: "1 pot",
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('gezin_id');
-    });
-    
+        
     it('should 400 when missing naam', async () => {
-      const response = await request.post(url)
+      const response = await request.post(url).set('Authorization', adminAuthHeader)
         .send({
           winkel: "Colruyt",
           hoeveelheid: "1 pot",
-          gezin_id: 1,
-        });
+       });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('naam');
     });
+    testAuthHeader(() => request.post(url))
 
   });
   describe('PUT /api/boodschappen/:id', () => {
-
     beforeAll(async () => {
-      await getKnex()(tables.gezin).insert(data.gezinnen);
-      await getKnex()(tables.boodschap).insert(data.boodschappen[0]);
+      await sequelize.models.Boodschap.create({
+        id: 1,
+        naam: "Choco",
+        winkel: "Colruyt",
+        hoeveelheid: "1 pot",
+        gezin_id:1
+      });
     });
     afterAll(async () => {
-      await knex(tables.boodschap)
-      .whereIn('id', dataToDelete.boodschappen)
-      .delete();
-
-    await knex(tables.gezin)
-      .whereIn('id', dataToDelete.gezinnen)
-      .delete();
+      await sequelize.models.Boodschap.destroy({
+        where: {
+          id: 1,
+        }
+      });
     });
+
     it('should 200 and return the updated boodschap', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/1`).set('Authorization', adminAuthHeader)
         .send({
           naam: "Choco met brokken",
           winkel: "Colruyt",
           hoeveelheid: "1 pot",
-          gezin_id: 1,
         });
 
       expect(response.status).toBe(200);
@@ -287,12 +259,11 @@ describe('Boodschappen', () => {
     });
 
     it('should 404 when updating not existing boodschap', async () => {
-      const response = await request.put(`${url}/100`)
+      const response = await request.put(`${url}/100`).set('Authorization', adminAuthHeader)
         .send({
           naam: "Choco met brokken",
           winkel: "Colruyt",
           hoeveelheid: "1 pot",
-          gezin_id: 1,
         });
 
       expect(response.statusCode).toBe(404);
@@ -305,75 +276,46 @@ describe('Boodschappen', () => {
       });
       expect(response.body.stack).toBeTruthy();
     });
-    it('should 404 when gezin does not exist', async () => {
-      const response = await request.put(`${url}/1`)
-        .send({
-          naam: "Choco met brokken",
-          winkel: "Colruyt",
-          hoeveelheid: "1 pot",
-          gezin_id: 100,
-        });
 
-      expect(response.statusCode).toBe(404);
-      expect(response.body).toMatchObject({
-        code: 'NOT_FOUND',
-        message: 'Er bestaat geen gezin met id 100',
-        details: {
-          id: 100,
-        },
-      });
-      expect(response.body.stack).toBeTruthy();
-    });
     it('should 400 when missing naam', async () => {
-      const response = await request.put(`${url}/1`)
+      const response = await request.put(`${url}/1`).set('Authorization', adminAuthHeader)
         .send({
           winkel: "Colruyt",
           hoeveelheid: "1 pot",
-          gezin_id: 1,
         });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.body).toHaveProperty('naam');
     });
-    it('should 400 when missing gezin_id', async () => {
-      const response = await request.put(`${url}/1`)
-        .send({
-          naam: "Choco",
-          winkel: "Colruyt",
-          hoeveelheid: "1 pot",
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.body).toHaveProperty('gezin_id')
-    });
+    testAuthHeader(() => request.put(`${url}/1`))
     
   });
   describe('DELETE /api/boodschappen/:id', () => {
     beforeAll(async () => {
-      await getKnex()(tables.gezin).insert(data.gezinnen);
-      await getKnex()(tables.boodschap).insert(data.boodschappen[0]);
+      await sequelize.models.Boodschap.create({
+        id: 1,
+        naam: "Choco",
+        winkel: "Colruyt",
+        hoeveelheid: "1 pot",
+        gezin_id:1
+      });
     });
-    afterAll(async () => {
-      await knex(tables.gezin)
-        .whereIn('id', dataToDelete.gezinnen)
-        .delete();
-    });
+
     it('should 204 and return nothing', async () => {
-      const response = await request.delete(`${url}/1`);
+      const response = await request.delete(`${url}/1`).set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(204);
       expect(response.body).toEqual({});
     });
 
     it('should 404 with not existing boodschap', async () => {
-      const response = await request.delete(`${url}/100`);
+      const response = await request.delete(`${url}/100`).set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(404);
       expect(response.body).toMatchObject({
         code: 'NOT_FOUND',
-        message: 'Geen boodschap met id 100 gevonden',
+        message: 'Er bestaat geen boodschap met id 100',
         details: {
           id: 100,
         },
@@ -382,11 +324,12 @@ describe('Boodschappen', () => {
     });
 
     it('should 400 with invalid boodschap id', async () => {
-      const response = await request.delete(`${url}/invalid`);
+      const response = await request.delete(`${url}/invalid`).set('Authorization', adminAuthHeader);
 
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
-      expect(response.body.details.params).toHaveProperty('id');
+      expect(response.body.details.params).toHaveProperty('boodschap_id');
     });
+    testAuthHeader(() => request.delete(`${url}/1`))
   });
 })

@@ -2,6 +2,8 @@ const geplandeTakenService = require('./geplande_taken')
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data/index');
+const { getLogger } = require('../core/logging');
+
 
 const include = () => ({
   include: [
