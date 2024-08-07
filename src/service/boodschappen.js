@@ -4,15 +4,6 @@ const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data');
 
-// Not used anymore
-const getAllBoodschappen = async () => {
-  const boodschappen = await getSequelize().models.Boodschap.findAll();
-  return {
-    boodschappen,
-    count: boodschappen.length,
-  };
-};
-
 
 const getAllBoodschappenByGezinsId = async (id) => { 
   const gezin = await getGezinById(id);
@@ -21,7 +12,7 @@ const getAllBoodschappenByGezinsId = async (id) => {
       gezin_id: gezin.id,
      },
   });
-  if (!boodschappen) {
+  if (boodschappen.length==0) {
     throw ServiceError.notFound(`Er zijn geen boodschappen voor gezin met id ${id}`, { id });
   }
   return {
@@ -32,16 +23,16 @@ const getAllBoodschappenByGezinsId = async (id) => {
 
 const getAllBoodschappenByWinkel = async (id,winkel) => {
   const gezin = await getGezinById(id);
-  if (!gezin) {
-    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  }
+  // if (!gezin) {
+  //   throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+  // }
   const boodschappen = await getSequelize().models.Boodschap.findAll({
     where: { 
       gezin_id: gezin.id,
       winkel: winkel,
      },
-  });  if (!boodschappen) {
-    throw ServiceError.notFound(`Er zijn geen boodschappen voor de winkel ${id}`, { id });
+  });  if (boodschappen.length==0) {
+    throw ServiceError.notFound(`Er zijn geen boodschappen voor de winkel ${winkel}`, { winkel });
   }
   return {
     gezin: gezin.familienaam,
@@ -63,9 +54,9 @@ const getBoodschapById = async (id) => {
 
 const createBoodschap = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
   const gezin = await getGezinById(gezin_id);
-  if (!gezin) {
-    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  }
+  // if (!gezin) {
+  //   throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+  // }
   try {
     const boodschap = await getSequelize().models.Boodschap.create({
       naam,
@@ -100,9 +91,9 @@ const deleteBoodschapById = async (id) => {
   try {
     const deleted = await getBoodschapById(id);
     await deleted.destroy();
-    if (!deleted) {
-      throw ServiceError.notFound(`Geen boodschap met id ${id} gevonden`, { id });
-    }
+    // if (!deleted) {
+    //   throw ServiceError.notFound(`Geen boodschap met id ${id} gevonden`, { id });
+    // }
   } catch (error) {
     getLogger().error("Fout bij het verwijderen van de boodschap")
     throw handleDBError(error);
@@ -110,7 +101,6 @@ const deleteBoodschapById = async (id) => {
 };
 
 module.exports = {
-  getAllBoodschappen,
   getAllBoodschappenByGezinsId,
   getAllBoodschappenByWinkel,
   getBoodschapById,

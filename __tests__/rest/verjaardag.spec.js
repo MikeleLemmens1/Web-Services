@@ -174,13 +174,12 @@ describe('Gezinnen', () => {
     supertest,
     sequelize: s
   }) => {
-    setTimeout(() => console.log,4000);
     request = supertest;
     sequelize = s;
   });
 
   beforeAll(async () => {
-    // authHeader = await login(request);
+    authHeader = await login(request);
     adminAuthHeader = await loginAdmin(request);
   });
 
@@ -230,6 +229,18 @@ describe('Gezinnen', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.query).toHaveProperty('invalid');
+    });
+
+    it('should 403 when the request is for another gezin', async () => {
+      const response = await request.get('/api/gezinnen/2/verjaardagen').set('Authorization', authHeader
+      );
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN',
+        message: "You are not allowed to operate on this family's information.",
+      });
+      expect(response.body.stack).toBeTruthy();
     });
     testAuthHeader(() => request.get(url))
   });

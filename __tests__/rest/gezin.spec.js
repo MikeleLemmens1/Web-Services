@@ -229,7 +229,6 @@ describe('Gezinnen', () => {
     supertest,
     sequelize: s
   }) => {
-    // setTimeout(() => console.log,4000);
     request = supertest;
     sequelize = s;
   });
@@ -797,6 +796,71 @@ describe('Gezinnen', () => {
               gezinslid_id: 3,
             }
           ]
+      );
+    });
+
+    it('should 200 and return all gezinsleden for the requested gezin', async () => {
+      const response = await request.get(`${url}/1/gezinsleden`).set('Authorization', authHeader);
+      ; 
+      expect(response.status).toBe(200);
+      expect(response.body.gezinsleden).toEqual(
+        [
+          {
+            id: 1,
+            voornaam: "testuser",
+            email: "test.user@gmail.com",
+            wachtwoord: "$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4",
+            roles: "[\"user\"]",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            gezin_id: 1,
+            verjaardag_id: 1,
+          },
+          {
+            id: 2,
+            voornaam: "testadmin",
+            email: "test.admin@gmail.com",
+            wachtwoord: "$argon2id$v=19$m=131072,t=6,p=1$9AMcua9h7va8aUQSEgH/TA$TUFuJ6VPngyGThMBVo3ONOZ5xYfee9J1eNMcA5bSpq4",
+            roles: "[\"admin\",\"user\"]",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            gezin_id: 1,
+            verjaardag_id: 2,
+          },
+          {
+            id: 3,
+            voornaam: "Mikele",
+            email: "mikele.lemmens@hotmail.com",
+            wachtwoord: "######",
+            roles: "[\"admin\",\"user\"]",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            gezin_id: 1,
+            verjaardag_id: 3,
+          },
+          {
+            id: 4,
+            voornaam: "Charlotte",
+            email: "desmetcharlotte2@gmail.com",
+            wachtwoord: "######",
+            roles: "[\"user\"]",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            gezin_id: 1,
+            verjaardag_id: 4,
+          },
+          {
+            id: 5,
+            voornaam: "Ellis",
+            email: null,
+            wachtwoord: null,
+            roles: "[\"user\"]",
+            createdAt: expect.any(String),
+            updatedAt: expect.any(String),
+            gezin_id: 1,
+            verjaardag_id: 5,
+          },
+        ]
       );
     });
 

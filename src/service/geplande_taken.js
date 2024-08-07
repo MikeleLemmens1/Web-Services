@@ -8,9 +8,9 @@ const { getSequelize } = require('../data');
 const { log } = require('winston');
 
 const getAllGeplandeTaken = async (ctx) => {
-  if (ctx.query.all){
-    return getAllGeplandeTakenFromGezin(gezin_id)
-  }
+  // if (ctx.query.all){
+  //   return getAllGeplandeTakenFromGezin(gezin_id)
+  // }
   const gezinslid = await getGezinslidById(ctx.params.id);
   const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
     where: { gezinslid_id: gezinslid.id },
@@ -66,9 +66,9 @@ const getGeplandeTaakById = async (id) => {
 
 const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
   let gezinslid = await getGezinslidById(gezinslid_id);
-  if (!gezinslid){
-    throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
-  }
+  // if (!gezinslid){
+  //   throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
+  // }
   try {
     const geplandeTaak = await getSequelize().models.GeplandeTaak.create({
       naam,
@@ -84,7 +84,6 @@ const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
 };
 
 const updateGeplandeTaakById = async (id, taak_id, { naam, dag}) => {
-  // Error thrown by getGeplandeTaakById if not found
   const geplandeTaak = await getGeplandeTaakById(taak_id);
   await geplandeTaak.set({
     naam,

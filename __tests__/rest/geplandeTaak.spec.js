@@ -4,6 +4,17 @@ const Role = require('../../src/core/roles');
 
 
 const data = {
+  gezinnen: [
+
+    {
+      id:2,
+      familienaam: "Lemmens - Roebroek",
+      straat: "Joost Van De Vondelplein",
+      huisnummer: 27,
+      postcode: 9940,
+      stad: "Ertvelde"
+    },
+  ],
   gezinsleden: [
     {
       id: 3,
@@ -21,6 +32,16 @@ const data = {
       email: "desmetcharlotte2@gmail.com",
       wachtwoord: "######",
       gezin_id: 1,
+      verjaardag_id: 1,
+      roles: JSON.stringify([Role.USER]),
+
+    },
+    {
+      id: 5,
+      voornaam: "Charlotte2",
+      email: "desmetcharlotte22@gmail.com",
+      wachtwoord: "######",
+      gezin_id: 2,
       verjaardag_id: 1,
       roles: JSON.stringify([Role.USER]),
 
@@ -63,7 +84,8 @@ const data = {
 };
 
 const dataToDelete = {
-  gezinsleden: [3, 4],
+  gezinnen: [2],
+  gezinsleden: [3, 4, 5],
   geplande_taken: [1, 2, 3, 4 ,5]
 };
 describe('Geplande Taken', () => {
@@ -90,6 +112,7 @@ describe('Geplande Taken', () => {
 
   describe('GET /api/geplande_taken', () => {
     beforeAll(async () => {
+      await sequelize.models.Gezin.bulkCreate(data.gezinnen);
       await sequelize.models.Gezinslid.bulkCreate(data.gezinsleden);
       await sequelize.models.GeplandeTaak.bulkCreate(data.geplande_taken);
     });
@@ -103,6 +126,11 @@ describe('Geplande Taken', () => {
         where: {
           id: dataToDelete.gezinsleden,
         }
+      });
+      await sequelize.models.Gezin.destroy({
+        where: {
+          id: dataToDelete.gezinnen,
+        },
       });
     });
     it('should 200 and return all geplande taken for the gezinslid', async () => {
@@ -127,10 +155,34 @@ describe('Geplande Taken', () => {
       expect(response.body.details.query).toHaveProperty('invalid');
     });
 
+    it('should 403 when the request is for another gezin', async () => {
+      const response = await request.get('/api/gezinnen/2/geplande_taken').set('Authorization', authHeader
+      );
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN',
+        message: "You are not allowed to operate on this family's information.",
+      });
+      expect(response.body.stack).toBeTruthy();
+    }); 
+    it('should 403 when the request is for another gezin', async () => {
+      const response = await request.get('/api/gezinsleden/5/geplande_taken').set('Authorization', authHeader
+      );
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN',
+        message: "You are not allowed to operate on this family's information.",
+      });
+      expect(response.body.stack).toBeTruthy();
+    });
+
     testAuthHeader(() => request.get(url));
   });
-  describe('GET /api/geplande_taken/:id', () => {
+  describe('GET /api/gezinsleden/1/geplande_taken/:id', () => {
     beforeAll(async () => {
+      await sequelize.models.Gezin.bulkCreate(data.gezinnen);
       await sequelize.models.Gezinslid.bulkCreate(data.gezinsleden);
       await sequelize.models.GeplandeTaak.bulkCreate(data.geplande_taken);
     });
@@ -144,6 +196,11 @@ describe('Geplande Taken', () => {
         where: {
           id: dataToDelete.gezinsleden,
         }
+      });
+      await sequelize.models.Gezin.destroy({
+        where: {
+          id: dataToDelete.gezinnen,
+        },
       });
     });
     it('should 200 and return the requested geplande taak', async () => {

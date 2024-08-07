@@ -104,22 +104,22 @@ login.validationScheme = {
   },
 };
 
-const checkUserId = (ctx, next) => {
-  const { gezinslid_id, roles } = ctx.state.session;
-  const { id } = ctx.params;
+// const checkUserId = (ctx, next) => {
+//   const { gezinslid_id, roles } = ctx.state.session;
+//   const { id } = ctx.params;
 
   
-  if (id !== gezinslid_id && !roles.includes(Role.ADMIN)) {
-    return ctx.throw(
-      403,
-      "You are not allowed to operate on this user's information.",
-      {
-        code: 'FORBIDDEN',
-      }
-    );
-  }
-  return next();
-};
+//   if (id !== gezinslid_id && !roles.includes(Role.ADMIN)) {
+//     return ctx.throw(
+//       403,
+//       "You are not allowed to operate on this user's information.",
+//       {
+//         code: 'FORBIDDEN',
+//       }
+//     );
+//   }
+//   return next();
+// };
 
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
@@ -154,7 +154,7 @@ const checkGezinId = async (ctx, next) => {
  * @param {Router} app - De parent router.
  */
 module.exports = {
-  checkUserId,
+  // checkUserId,
   checkGezinId,
   install: (app) => {
 

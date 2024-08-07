@@ -185,8 +185,8 @@ describe('Gezinsleden', () => {
   withServer(({
     supertest,
     sequelize: s
+
   }) => {
-    setTimeout(() => console.log,3000);
     request = supertest;
     sequelize = s;
   });
@@ -386,6 +386,18 @@ describe('Gezinsleden', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body.code).toBe('VALIDATION_FAILED');
       expect(response.body.details.params).toHaveProperty('id');
+    });
+
+    it('should 403 when the request is for another gezin', async () => {
+      const response = await request.get('/api/gezinsleden/6').set('Authorization', authHeader
+      );
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN',
+        message: "You are not allowed to operate on this family's information.",
+      });
+      expect(response.body.stack).toBeTruthy();
     });
 
     testAuthHeader(() => request.get(`${url}/1`));

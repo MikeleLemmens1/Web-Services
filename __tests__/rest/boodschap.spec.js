@@ -12,6 +12,14 @@ const data = {
       postcode: 9940,
       stad: "Ertvelde"
     },
+    {
+      id:3,
+      familienaam: "Pauwels - De Meyer",
+      straat: "Kapellestraat",
+      huisnummer: 146,
+      postcode: 9870,
+      stad: "Zulte"
+    },
   ],
   boodschappen:
   [
@@ -54,7 +62,7 @@ const data = {
 };
 
 const dataToDelete = {
-  gezinnen: [2],
+  gezinnen: [2, 3],
   boodschappen: [1, 2, 3, 4, 5]
 };
 
@@ -68,7 +76,6 @@ describe('Boodschappen', () => {
     supertest,
     sequelize: s
   }) => {
-    // setTimeout(() => console.log,4000);
     request = supertest;
     sequelize = s;
   });
@@ -127,6 +134,46 @@ describe('Boodschappen', () => {
         gezin_id: 1,
       });
     });
+
+    it('should 404 when there are no boodschappen for a winkel', async () => {
+      const response = await request.get(`${url}?winkel=Blokker`).set('Authorization', adminAuthHeader);
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toMatchObject({
+        code: 'NOT_FOUND',
+        message: 'Er zijn geen boodschappen voor de winkel Blokker',
+        details: {
+          winkel: "Blokker",
+        },
+      });
+      expect(response.body.stack).toBeTruthy();
+    });
+
+    it('should 404 when there are no boodschappen for a gezin', async () => {
+      const response = await request.get('/api/gezinnen/3/boodschappen').set('Authorization', adminAuthHeader);
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body).toMatchObject({
+        code: 'NOT_FOUND',
+        message: 'Er zijn geen boodschappen voor gezin met id 3',
+        details: {
+          id: 3,
+        },
+      });
+      expect(response.body.stack).toBeTruthy();
+    });
+
+    it('should 403 when the request is for another gezin', async () => {
+      const response = await request.get('/api/gezinnen/2/boodschappen').set('Authorization', authHeader
+      );
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body).toMatchObject({
+        code: 'FORBIDDEN',
+        message: "You are not allowed to operate on this family's information.",
+      });
+      expect(response.body.stack).toBeTruthy();
+    });    
 
     testAuthHeader(() => request.get(url))
 

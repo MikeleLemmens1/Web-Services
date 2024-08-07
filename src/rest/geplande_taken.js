@@ -29,15 +29,15 @@ getAllGeplandeTaken.validationScheme = {
   }),
 };
 
-const getAllGeplandeTakenByGezin = async (ctx) => {
-  ctx.body = await geplandeTakenService.getAllGeplandeTakenByGezin(ctx.params.id);
-};
+// const getAllGeplandeTakenByGezin = async (ctx) => {
+//   ctx.body = await geplandeTakenService.getAllGeplandeTakenByGezin(ctx.params.id);
+// };
 
-getAllGeplandeTakenByGezin.validationScheme = {
-  params: Joi.object({
-    id: Joi.number().integer().positive(),
-  }),
-};
+// getAllGeplandeTakenByGezin.validationScheme = {
+//   params: Joi.object({
+//     id: Joi.number().integer().positive(),
+//   }),
+// };
 
 const getGeplandeTaakById = async (ctx) => {
   ctx.body = await geplandeTakenService.getGeplandeTaakById(ctx.params.taak_id);

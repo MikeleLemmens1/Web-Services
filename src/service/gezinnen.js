@@ -115,53 +115,53 @@ const getAllGezinsledenFromGezin = async (id) => {
   }
 }
 
-const getAllBoodschappenFromGezin = async (id) => {
-  const gezin = await getGezinById(id);
-  const items = await gezin.getBoodschappen();
-  const boodschappen = []
-  for (const boodschap of items){
-    object  = {
-      naam: boodschap.dataValues.naam,
-      winkel: boodschap.dataValues.winkel,
-      hoeveelheid: boodschap.dataValues.hoeveelheid,
-    };
-    boodschappen.push(object);
+// const getAllBoodschappenFromGezin = async (id) => {
+//   const gezin = await getGezinById(id);
+//   const items = await gezin.getBoodschappen();
+//   const boodschappen = []
+//   for (const boodschap of items){
+//     object  = {
+//       naam: boodschap.dataValues.naam,
+//       winkel: boodschap.dataValues.winkel,
+//       hoeveelheid: boodschap.dataValues.hoeveelheid,
+//     };
+//     boodschappen.push(object);
 
-  }
-  const familienaam = gezin.dataValues.familienaam;
+//   }
+//   const familienaam = gezin.dataValues.familienaam;
 
-  return{
-    gezin: familienaam,
-    boodschappen,
-    count: boodschappen.length
-  }
-}
+//   return{
+//     gezin: familienaam,
+//     boodschappen,
+//     count: boodschappen.length
+//   }
+// }
 
-const getAllVerjaardagenFromGezin = async (id) => {
-  let items = await gezin.getVerjaardagen();
-  const verjaardagen = []
-  for (const verjaardag of items){
-    object  = {
-      voornaam: verjaardag.dataValues.voornaam,
-      achternaam: verjaardag.dataValues.achternaam,
-      dagnummer: verjaardag.dataValues.dagnummer,
-      maandnummer: verjaardag.dataValues.maandnummer
-    };
-    verjaardagen.push(object)
-  }
-  const familienaam = gezin.dataValues.familienaam;
+// const getAllVerjaardagenFromGezin = async (id) => {
+//   let items = await gezin.getVerjaardagen();
+//   const verjaardagen = []
+//   for (const verjaardag of items){
+//     object  = {
+//       voornaam: verjaardag.dataValues.voornaam,
+//       achternaam: verjaardag.dataValues.achternaam,
+//       dagnummer: verjaardag.dataValues.dagnummer,
+//       maandnummer: verjaardag.dataValues.maandnummer
+//     };
+//     verjaardagen.push(object)
+//   }
+//   const familienaam = gezin.dataValues.familienaam;
 
-  return{
-    gezin:familienaam,
-    verjaardagen,
-    count: verjaardagen.length
-  }
-}
+//   return{
+//     gezin:familienaam,
+//     verjaardagen,
+//     count: verjaardagen.length
+//   }
+// }
 
-const getAllGeplandeTakenFromGezin = async (id) => {
-  return await geplandeTakenService.getAllGeplandeTakenFromGezin(id);
+// const getAllGeplandeTakenFromGezin = async (id) => {
+//   return await geplandeTakenService.getAllGeplandeTakenFromGezin(id);
   
-}
+// }
 
 module.exports = {
   getAllGezinnen,
@@ -171,9 +171,9 @@ module.exports = {
   deleteGezinById,
   getGezinByFamilienaam,
   getAllGezinsledenFromGezin,
-  getAllBoodschappenFromGezin,
-  getAllVerjaardagenFromGezin,
-  getAllGeplandeTakenFromGezin
+  // getAllBoodschappenFromGezin,
+  // getAllVerjaardagenFromGezin,
+  // getAllGeplandeTakenFromGezin
 };
 
 

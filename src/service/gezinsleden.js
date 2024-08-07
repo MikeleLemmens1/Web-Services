@@ -138,12 +138,12 @@ const createGezinslid = async ({voornaam, email, gezin_id, verjaardag_id}) => {
   const bestaandGezin = await gezinService.getGezinById(gezin_id);
   const bestaandeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
 
-  if(!bestaandGezin){
-    throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  } 
-  if(!bestaandeVerjaardag){
-    throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
-  }
+  // if(!bestaandGezin){
+  //   throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
+  // } 
+  // if(!bestaandeVerjaardag){
+  //   throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
+  // }
   try{
     const gezinslid = await getSequelize().models.Gezinslid.create({
       voornaam, email, gezin_id, verjaardag_id, roles: JSON.stringify([Role.USER]),
@@ -201,10 +201,10 @@ const register = async ({voornaam,wachtwoord,email,gezin_id, dagnummer, maandnum
 try{
   const password_hash = await hashPassword(wachtwoord);
   const gezin = await getSequelize().models.Gezin.findByPk(gezin_id);
-  if (!gezin){
-    throw ServiceError.notFound(`Er bestaat nog geen gezin met id ${id}`, { id });
+  // if (!gezin){
+  //   throw ServiceError.notFound(`Er bestaat nog geen gezin met id ${id}`, { id });
 
-  } 
+  // } 
   const verjaardag = await getSequelize().models.Verjaardag.create({
     voornaam,
     dagnummer,

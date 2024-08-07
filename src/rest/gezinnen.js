@@ -74,7 +74,6 @@ deleteGezinById.validationScheme = {
   },
 };
 
-
 const getAllGezinsledenFromGezin = async (ctx) => {
   ctx.body = await gezinService.getAllGezinsledenFromGezin(ctx.params.id);
 }

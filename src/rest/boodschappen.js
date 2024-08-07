@@ -6,7 +6,6 @@ const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
 
 const getAllBoodschappen = async (ctx) => {
-  // ctx.body = await boodschappenService.getAllBoodschappen()
   if (ctx.query.winkel){
     ctx.body = await boodschappenService.getAllBoodschappenByWinkel(ctx.params.id,ctx.query.winkel);
     return;
