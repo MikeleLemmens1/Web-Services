@@ -88,11 +88,11 @@ module.exports = function installMiddleware(app) {
       if (error.isValidationFailed) {
         statusCode = 400;
       }
-      if (err.isUnauthorized) {
+      if (error.isUnauthorized) {
         statusCode = 401;
       }
 
-      if (err.isForbidden) {
+      if (error.isForbidden) {
         statusCode = 403;
       }
     };
