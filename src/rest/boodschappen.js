@@ -1,3 +1,7 @@
+/**
+ * Boodschap REST endpoints.
+ * @module rest/boodschappen
+ */
 const Router = require('@koa/router');
 const boodschappenService = require('../service/boodschappen');
 const Joi = require('joi');
@@ -5,6 +9,11 @@ const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
 
+/**
+* Get all boodschappen for a gezin and optionally for a given winkel
+* GET gezinnen/:id/boodschappen
+* GET gezinnen/:id/boodschappen?winkel={winkel}
+*/
 const getAllBoodschappen = async (ctx) => {
   if (ctx.query.winkel){
     ctx.body = await boodschappenService.getAllBoodschappenByWinkel(ctx.params.id,ctx.query.winkel);
@@ -23,6 +32,10 @@ getAllBoodschappen.validationScheme = {
   }), 
 };
 
+/**
+* Get boodschap for a gezin by id
+* GET gezinnen/:id/boodschappen/:boodschap_id
+*/
 const getBoodschapById = async (ctx) => {
   ctx.body = await boodschappenService.getBoodschapById(ctx.params.boodschap_id);
 };
@@ -35,6 +48,12 @@ getBoodschapById.validationScheme = {
   }),
 };
 
+/**
+* Create boodschap for a gezin
+* POST gezinnen/:id/boodschappen
+* Requires: {naam}
+* Optional: {winkel, hoeveelheid}
+*/
 const createBoodschap = async (ctx) => {
   const nieuweBoodschap = await boodschappenService.createBoodschap({
     ...ctx.request.body,
@@ -55,11 +74,16 @@ createBoodschap.validationScheme = {
   }),
 };
 
+/**
+* Modify boodschap for a gezin by id
+* PUT gezinnen/:id/boodschappen/:boodschap_id
+* Requires: {naam}
+* Optional: {winkel, hoeveelheid}
+*/
 const updateBoodschap = async (ctx) => {
 
   ctx.body = await boodschappenService.updateBoodschapById((ctx.params.boodschap_id), {
     ...ctx.request.body,
-    // gezin_id: gezin_id,
   });
 };
 
@@ -75,6 +99,10 @@ updateBoodschap.validationScheme = {
   },
 };
 
+/**
+* Delete boodschap for a gezin by id
+* DELETE gezinnen/:id/boodschappen/:boodschap_id
+*/
 const deleteBoodschap = async (ctx) => {
   await boodschappenService.deleteBoodschapById(Number(ctx.params.boodschap_id));
   ctx.status = 204;
@@ -86,6 +114,12 @@ deleteBoodschap.validationScheme = {
   },
 };
 
+/**
+ * Checks the gezin the gezinslid (user) and boodschap belongs to
+ * @param {object} ctx - The context that contains an id, boodschap_id and gezin_id
+ * @param {function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the authorisation is successful.
+ */
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
   let { id, boodschap_id } = ctx.params;

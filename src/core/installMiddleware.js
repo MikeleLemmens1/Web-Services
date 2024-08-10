@@ -1,3 +1,8 @@
+/**
+ * Middleware installation.
+ * @module installMiddleware
+ */
+
 const config = require('config');
 const bodyParser = require('koa-bodyparser');
 const koaCors = require('@koa/cors');
@@ -83,7 +88,13 @@ module.exports = function installMiddleware(app) {
       if (error.isValidationFailed) {
         statusCode = 400;
       }
-      // Conditions unauthorized and forbidden to be added
+      if (err.isUnauthorized) {
+        statusCode = 401;
+      }
+
+      if (err.isForbidden) {
+        statusCode = 403;
+      }
     };
     ctx.status = statusCode;
     ctx.body = errorBody;

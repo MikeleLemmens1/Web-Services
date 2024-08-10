@@ -1,23 +1,15 @@
 const { getLogger } = require('../core/logging');
-// const { join } = require('path');
-// Navigate filesystem to associate models
 const fs = require('fs')
 const path = require('path')
 const config = require('config');
 const {Sequelize} = require('sequelize');
 
-// const NODE_ENV = config.get('env');
-// const isDevelopment = NODE_ENV === 'development';
-
-// const DATABASE_CLIENT = config.get('database.client');
 const DATABASE_NAME = config.get('database.name');
 const DATABASE_HOST = config.get('database.host');
 const DATABASE_PORT = config.get('database.port');
 const DATABASE_USERNAME = config.get('database.username');
 const DATABASE_PASSWORD = config.get('database.password');
 const DATABASE_TIMEZONE = config.get('database.timezone')
-// const DATABASE_NAME_SEQ = config.get('database.name_seq')
-
 const DATABASE_DIALECT = config.get('database.dialect');
 const DATABASE_SSL  = config.get('database.ssl');
 const DATABASE_OMITNULL = config.get('database.omitNull');
@@ -28,6 +20,11 @@ const db = {};
 
 let sequelize;
 
+/**
+ * Initialize the data layer
+ * @returns {Promise} A promise that resolves to the Sequelize instance
+ * @throws {Error} Throws an error if the database connection fails
+ */
 async function initializeData(){
   const logger = getLogger();
   logger.info('Initializing connection to database');
@@ -57,11 +54,6 @@ async function initializeData(){
       throw new Error('Could not initialize the data layer'); 
     }
   };
-  // Simpler catch block for troubleshooting
-  // catch (error) {
-  //   logger.error('Unable to connect to the database', error);
-  //   throw new Error('Could not initialize the data layer');
-  // }
 
   const modelsDirectory = path.join(__dirname, 'models');
   fs
@@ -89,7 +81,11 @@ async function initializeData(){
   db.Sequelize = Sequelize;
   return db;
 }
-
+/** 
+ * Returns the Sequelize instance
+ * @returns {Sequelize} The Sequelize instance
+ * @throws {Error} Throws an error if sequelizeInstance is not initialized
+*/
 function getSequelize() {
   if (!sequelize)
     throw new Error(
@@ -97,7 +93,9 @@ function getSequelize() {
     );
   return sequelize;
 }
-
+/** 
+ * Closes the database connection
+ */
 async function shutdownData() {
   const logger = getLogger();
 

@@ -1,20 +1,29 @@
+/**
+ * Gezinslid REST endpoints and routes.
+ */
 const Router = require('@koa/router');
 const gezinsledenService = require('../service/gezinsleden')
 const Joi = require('joi');
 const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
-const { getGezinById } = require('../service/gezinnen');
 
 
+/**
+ * Get all gezinsleden. (only for admin)
+ * GET /gezinsleden
+ */
 const getAllGezinsleden = async (ctx) => {
   ctx.body = await gezinsledenService.getAllGezinsleden();
 };
 getAllGezinsleden.validationScheme = null;
 
+/**
+ * Get gezinslid by id.
+ * GET /gezinsleden/:id
+ */
 const getGezinslidById = async (ctx) => {
   ctx.body = await gezinsledenService.getGezinslidById(Number(ctx.params.id));
-    // ctx.body = await gezinsledenService.getAllGezinsledenByGezinsId(Number(ctx.params.id));
 
   };
 getGezinslidById.validationScheme = {
@@ -22,6 +31,13 @@ getGezinslidById.validationScheme = {
     id: Joi.number().integer().positive(),
   }),
 };
+
+/**
+ * Create gezinslid.
+ * POST /gezinsleden
+ * Requires: {voornaam, gezin_id, verjaardag_id}
+ * optional: {email}
+ */
 const createGezinslid = async (ctx) => {
   const newGezinslid = await gezinsledenService.createGezinslid({
     ...ctx.request.body,
@@ -35,13 +51,18 @@ createGezinslid.validationScheme = {
   body: {
     voornaam: Joi.string().max(255),
     email: Joi.string().optional(),
-    // Wachtwoord wordt meegegeven bij het registreren
-    // wachtwoord: Joi.string().optional(),
     gezin_id: Joi.number().integer().positive(),
     verjaardag_id: Joi.number().integer().positive(),
 
   },
 };
+
+/**
+ * Modify gezinslid by id.
+ * PUT /gezinsleden/:id
+ * Requires: {voornaam, gezin_id, verjaardag_id}
+ * optional: {email}
+ */
 const updateGezinslidById = async (ctx) => {
   ctx.body = await gezinsledenService.updateGezinslidById(Number(ctx.params.id),{
     ...ctx.request.body,
@@ -56,12 +77,15 @@ updateGezinslidById.validationScheme = {
   body: {
     voornaam: Joi.string(),
     email: Joi.string().optional(),
-    // wachtwoord: Joi.string().optional(),
     gezin_id: Joi.number().integer().positive(),
     verjaardag_id: Joi.number().integer().positive(),
   },
 };
 
+/**
+ * Delete gezinslid by id.
+ * DELETE /gezinsleden/:id
+ */
 const deleteGezinslidById = async (ctx) => {
   await gezinsledenService.deleteGezinslidById(Number(ctx.params.id));
   ctx.status = 204;
@@ -72,6 +96,11 @@ deleteGezinslidById.validationScheme = {
   },
 };
 
+/**
+ * Register a new gezinslid.
+ * POST /gezinsleden
+ * Requires: {voornaam, email, wachtwoord, gezin_id, dagnummer, maandnummer}
+ */
 const register = async (ctx) => {
   const gezinslid = await gezinsledenService.register({
     ...ctx.request.body,
@@ -91,6 +120,11 @@ register.validationScheme = {
   })
 };
 
+/**
+ * Login a new gezinslid.
+ * POST /gezinsleden
+ * Requires: {email, wachtwoord}
+ */
 const login = async (ctx) => {
   const {email,wachtwoord} = ctx.request.body;
   const token = await gezinsledenService.login(email,wachtwoord);
@@ -104,30 +138,18 @@ login.validationScheme = {
   },
 };
 
-// const checkUserId = (ctx, next) => {
-//   const { gezinslid_id, roles } = ctx.state.session;
-//   const { id } = ctx.params;
-
-  
-//   if (id !== gezinslid_id && !roles.includes(Role.ADMIN)) {
-//     return ctx.throw(
-//       403,
-//       "You are not allowed to operate on this user's information.",
-//       {
-//         code: 'FORBIDDEN',
-//       }
-//     );
-//   }
-//   return next();
-// };
-
+/**
+ * Checks the gezin the gezinslid (user) belongs to
+ * @param {object} ctx - The context that contains an id and gezin_id
+ * @param {function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the authorisation is successful.
+ */
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
   let { id } = ctx. params;
   // Enable creation of gezinslid without being registered, only family members should be allowed to do this
   let targetGezin_id;
   if (!id){
-    //  targetGezin_id = ctx.body.gezin_id;
      targetGezin_id = ctx.request.body.gezin_id;
   }
   else {
@@ -154,7 +176,6 @@ const checkGezinId = async (ctx, next) => {
  * @param {Router} app - De parent router.
  */
 module.exports = {
-  // checkUserId,
   checkGezinId,
   install: (app) => {
 

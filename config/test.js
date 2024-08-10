@@ -15,7 +15,6 @@ module.exports = {
     port: 3306,
     name: 'gezinsplanner_test',
     username: 'root2',
-    password: 'WebServ2023',
     timezone: '+00:00',
     ssl: true,
     omitNull: true,
@@ -36,11 +35,4 @@ module.exports = {
     },
   },
 
-    // host: 'vichogent.be',
-    // port: 40043,
-    // name: '291269ml',
-    // username: '291269ml',
-    // password: '',
-    // timezone: '+00:00'
-  // },
 };

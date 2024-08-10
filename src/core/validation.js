@@ -1,3 +1,7 @@
+/**
+ * Sets up the validation system.
+ * @module core/validation
+ */
 const Joi = require('joi');
 
 
@@ -9,6 +13,11 @@ const JOI_OPTIONS = {
   presence: 'required',
 };
 
+/**
+ * Cleans up the Joi error object.
+ * @param {object} error - The Joi error object.
+ * @returns {object} - The cleaned up error object.
+ */
 const cleanupJoiError = (
   error
 ) =>
@@ -26,6 +35,12 @@ const cleanupJoiError = (
     return resultObj;
   }, {});
 
+/**
+ * Validate the request.
+ * @param {object} schema - The validation schema.
+ * @returns {function} - The middleware function.
+ * @throws {Error} - Throws an error if the validation fails.
+ */  
 const validate = (schema) => {
 
   if (!schema) {

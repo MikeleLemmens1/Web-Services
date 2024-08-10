@@ -1,3 +1,8 @@
+/**
+ * Sets up the logging system.
+ * @module core/logging
+ */
+
 const config = require('config');
 const winston = require('winston');
 const { combine, timestamp, colorize, printf } = winston.format;
@@ -18,6 +23,7 @@ const getLogger = () => {
 
 /**
  * Define the logging format. We output a timestamp, context (name), level, message and the stacktrace in case of an error
+ * @returns {object} - The formatted log messages.
  */
 const loggerFormat = () => {
   const formatMessage = ({

@@ -1,10 +1,21 @@
+/**
+ * Service for boodschap related REST operations.
+ * @module service/boodschappen
+ */
+
 const { getLogger } = require('../core/logging');
-const { getGezinById, getGezinByFamilienaam} = require('./gezinnen');
+const { getGezinById} = require('./gezinnen');
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data');
 
-
+/**
+ * Get all boodschappen by gezin_id.
+ * @param {number} id
+ * @returns {Promise<gezin: string, boodschappen: Boodschappen[], count: number>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ * @throws ServiceError.NOT_FOUND if the gezin has no boodschappen.
+ */
 const getAllBoodschappenByGezinsId = async (id) => { 
   const gezin = await getGezinById(id);
   const boodschappen = await getSequelize().models.Boodschap.findAll({
@@ -21,11 +32,15 @@ const getAllBoodschappenByGezinsId = async (id) => {
     count: boodschappen.length,
   };}
 
+/**
+ * Get all boodschappen for a given winkel by gezin_id.
+ * @param {number} id
+ * @returns {Promise<{gezin: string, boodschappen: Boodschappen[], count: number}>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ * @throws ServiceError.NOT_FOUND if the gezin has no boodschappen for the given winkel.
+ */
 const getAllBoodschappenByWinkel = async (id,winkel) => {
   const gezin = await getGezinById(id);
-  // if (!gezin) {
-  //   throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  // }
   const boodschappen = await getSequelize().models.Boodschap.findAll({
     where: { 
       gezin_id: gezin.id,
@@ -41,6 +56,12 @@ const getAllBoodschappenByWinkel = async (id,winkel) => {
   };
 };
 
+/**
+ * Get boodschap by id
+ * @param {*} id 
+ * @returns Promise<Boodschap> 
+ * @throws ServiceError.NOT_FOUND if no boodschap with the given id exists.
+ */
 const getBoodschapById = async (id) => {
   const boodschap = await getSequelize().models.Boodschap.findByPk(id);
 
@@ -51,12 +72,17 @@ const getBoodschapById = async (id) => {
   return boodschap;
 };
 
-
+/**
+ * Create boodschap
+ * @param {string} naam 
+ * @param {string} winkel 
+ * @param {string} hoeveelheid 
+ * @param {number} gezin_id 
+ * @returns Promise<Boodschap>
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ */
 const createBoodschap = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
-  const gezin = await getGezinById(gezin_id);
-  // if (!gezin) {
-  //   throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  // }
+  await getGezinById(gezin_id);
   try {
     const boodschap = await getSequelize().models.Boodschap.create({
       naam,
@@ -70,9 +96,16 @@ const createBoodschap = async ({ naam, winkel, hoeveelheid, gezin_id }) => {
     throw handleDBError(error);
   }
 };
-
+/**
+ * Modify boodschap
+ * @param {number} id 
+ * @param {string} naam 
+ * @param {string} winkel 
+ * @param {string} hoeveelheid 
+ * @returns Promise<Boodschap>
+ * @throws ServiceError.NOT_FOUND if no boodschap with the given id exists.
+ */
 const updateBoodschapById = async (id, { naam, winkel, hoeveelheid}) => {
-  // Het gezin kan niet worden aangepast
   try {
     const boodschap = await getBoodschapById(id);
     await boodschap.set({
@@ -87,13 +120,17 @@ const updateBoodschapById = async (id, { naam, winkel, hoeveelheid}) => {
     throw handleDBError(error);
   }
 };
+
+/**
+ * Delete a boodschap
+ * @param {number} id 
+ * @throws ServiceError.NOT_FOUND if no boodschap with the given id exists.
+ */
 const deleteBoodschapById = async (id) => {
   try {
     const deleted = await getBoodschapById(id);
     await deleted.destroy();
-    // if (!deleted) {
-    //   throw ServiceError.notFound(`Geen boodschap met id ${id} gevonden`, { id });
-    // }
+
   } catch (error) {
     getLogger().error("Fout bij het verwijderen van de boodschap")
     throw handleDBError(error);

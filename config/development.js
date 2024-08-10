@@ -17,14 +17,13 @@ module.exports = {
     database:'gezinsplanner_seq', 
     name_seq: 'gezinsplanner_seq',
     username: 'root2',
-    password: 'WebServ2023',
     timezone: '+00:00',
 
     // host: 'vichogent.be',
     // port: 40043,
     // database: '291269ml',
     // username: '291269ml',
-    // password: 'SnKQ1eNSvgyaCkzOFFFU',
+
     ssl: true,
     omitNull: true,
     // password: '',

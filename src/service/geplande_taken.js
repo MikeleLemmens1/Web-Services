@@ -1,16 +1,22 @@
+/**
+ * Service for geplande taken related REST operations.
+ * @module service/geplande_taken
+ */
+
 const { getLogger } = require('../core/logging');
-const gezinsledenService = require('./gezinsleden');
 const gezinService = require('./gezinnen');
 const ServiceError = require('../core/serviceError');
 const handleDBError = require('./_handleDBError');
 const { getGezinslidById } = require('./gezinsleden');
 const { getSequelize } = require('../data');
-const { log } = require('winston');
 
+/**
+ * Get all geplande taken for a gezinslid.
+ * @returns {Promise<{items: GeplandeTaak[], count: number}>}
+ * @throws ServiceError.NOT_FOUND if no gezinslid with the given id exists.
+ */
 const getAllGeplandeTaken = async (ctx) => {
-  // if (ctx.query.all){
-  //   return getAllGeplandeTakenFromGezin(gezin_id)
-  // }
+
   const gezinslid = await getGezinslidById(ctx.params.id);
   const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
     where: { gezinslid_id: gezinslid.id },
@@ -21,6 +27,12 @@ const getAllGeplandeTaken = async (ctx) => {
   };
 };
 
+/**
+ * Get all geplande taken for a gezin.
+ * @param {number} gezin_id
+ * @returns {Promise<{items: GeplandeTaak[], count: number}>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ */
 const getAllGeplandeTakenFromGezin = async (gezin_id) => {
   const gezin = await gezinService.getAllGezinsledenFromGezin(gezin_id)
   const gezinsleden = await gezin.gezinsleden;
@@ -39,21 +51,12 @@ const getAllGeplandeTakenFromGezin = async (gezin_id) => {
   };
 };
 
-
-// const getAllGeplandeTakenByDay = async (id,dag) => { 
-//   const gezinslid = await getGezinslidById(id);
-//   const geplandeTaken = await getSequelize().models.GeplandeTaak.findAll({
-//     where: { 
-//       gezinslid_id: gezinslid.id,
-//       dag: dag
-//      },
-//   });  if (!geplandeTaken) {
-//     throw ServiceError.notFound(`Er bestaat geen taak voor ${dag}`, { dag });
-//   }
-
-//   return geplandeTaken;
-// }
-
+/**
+ * Get geplande taak by id.
+ * @param {number} id
+ * @returns {Promise<GeplandeTaak>}
+ * @throws ServiceError.NOT_FOUND if no geplande taak with the given id exists.
+ */
 const getGeplandeTaakById = async (id) => {
   const geplandeTaak = await getSequelize().models.GeplandeTaak.findByPk(id);
 
@@ -63,19 +66,23 @@ const getGeplandeTaakById = async (id) => {
 
   return geplandeTaak;
 };
-
+/**
+ * Create a new geplande taak.
+ * @param {number} gezinslid_id 
+ * @param {string} naam
+ * @param {string} dag
+ * @returns {Promise<GeplandeTaak>}
+ * @throws ServiceError.NOT_FOUND if no gezinslid with the given id exists.
+ */
 const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
-  let gezinslid = await getGezinslidById(gezinslid_id);
-  // if (!gezinslid){
-  //   throw ServiceError.notFound(`Er is geen gezinslid id ${id}.`, { id });
-  // }
+  await getGezinslidById(gezinslid_id);
+
   try {
     const geplandeTaak = await getSequelize().models.GeplandeTaak.create({
       naam,
       dag,
       gezinslid_id,
     });
-    // gezinslid.addGeplandeTaken(geplandeTaak);
     return getGeplandeTaakById(geplandeTaak.id);
   } catch (error) {    
     getLogger().error("Fout bij het maken van de geplande taak")
@@ -83,13 +90,21 @@ const createGeplandeTaak = async ({ naam, dag, gezinslid_id }) => {
   }
 };
 
+/**
+ * Modify an existing geplande taak by taak_id.
+ * @param {number} id
+ * @param {number} taak_id
+ * @param {string} naam
+ * @param {string} dag
+ * @returns {Promise<GeplandeTaak>}
+ * @throws ServiceError.NOT_FOUND if no geplande taak with the given id exists.
+ */
 const updateGeplandeTaakById = async (id, taak_id, { naam, dag}) => {
   const geplandeTaak = await getGeplandeTaakById(taak_id);
   await geplandeTaak.set({
     naam,
     dag,
-    // Foreign key needs to be set using builtin method
-    // gezinslid_id,
+
   })
   await geplandeTaak.save();
   await geplandeTaak.setGezinslid(id);
@@ -100,6 +115,12 @@ const updateGeplandeTaakById = async (id, taak_id, { naam, dag}) => {
     throw handleDBError(error);
   }
 };
+/**
+ * Delete an existing geplande taak by taak_id.
+ * @param {number} id
+ * @param {number} taak_id
+ * @throws ServiceError.NOT_FOUND if no geplande taak with the given id exists.
+ */
 const deleteGeplandeTaakById = async (id) => {
   try {
     const deleted = await getGeplandeTaakById(id);
@@ -113,7 +134,6 @@ const deleteGeplandeTaakById = async (id) => {
 
 module.exports = {
   getAllGeplandeTaken,
-  // getAllGeplandeTakenByDay,
   getAllGeplandeTakenFromGezin,
   getGeplandeTaakById,
   createGeplandeTaak,

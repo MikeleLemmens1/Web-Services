@@ -6,8 +6,6 @@ const installGezinnenRouter = require('./gezinnen');
 const installVerjaardagenRouter = require('./verjaardagen');
 const installHealthRouter = require('./health')
 
-// Is installgezinsledenrouter correct since auth is required?
-
 /**
  * Install all routes in the given Koa application.
  *

@@ -16,6 +16,7 @@ Ik verwacht dat volgende software reeds geïnstalleerd is:
 
 ## Opstarten
 
+Installeer alle dependencies met `yarn`.
 Maak een .env met volgende inhoud:
 
 ```.env
@@ -24,7 +25,6 @@ DATABASE_PASSWORD en DATABASE_USER: vul je logingegevens in voor de databank
 ```
 
 Start de applicatie in development met `yarn start`
-Start de applicatie in productie met `yarn start:prod`
 
 ## Testen
 
@@ -35,6 +35,7 @@ NODE_ENV=test
 DATABASE_PASSWORD en DATABASE_USER: vul je logingegevens in voor de databank
 ```
 
+Installeer alle dependencies met `yarn`.
 Start de test met `yarn test`
 Voor coverage: gebruik `yarn test:coverage`
 

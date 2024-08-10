@@ -1,3 +1,7 @@
+/**
+ * Gezin REST endpoints.
+ * @module rest/gezinnen
+ */
 const Router = require('@koa/router');
 const gezinService = require('../service/gezinnen');
 const geplandeTakenService = require('../service/geplande_taken');
@@ -6,6 +10,11 @@ const validate = require('../core/validation');
 const { requireAuthentication , makeRequireRole } = require('../core/auth');
 const Role = require('../core/roles');
 
+/**
+ * Get all gezinnen.
+ * GET /gezinnen
+ * GET /gezinnen?familienaam={familienaam}
+ */
 const getAllGezinnen = async (ctx) => {
   ctx.body = await gezinService.getAllGezinnen(ctx.query.familienaam);
 };
@@ -14,19 +23,20 @@ query: {
   familienaam: Joi.string().max(255).optional(),
 },};
 
-
+/**
+ * Create a new gezin.
+ * No authentication is needed
+ * POST /gezinnen
+ * Requires: {familienaam, straat, postcode, huisnummer, stad}
+ */
 const createGezin = async (ctx) => {
   const newGezin = await gezinService.createGezin({
     ...ctx.request.body,
-    // No longer necessary to cast numbers?
-    // huisnummer: Number(ctx.request.body.huisnummer),
-    // postcode: Number(ctx.request.body.postcode),
   });
   ctx.status = 201;
   ctx.body = newGezin; 
 };
 createGezin.validationScheme = {
-  // Check for alternate syntax ico errors (Joi.object({...}))
   body: {
     familienaam: Joi.string().max(255),
     straat: Joi.string().max(255),
@@ -35,6 +45,11 @@ createGezin.validationScheme = {
     stad: Joi.string().max(255),
   },
 };
+
+/**
+ * Get a gezin by id.
+ * GET /gezinnen/:id
+ */
 const getGezinById = async (ctx) => {
   ctx.body = await gezinService.getGezinById(Number(ctx.params.id));
 };
@@ -44,11 +59,14 @@ getGezinById.validationScheme = {
   },
 };
 
+/**
+ * Modify a gezin by id.
+ * PUT /gezinnen/:id
+ * Requires: {familienaam, straat, postcode, huisnummer, stad}
+ */
 const updateGezinById = async (ctx) => {
   ctx.body = await gezinService.updateGezinById(Number(ctx.params.id), {
     ...ctx.request.body,
-    // huisnummer: Number(ctx.request.body.huisnummer),
-    // postcode: Number(ctx.request.body.postcode),
   });
 };
 updateGezinById.validationScheme = {
@@ -63,7 +81,10 @@ updateGezinById.validationScheme = {
     stad: Joi.string().max(255),
   },
 };
-
+/**
+ * Delete a gezin by id.
+ * DELETE /gezinnen/:id
+ */ 
 const deleteGezinById = async (ctx) => {
   await gezinService.deleteGezinById(ctx.params.id);
   ctx.status = 204;
@@ -74,6 +95,10 @@ deleteGezinById.validationScheme = {
   },
 };
 
+/**
+ * Get all gezinsleden of a gezin by id.
+ * GET /gezinnen/:id/gezinsleden
+ */
 const getAllGezinsledenFromGezin = async (ctx) => {
   ctx.body = await gezinService.getAllGezinsledenFromGezin(ctx.params.id);
 }
@@ -84,28 +109,10 @@ getAllGezinsledenFromGezin.validationScheme = {
   }),
 };
 
-// The following functions are unnecessary: the associated objects are always returned when getting the gezin
-
-// const getAllBoodschappenFromGezin = async (ctx) => {
-//   ctx.body = await gezinService.getAllBoodschappenFromGezin(ctx.params.id);
-// }
-
-// getAllBoodschappenFromGezin.validationScheme = {
-//   params: Joi.object({
-//     id: Joi.number().integer().positive(),
-//   }),
-// };
-
-// const getAllVerjaardagenFromGezin = async (ctx) => {
-//   ctx.body = await gezinService.getAllVerjaardagenFromGezin(ctx.params.id);
-// }
-
-// getAllVerjaardagenFromGezin.validationScheme = {
-//   params: Joi.object({
-//     id: Joi.number().integer().positive(),
-//   }),
-// };
-
+/**
+ * Get all geplande taken of a gezin by id.
+ * GET /gezinnen/:id/geplande_taken
+ */
 const getAllGeplandeTakenFromGezin = async (ctx) => {
   ctx.body = await geplandeTakenService.getAllGeplandeTakenFromGezin(ctx.params.id);
 }
@@ -116,10 +123,15 @@ getAllGeplandeTakenFromGezin.validationScheme = {
   }),
 };
 
+/**
+ * Checks the gezin the gezinslid (user) belongs to
+ * @param {object} ctx - The context that contains an id and gezin_id
+ * @param {function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the authorisation is successful.
+ */
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
-  const { id } = ctx. params;
-  // Enable creation of gezinslid without being registered, only family members should be allowed to do this
+  const { id } = ctx.params;
   const targetGezin_id = id;
 
   // targetGezin: gezin of the gezinslid being modified
@@ -177,7 +189,6 @@ module.exports = (app) => {
     getAllGeplandeTakenFromGezin
   );
 
-  // Any unregistered user can post a new gezin
   router.post(
     '/', 
     validate(createGezin.validationScheme),

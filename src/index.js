@@ -1,5 +1,13 @@
+/**
+ * Index file for the server
+ * @module index
+ */
 const createServer = require('./createServer');
 
+
+/**
+ * Start the server
+ */
 async function main() {
   
   try {

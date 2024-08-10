@@ -1,3 +1,8 @@
+/**
+ * JWT generation and verification functions
+ * @module core/jwt
+ */
+
 const config = require('config'); 
 const jwt = require('jsonwebtoken'); 
 const JWT_AUDIENCE = config.get('auth.jwt.audience'); 
@@ -5,6 +10,12 @@ const JWT_SECRET = config.get('auth.jwt.secret');
 const JWT_ISSUER = config.get('auth.jwt.issuer'); 
 const JWT_EXPIRATION_INTERVAL = config.get('auth.jwt.expirationInterval'); 
 
+/** 
+ * Generates a JWT for the given user 
+ * @param {User} user 
+ * @returns {Promise<string>} 
+ * @throws {Error} - If the token could not be generated.
+ */
 const generateJWT = (gezinslid) => {
  
   const tokenData = {
@@ -32,6 +43,12 @@ const generateJWT = (gezinslid) => {
   });
 };
 
+/**
+ * Verifies the given JWT and returns the decoded token.
+ * @param {string} authToken
+ * @returns {Promise<object>} - The decoded token.
+ * @throws {Error} - If the token is invalid. 
+ */
 const verifyJWT = (authToken) => {
 
   const verifyOptions = {

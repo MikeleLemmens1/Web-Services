@@ -9,10 +9,10 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class Boodschap extends Model {
     /*
-    Methode om relaties te definiëren in data/index.js
-
-    Een boodschap behoort toe aan 1 gezin
-    */
+     * Methode om relaties te definiëren in data/index.js
+     *
+     * Een boodschap behoort toe aan 1 gezin
+     */
     static associate(models) {
       Boodschap.belongsTo(models.Gezin, {foreignKey: 'gezin_id', onDelete: 'CASCADE', onUpdate: 'CASCADE'});
       }

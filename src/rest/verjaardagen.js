@@ -1,3 +1,7 @@
+/**
+ * Verjaardag REST endpoints.
+ * @module rest/verjaardagen
+ */
 const Router = require('@koa/router');
 const verjaardagenService = require('../service/verjaardagen');
 const validate = require('../core/validation')
@@ -5,7 +9,10 @@ const Joi = require('joi');
 const { requireAuthentication } = require('../core/auth');
 const Role = require('../core/roles');
 
-
+/**
+ * Get all verjaardagen for a gezin.
+ * GET /gezinnen/:id/verjaardagen
+ */
 const getAllVerjaardagen = async (ctx) => {
   ctx.body = await verjaardagenService.getAllVerjaardagen()
 };
@@ -14,7 +21,10 @@ getAllVerjaardagen.validationScheme = {
     id: Joi.number().integer().positive(),
   }),
 };
-
+/**
+ * Get verjaardag by verjaardag_id.
+ * GET /gezinnen/:id/verjaardagen/:verjaardag_id
+ */
 const getVerjaardagById = async (ctx) => {
   ctx.body = await verjaardagenService.getVerjaardagById(Number(ctx.params.verjaardag_id));
 };
@@ -24,6 +34,12 @@ getVerjaardagById.validationScheme = {
     verjaardag_id: Joi.number().integer().positive()
   }),
 }
+
+/**
+ * Create new verjaardagen for a gezin.
+ * POST /gezinnen/:id/verjaardagen
+ * Required: {dagnummer, maandnummer, voornaam, achternaam}
+ */
 const createVerjaardag = async (ctx) => {
   const nieuweverjaardag = await verjaardagenService.createVerjaardag({
     ...ctx.request.body,
@@ -47,7 +63,11 @@ createVerjaardag.validationScheme = {
   }),
 };
 
-
+/**
+ * Modify an existing verjaardag for a gezin.
+ * PUT /gezinnen/:id/verjaardagen/:verjaardag_id
+ * Required: {dagnummer, maandnummer, voornaam, achternaam}
+ */
 const updateVerjaardag = async (ctx) => {
   ctx.body = await verjaardagenService.updateVerjaardagById(Number(ctx.params.verjaardag_id), {
     ...ctx.request.body,
@@ -70,6 +90,10 @@ updateVerjaardag.validationScheme = {
   }
 }
 
+/**
+ * Delete an existing verjaardag.
+ * DELETE /gezinnen/:id/verjaardagen/:verjaardag_id
+ */
 const deleteVerjaardag = async (ctx) => {
   await verjaardagenService.deleteVerjaardagById(Number(ctx.params.verjaardag_id));
   ctx.status = 204;
@@ -82,6 +106,12 @@ deleteVerjaardag.validationScheme = {
   },
 };
 
+/**
+ * Checks the gezin the gezinslid (user) and verjaardag belongs to
+ * @param {object} ctx - The context that contains an id and gezin_id
+ * @param {function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the authorisation is successful.
+ */
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
   let { id, verjaardag_id } = ctx.params;

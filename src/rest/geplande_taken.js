@@ -1,22 +1,20 @@
+/**
+ * Geplande taak REST endpoints.
+ * @module rest/geplande_taken
+ */
 const Router = require('@koa/router');
 const geplandeTakenService = require('../service/geplande_taken');
 const Joi = require('joi');
 const validate = require('../core/validation');
-const { requireAuthentication , makeRequireRole } = require('../core/auth');
+const { requireAuthentication } = require('../core/auth');
 const Role = require('../core/roles');
 const { getGezinslidById } = require('../service/gezinsleden');
 
-
+/**
+* Get all geplande taken for a gezinslid
+* GET gezinsleden/:id/geplande_taken
+*/
 const getAllGeplandeTaken = async (ctx) => {
-  // if (ctx.request.query.dag){
-  //   let dag = new Date(ctx.request.query.dag)
-  //   ctx.body = await geplandeTakenService.getAllByDay(dag);
-  // }
-  // else if (ctx.request.query.week){
-  //   ctx.body = await geplandeTakenService.getAllByWeek(Number(ctx.request.query.week));
-  // }
-  // else
-  //   ctx.body = await geplandeTakenService.getAll();
   ctx.body = await geplandeTakenService.getAllGeplandeTaken(ctx);
 };
 
@@ -29,16 +27,10 @@ getAllGeplandeTaken.validationScheme = {
   }),
 };
 
-// const getAllGeplandeTakenByGezin = async (ctx) => {
-//   ctx.body = await geplandeTakenService.getAllGeplandeTakenByGezin(ctx.params.id);
-// };
-
-// getAllGeplandeTakenByGezin.validationScheme = {
-//   params: Joi.object({
-//     id: Joi.number().integer().positive(),
-//   }),
-// };
-
+/**
+* Get geplande taak by taak_id
+* GET gezinsleden/:id/geplande_taken/:taak_id
+*/
 const getGeplandeTaakById = async (ctx) => {
   ctx.body = await geplandeTakenService.getGeplandeTaakById(ctx.params.taak_id);
 };
@@ -49,12 +41,14 @@ getGeplandeTaakById.validationScheme = {
     taak_id: Joi.number().integer().positive(),
   }),
 };
-
+/**
+* Create geplande taak for a gezinslid
+* POST gezinsleden/:id/geplande_taken
+* Requires: {naam, dag}
+*/
 const createGeplandeTaak = async (ctx) => {
   const newTask = await geplandeTakenService.createGeplandeTaak({
     ...ctx.request.body,
-    // dag: new Date(ctx.request.body.dag),
-    // gezinslid_id: Number(ctx.request.body.gezinslid_id)
     gezinslid_id: Number(ctx.params.id)
 
   });  
@@ -65,18 +59,19 @@ createGeplandeTaak.validationScheme = {
   body: {
     naam: Joi.string().max(255),
     dag: Joi.string()/*.min('now').message('"date" cannot be earlier than today')*/,
-    // gezinslid_id: Joi.number().integer().positive(),
   },
   params: Joi.object({
     id: Joi.number().integer().positive(),
   }),
 };
-
+/**
+* Modify geplande taak for a gezinslid
+* PUT gezinsleden/:id/geplande_taken/:taak_id
+* Requires: {naam, dag}
+*/
 const updateGeplandeTaak = async (ctx) => {
   ctx.body = await geplandeTakenService.updateGeplandeTaakById(ctx.params.id, ctx.params.taak_id, {
     ...ctx.request.body,
-    // gezinslidId: Number(ctx.request.body.gezinslidId),
-    // dag: new Date(ctx.request.body.dag),
   });
 };
 updateGeplandeTaak.validationScheme = {
@@ -89,10 +84,13 @@ updateGeplandeTaak.validationScheme = {
     naam: Joi.string().max(255),
     dag: Joi.string(), 
     // .format("YYYY-MM-DD").min(today()).message('"date" cannot be earlier than today'),
-    // gezinslid_id: Joi.number().integer().positive().optional(),
   },
 };
 
+/**
+* Delete geplande taak by id
+* DELETE gezinsleden/:id/geplande_taken/:taak_id
+*/
 const deleteGeplandeTaak = async (ctx) => {
   await geplandeTakenService.deleteGeplandeTaakById(ctx.params.taak_id);
   ctx.status = 204;
@@ -105,6 +103,12 @@ deleteGeplandeTaak.validationScheme = {
   },
 };
 
+/**
+ * Checks the gezin the gezinslid (user) belongs to
+ * @param {object} ctx - The context that contains an id
+ * @param {function} next - The next middleware function.
+ * @returns {Promise<void>} - A promise that resolves when the authorisation is successful.
+ */
 const checkGezinId = async (ctx, next) => {
   const { gezin_id, roles } = ctx.state.session;
   let { id } = ctx.params;

@@ -1,3 +1,8 @@
+/**
+ * Service for gezinslid related REST operations.
+ * @module service/gezinsleden
+ */
+
 const verjaardagService = require('./verjaardagen');
 const gezinService = require('./gezinnen');
 const handleDBError = require('./_handleDBError');
@@ -8,6 +13,12 @@ const { getLogger } = require('../core/logging')
 const { hashPassword, verifyPassword } = require('../core/password');
 const { generateJWT, verifyJWT } = require('../core/jwt');
 
+/**
+ * Check if the given authHeader is valid and parse the session data.
+ * @param {string} authHeader
+ * @returns {Promise<{roles: string[], gezinslid_id: number, gezin_id: number, authToken: string}>}
+ * @throws ServiceError.unauthorized if the authHeader is invalid or the gezinslid no longer exists.
+ */
 const checkAndParseSession = async (authHeader) => {
   if(!authHeader){
     throw ServiceError.unauthorized('You need to be signed in');
@@ -37,7 +48,13 @@ const checkAndParseSession = async (authHeader) => {
       throw new Error(error.message);
     }
 };
-
+/**
+ * Check if the given gezinslid has the given role.
+ * @param {string} role
+ * @param {string[]} roles
+ * @returns {void}
+ * @throws ServiceError.forbidden if the user does not have the given role.
+ */
 const checkRole = (role,roles) => {
   const hasPermission = roles.includes(role);
 
@@ -46,7 +63,14 @@ const checkRole = (role,roles) => {
       'You are not allowed to view this part of the application');
   }
 };
-
+/**
+ * expose only the necessary gezinslid data
+ * @param {number} id
+ * @param {string} voornaam
+ * @param {string} email
+ * @param {string[]} roles
+ * @returns {ExposedUser}
+ */
 const makeExposedUser = ({id,voornaam,email,roles}) => ({
   id,
   voornaam,
@@ -54,6 +78,15 @@ const makeExposedUser = ({id,voornaam,email,roles}) => ({
   roles,
 });
 
+
+/**
+ * Login a gezinslid.
+ * @param {string} email
+ * @param {string} wachtwoord
+ * @returns {Promise<{token: string, user: ExposedUser}>}
+ * @throws ServiceError.unauthorized if the given password does not match the gezinslids password.
+ * @throws ServiceError.unauthorized if the given email does not match the gezinslids email.
+ */
 const login = async (email,wachtwoord) => {
   const gezinslid = await getSequelize().models.Gezinslid.findOne({
     where: {
@@ -75,7 +108,11 @@ const login = async (email,wachtwoord) => {
 
   return await makeLoginData(gezinslid);
 };
-
+/**
+ * make a login data object for the given gezinslid
+ * @param {Gezinslid} gezinslid
+ * @returns {Promise<{token: string, user: ExposedUser}>}
+ */
 const makeLoginData = async (gezinslid) => {
   const token = await generateJWT(gezinslid);
   return {
@@ -84,6 +121,12 @@ const makeLoginData = async (gezinslid) => {
   };
 };
 
+/**
+ * Displays the following attributes:
+ * Geplande Taken (naam, dag)
+ * Gezin (id, familienaam)
+ * Verjaardag (dagnummer, maandnummer)
+ */
 const include = () => ({
   attributes: {
     exclude :['verjaardag_id','gezin_id']
@@ -109,15 +152,23 @@ const include = () => ({
           ]
 });
 
+/**
+ * Get all gezinsleden (only for admin)
+ * @returns {Promise<{items: ExposedUser[], count: number}>}
+ */
 const getAllGezinsleden = async () => {
   const items = await getSequelize().models.Gezinslid.findAll(include());
   return{
     items,
-    // items: items.map(makeExposedUser),
     count: items.length,
   }; 
 };
-
+/**
+ * Get gezinslid by id.
+ * @param {number} id
+ * @returns {Promise<Gezinslid>}
+ * @throws ServiceError.NOT_FOUND if no user with the given id exists.
+ */
 const getGezinslidById = async (id) => {
   const gezinslid = await getSequelize().models.Gezinslid.findByPk(id,include());
   if(!gezinslid){
@@ -125,25 +176,22 @@ const getGezinslidById = async (id) => {
   }
   return gezinslid;
 };
-// const getAllGezinsledenByGezinsId = async (id) => {
-//   const gezinsleden = await (gezinsledenRepo.findAllGezinsledenByGezinsId(id));
-//   if (!gezinsleden) {
-//     throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-//   }
-//   return gezinsleden;
-// };
 
+/**
+ * Create a gezinslid without registering.
+ * @param {string} voornaam
+ * @param {string} email
+ * @param {number} gezin_id
+ * @param {number} verjaardag_id
+ * @returns {Promise<Gezinslid>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given gezin_id exists.
+ * @throws ServiceError.NOT_FOUND if no verjaardag with the given verjaardag_id exists.
+ */
 const createGezinslid = async ({voornaam, email, gezin_id, verjaardag_id}) => {
 
-  const bestaandGezin = await gezinService.getGezinById(gezin_id);
-  const bestaandeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
+  await gezinService.getGezinById(gezin_id);
+  await verjaardagService.getVerjaardagById(verjaardag_id);
 
-  // if(!bestaandGezin){
-  //   throw ServiceError.notFound(`Er bestaat geen gezin met id ${id}`, { id });
-  // } 
-  // if(!bestaandeVerjaardag){
-  //   throw ServiceError.notFound(`Er bestaat geen verjaardag met id ${id}`, { id });
-  // }
   try{
     const gezinslid = await getSequelize().models.Gezinslid.create({
       voornaam, email, gezin_id, verjaardag_id, roles: JSON.stringify([Role.USER]),
@@ -154,23 +202,25 @@ const createGezinslid = async ({voornaam, email, gezin_id, verjaardag_id}) => {
     throw handleDBError(error);
   }
 };
-
+/**
+ * Modify an existing gezinslid by id.
+ * @param {number} id
+ * @param {string} voornaam
+ * @param {string} email
+ * @param {number} gezin_id
+ * @param {number} verjaardag_id
+ * @returns {Promise<Gezinslid>}
+ * @throws ServiceError.NOT_FOUND if no gezinslid with the given id exists.
+ * @throws ServiceError.NOT_FOUND if no gezin with the given gezin_id exists.
+ * @throws ServiceError.NOT_FOUND if no verjaardag with the given verjaardag_id exists.
+ */
 const updateGezinslidById = async (id,{voornaam, email, gezin_id, verjaardag_id}) => {
 
   if(gezin_id){
-    const bestaandGezin = await gezinService.getGezinById(gezin_id);
-    if(!bestaandGezin){
-      getLogger().error("Gezin niet gevonden");
-      throw ServiceError.notFound(`Er is geen gezin met id ${gezin_id}.`,{gezin_id});
-    }
+    await gezinService.getGezinById(gezin_id);
   }
   if(verjaardag_id){
-    const geldigeVerjaardag = await verjaardagService.getVerjaardagById(verjaardag_id);
-    if(!geldigeVerjaardag){
-      getLogger().error("Verjaardag ongeldig")
-      throw ServiceError.notFound(`Er is geen verjaardag met id ${verjaardag_id}.`,{verjaardag_id});
-      
-    }
+    await verjaardagService.getVerjaardagById(verjaardag_id);
   }
   try{
     const gezinslid = await getGezinslidById(id);
@@ -185,6 +235,12 @@ const updateGezinslidById = async (id,{voornaam, email, gezin_id, verjaardag_id}
     throw handleDBError(error);
   }
 };
+
+/**
+ * Delete an existing gezinslid
+ * @param {number} id 
+ * @throws ServiceError.NOT_FOUND if no gezinslid with the given id exists.
+ */
 const deleteGezinslidById = async (id) => {
   try {
     const gezinslid = await getGezinslidById(id);
@@ -196,15 +252,21 @@ const deleteGezinslidById = async (id) => {
   }
 };
 
-// Wanneer je registreert moet er nog geen verjaardag zijn aangemaakt, dit gebeurt in deze methode
+/**
+ * Create and register a gezinslid. This method creates a new verjaardag as well.
+ * @param {string} voornaam
+ * @param {string} wachtwoord
+ * @param {string} email
+ * @param {number} gezin_id
+ * @param {number} dagnummer
+ * @param {number} maandnummer
+ * @returns {Promise<Gezinslid>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given gezin_id exists.
+ */
 const register = async ({voornaam,wachtwoord,email,gezin_id, dagnummer, maandnummer }) => {
 try{
   const password_hash = await hashPassword(wachtwoord);
-  const gezin = await getSequelize().models.Gezin.findByPk(gezin_id);
-  // if (!gezin){
-  //   throw ServiceError.notFound(`Er bestaat nog geen gezin met id ${id}`, { id });
-
-  // } 
+  const gezin = gezinService.getGezinById(gezin_id);
   const verjaardag = await getSequelize().models.Verjaardag.create({
     voornaam,
     dagnummer,
@@ -218,8 +280,7 @@ try{
       gezin_id: gezin.id,
       verjaardag_id: verjaardag.id
     });
-  // Not sure to use the setter or use id as argument for create method
-  // await gezinslid.setGezin(gezin_id)
+
   return await makeLoginData(gezinslid);
   } catch (error){
   getLogger().error('Error creating user', {error});
@@ -234,7 +295,6 @@ module.exports = {
   login,
   getAllGezinsleden,
   getGezinslidById,
-  // getAllGezinsledenByGezinsId,
   createGezinslid,
   updateGezinslidById,
   deleteGezinslidById,

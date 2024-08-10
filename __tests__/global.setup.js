@@ -16,7 +16,6 @@ module.exports = async () => {
   // Insert a test user with password 12345678
   const sequelize = getSequelize(); 
   await sequelize.sync({ force: true });
-  // console.log(sequelize.models);
 
   await sequelize.models.Gezin.bulkCreate([{
     id: 1,

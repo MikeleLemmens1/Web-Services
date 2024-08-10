@@ -1,10 +1,19 @@
-const geplandeTakenService = require('./geplande_taken')
+/**
+ * Service for gezin related REST operations.
+ * @module service/gezinnen
+ */
+
 const handleDBError = require('./_handleDBError');
 const ServiceError = require('../core/serviceError');
 const { getSequelize } = require('../data/index');
 const { getLogger } = require('../core/logging');
 
-
+/**
+ * Displays the following attributes:
+ * Gezinsleden (voornaam, email)
+ * Boodschappen (naam, winkel)
+ * Verjaardagen
+ */
 const include = () => ({
   include: [
     {
@@ -27,7 +36,12 @@ const include = () => ({
           ]
 });
 
-
+/**
+ * Get all gezinnen. Filter by familienaam when given.
+ * 
+ * @param {string} familienaam
+ * @returns {Promise<{items: Gezin[], count: number}>}
+ */
 const getAllGezinnen = async (familienaam) => {
   if (familienaam){
     return getGezinByFamilienaam(familienaam);
@@ -38,7 +52,12 @@ const getAllGezinnen = async (familienaam) => {
     count: items.length,
   };
 }
-
+/**
+ * Get gezin by id.
+ * @param {number} id
+ * @returns {Promise<Gezin>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ */
 const getGezinById = async(id) => {
   const gezin = await getSequelize().models.Gezin.findByPk(id,include());
   if(!gezin){
@@ -46,7 +65,12 @@ const getGezinById = async(id) => {
   }
   return gezin;
 };
-
+/**
+ * Get gezin by familienaam.
+ * @param {string} familienaam
+ * @returns {Promise<Gezin>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given familienaam exists.
+ */
 const getGezinByFamilienaam = async(familienaam) => {
   const gezin = await getSequelize().models.Gezin.findOne({
     where: {
@@ -59,12 +83,15 @@ const getGezinByFamilienaam = async(familienaam) => {
   }
   return gezin;
 };
-
-// const getGezinByGezinslidId = async(gezinslid_id) => {
-//   const gezinslid = gezinsledenService.getGezinslidById(gezinslid_id);
-//   return gezin;
-// };
-
+/**
+ * Create a new gezin.
+ * @param {string} familienaam
+ * @param {string} straat
+ * @param {number} huisnummer
+ * @param {number} postcode
+ * @param {string} stad
+ * @returns {Promise<Gezin>}
+ */
 const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) => {
   try{
     const gezin = await getSequelize().models.Gezin.create({
@@ -77,7 +104,17 @@ const createGezin = async ({ familienaam, straat, huisnummer, postcode, stad}) =
     throw handleDBError(error);
   }
 }
-
+/**
+ * Modify an existing gezin by id.
+ * @param {number} id
+ * @param {string} familienaam
+ * @param {string} straat
+ * @param {number} huisnummer
+ * @param {number} postcode
+ * @param {string} stad
+ * @returns {Promise<Gezin>}
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ */
 const updateGezinById = async(id, { familienaam, straat, huisnummer, postcode, stad}) => {
   try{
     const gezin = await getGezinById(id);
@@ -92,7 +129,11 @@ const updateGezinById = async(id, { familienaam, straat, huisnummer, postcode, s
     throw handleDBError(error);
   }
 }
-
+/**
+ * Delete an existing gezin by id.
+ * @param {number} id
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ */
 const deleteGezinById = async (id) => {
   try{
     const gezin = await getGezinById(id);
@@ -103,6 +144,11 @@ const deleteGezinById = async (id) => {
   }
 };
 
+/**
+ * Get all gezinsleden from a gezin by id.
+ * @param {number} id
+ * @throws ServiceError.NOT_FOUND if no gezin with the given id exists.
+ */
 const getAllGezinsledenFromGezin = async (id) => {
   const gezin = await getGezinById(id);
   const gezinsleden = await gezin.getGezinsleden();
@@ -115,54 +161,6 @@ const getAllGezinsledenFromGezin = async (id) => {
   }
 }
 
-// const getAllBoodschappenFromGezin = async (id) => {
-//   const gezin = await getGezinById(id);
-//   const items = await gezin.getBoodschappen();
-//   const boodschappen = []
-//   for (const boodschap of items){
-//     object  = {
-//       naam: boodschap.dataValues.naam,
-//       winkel: boodschap.dataValues.winkel,
-//       hoeveelheid: boodschap.dataValues.hoeveelheid,
-//     };
-//     boodschappen.push(object);
-
-//   }
-//   const familienaam = gezin.dataValues.familienaam;
-
-//   return{
-//     gezin: familienaam,
-//     boodschappen,
-//     count: boodschappen.length
-//   }
-// }
-
-// const getAllVerjaardagenFromGezin = async (id) => {
-//   let items = await gezin.getVerjaardagen();
-//   const verjaardagen = []
-//   for (const verjaardag of items){
-//     object  = {
-//       voornaam: verjaardag.dataValues.voornaam,
-//       achternaam: verjaardag.dataValues.achternaam,
-//       dagnummer: verjaardag.dataValues.dagnummer,
-//       maandnummer: verjaardag.dataValues.maandnummer
-//     };
-//     verjaardagen.push(object)
-//   }
-//   const familienaam = gezin.dataValues.familienaam;
-
-//   return{
-//     gezin:familienaam,
-//     verjaardagen,
-//     count: verjaardagen.length
-//   }
-// }
-
-// const getAllGeplandeTakenFromGezin = async (id) => {
-//   return await geplandeTakenService.getAllGeplandeTakenFromGezin(id);
-  
-// }
-
 module.exports = {
   getAllGezinnen,
   getGezinById,
@@ -171,9 +169,6 @@ module.exports = {
   deleteGezinById,
   getGezinByFamilienaam,
   getAllGezinsledenFromGezin,
-  // getAllBoodschappenFromGezin,
-  // getAllVerjaardagenFromGezin,
-  // getAllGeplandeTakenFromGezin
 };
 
 

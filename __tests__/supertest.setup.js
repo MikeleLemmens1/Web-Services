@@ -15,20 +15,6 @@ const login = async (supertest) => {
   return `Bearer ${response.body.token}`;
 };
 
-const loginUsertest = async (supertest) => {
-  const response = await supertest.post('/api/gezinsleden/login').send({
-    email: 'test1@domain.com',
-    wachtwoord: '12345678',
-    
-  });
-
-  if(response.status !== 200){
-    throw new Error(response.body.message || 'Unknown error occured');
-  }
-
-  return `Bearer ${response.body.token}`;
-};
-
 const loginAdmin = async (supertest) => {
   const response = await supertest.post('/api/gezinsleden/login').send({
     email: 'test.admin@gmail.com',
@@ -61,7 +47,6 @@ const withServer = (setter) => {
 
 module.exports = {
   login,
-  loginUsertest,
   loginAdmin,
   withServer,
 };
