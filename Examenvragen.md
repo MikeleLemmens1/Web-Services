@@ -30,7 +30,7 @@ Gelaagd (meerdere servers die op requests antwoorden voor schaalbaarheid)
 
 Laatste 2 niet gebruikt vanwege kleine schaal van de API
 
-3. Wat zijn NodeJS en Koa? Leg kort de werking van middlewares uit a.d.h.v. een voorbeeld uit jouw code. Wat is er speciaal aan middlewares inKoa?W at is bv. het verschil tussen await next() en return next() in een middleware?
+3. Wat zijn NodeJS en Koa? Leg kort de werking van middlewares uit a.d.h.v. een voorbeeld uit jouw code. Wat is er speciaal aan middlewares in Koa? Wat is bv. het verschil tussen await next() en return next() in een middleware?
 
 NodeJs: Server side JavaScript, runtime omgeving
 NPM: Package Manager
@@ -81,7 +81,7 @@ Je kan een gezin op ID opvragen indien je lid bent van dat gezin. Wanneer je een
 
 7. Wat is async/await? Wat is de relatie met Promises?Leg uit a.d.h.v. jouw code
 
-async/await zijn keywords die zorgen dat je asynchrone code kan schrijven die eruit ziet als synchrone code. Je krijgt een Promise terug. Een promise heeft verschillende callbackfuncties die voor verschillende statussen worden uitgevoerd.
+async/await zijn keywords die zorgen dat je asynchrone code kan schrijven die eruit ziet als synchrone code. Je krijgt een Promise terug. Een promise heeft verschillende callbackfuncties die voor verschillende statussen worden uitgevoerd. (pending, fulfilled, rejected) Dit is een oplossing die ervoor zorgt dat JavaScript in verschillende threads kan worden uitgevoerd waardoor je app niet vastloopt als je een request uitvoert.
 
 8. Toon en bespreek jouw package.json. Wat staat hier allemaal in? Wat is het verschil tussen dependencies en devDependencies?
 
@@ -92,13 +92,13 @@ Aangemaakt door yarn init. Bevat alle dependencies en commando's om de app te st
 Statische analyse van code om syntaxfouten en bad practices te vermijden. Kan ook uniformiteit afdwingen.
 
 10. Hoe werkt jouw datalaag? Hoe krijg je data in de databank in development mode? Hoe wordt het databankschema up to date gehouden?Leg uit a.d.h.v. voorbeelden uit jouw code.
+
 11. Wat is jouw extra functionaliteit? Hoe werkt het?
 
-
-Deze wordt onderhouden door Sequelize. Sequelize-CLI zorgt voor de migraties: het opmaken van het databankschema. in createServer wordt initializeData opgeroepen uit data/index. De modellen worden gemaakt en de associaties worden gelegd. 
+Deze wordt onderhouden door Sequelize. Sequelize-CLI zorgt voor de migraties: het opmaken van het databankschema. in createServer wordt initializeData opgeroepen uit data/index. De modellen worden gemaakt en de associaties worden gelegd.
 De commando's `yarn sequelize-cli db:migrate` en `yarn sequelize-cli db:seed:all` worden gebruikt om de tabellen te creëren en ze vervolgens op te vullen. Dit dient te gebeuren voordat de server wordt opgestart. Sequelize vereist een extra config-bestand de naar 'development' wijst als default omgeving.
 
-12. Welke lagen heb je typisch in een gelaagde applicatie? Welke lagen heb jij geimplementeerd? Wat is het nut/doel van elke laag?Hoe projecteer je de lagen presentatie/domein/persistentie hierop?
+12. Welke lagen heb je typisch in een gelaagde applicatie? Welke lagen heb jij geimplementeerd? Wat is het nut/doel van elke laag? Hoe projecteer je de lagen presentatie/domein/persistentie hierop?.
 
 Rest - Service - Data - Repository
 
@@ -107,7 +107,14 @@ De servicelaag bevat de domeinlogica en gebruikt de parameters die worden doorge
 De datalaag verzorgt de communicatie met de databank (opzetten/afbreken, migraties en seeds)
 De repositorylaag zorgt voor de SQL-queries om gegevens uit de databank te verkrijgen. Deze laag wordt in mijn project niet gebruikt omdat ik een ORM gebruik.
 
+13. Hoe pak je logging aan?
 
-## Varia
+We gebruiken Winston als middleware om boodschappen door te geven aan de ontwikkelaar. Winston helpt om een uniforme structuur op te zetten. Je kan levels definiëren en afhankelijk van de omgeving meer of minder info tonen. In de servicelaag definiëer je het level, in de configs definiëer je welke levels je zoal wil tonen per omgeving.
 
-CORS: heeft header als attribuut
+Rest - Service - Data - Repository
+
+Rest ontvangt queries en installeert middlewares
+De servicelaag bevat de domeinlogica en gebruikt de parameters die worden doorgegeven door de restlaag
+De datalaag verzorgt de communicatie met de databank (opzetten/afbreken, migraties en seeds)
+De repositorylaag zorgt voor de SQL-queries om gegevens uit de databank te verkrijgen. Deze laag wordt in mijn project niet gebruikt omdat ik een ORM gebruik. (abstractie van de datalaag)
+
